@@ -1,12 +1,7 @@
 import type { Metadata } from "next";
-import { Open_Sans } from "next/font/google";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { open_sans } from "@/fonts";
 import "./globals.css";
-
-const open_sans = Open_Sans({
-  subsets: ["latin"],
-  weight: ["300", "400", "700"],
-});
 
 export const metadata: Metadata = {
   title: "SMART",
