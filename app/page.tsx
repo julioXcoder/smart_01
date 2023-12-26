@@ -1,5 +1,7 @@
 import Logo from "@/components/logo";
-import Navbar from "@/components/navbar";
+import Navbar from "@/components/layout/navbar";
+import Footer from "@/components/layout/footer";
+import StickyFooter from "@/components/layout/stickyFooter";
 import { ModeToggle } from "@/components/themeChanger";
 
 export default function Home() {
@@ -14,6 +16,19 @@ export default function Home() {
         activities, resources, communication, and progress tracking.
         <ModeToggle />
       </div>
+      <div className="m-20">
+        <div className="lds-roller">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </div>
+      <StickyFooter />
     </main>
   );
 }

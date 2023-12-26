@@ -1,4 +1,5 @@
-import Logo from "./logo";
+import Logo from "../logo";
+import { ModeToggle } from "@/components/themeChanger";
 
 const Navbar = () => {
   return (
@@ -10,7 +11,9 @@ const Navbar = () => {
           </div>
           <div className="flex items-center">
             <div className="ml-3 flex items-center">
-              <div className="flex items-center gap-x-1"></div>
+              <div className="flex items-center gap-x-1">
+                <ModeToggle />
+              </div>
             </div>
           </div>
         </div>

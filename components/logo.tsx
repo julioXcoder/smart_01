@@ -1,23 +1,21 @@
 import Image from "next/image";
 import Link from "next/link";
-import smartLogo from "@/public/logo/smart.png";
+import smartLogo from "@/public/logo/logo.png";
 import { esb } from "@/fonts";
 
 const Logo = () => {
   return (
     <Link
       href="#"
-      className={`m-2 inline-flex items-center gap-x-2 text-2xl font-semibold dark:text-white ${esb.className}`}
+      className={`m-2 inline-flex items-center gap-x-2 text-xl font-semibold dark:text-white ${esb.className}`}
     >
-      <div className="flex items-center justify-center rounded-sm bg-blue-300 px-1.5 py-1 shadow-sm">
-        <Image
-          color="red"
-          quality={100}
-          className="h-auto w-10"
-          src={smartLogo}
-          alt="smart logo"
-        />
-      </div>
+      <Image
+        color="red"
+        quality={100}
+        className="h-10 w-auto"
+        src={smartLogo}
+        alt="smart logo"
+      />
       SMART
     </Link>
   );
