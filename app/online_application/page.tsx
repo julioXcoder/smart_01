@@ -49,7 +49,11 @@ const Page = () => {
           </div>
         </div>
         <div className="hidden lg:mt-0 lg:col-span-5 lg:flex">
-          <Image src={studentImage} alt="smart student image" />
+          <Image
+            src={studentImage}
+            alt="smart student image"
+            className="h-[28rem] w-auto"
+          />
         </div>
       </div>
     </section>

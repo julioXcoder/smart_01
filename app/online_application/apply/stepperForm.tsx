@@ -27,6 +27,9 @@ import {
 import door from "@/public/online_application/welcome5.png";
 import payment from "@/public/online_application/payment3.png";
 import select from "@/public/online_application/select3.png";
+import completion from "@/public/online_application/completion2.png";
+import globe from "@/public/online_application/globe2.png";
+import education from "@/public/online_application/education3.png";
 
 const applicationTypes = [
   { label: "Certificate", value: "certificate" },
@@ -103,7 +106,10 @@ const StepperForm = () => {
     label: string;
     value: string;
   } | null>(null);
-  const [selectedEducationLevel, setSelectedEducationLevel] = useState("");
+  const [selectedEducationLevel, setSelectedEducationLevel] = useState<{
+    label: string;
+    value: string;
+  } | null>(null);
   const [completedOLevel, setCompletedOLevel] = useState<"yes" | "no" | "">("");
   const [formIVIndex, setFormIVIndex] = useState("");
   const [loading, setIsLoading] = useState(false);
@@ -138,6 +144,46 @@ const StepperForm = () => {
     );
 
     setSelectedApplicantOrigin(selectedApplicationOriginObject || null);
+  };
+
+  const handleEducationChange = (
+    applicationType: string,
+    selectedOption: string
+  ) => {
+    let selectedEducationLevelObject: { value: string; label: string } = {
+      value: "",
+      label: "",
+    };
+
+    if (applicationType == "certificate") {
+      selectedEducationLevelObject = certificateEducationLevels.find(
+        (item) => item.value === selectedOption
+      ) || { value: "", label: "" };
+    }
+
+    if (applicationType == "diploma") {
+      selectedEducationLevelObject = diplomaEducationLevels.find(
+        (item) => item.value === selectedOption
+      ) || { value: "", label: "" };
+    }
+
+    if (applicationType == "postgraduateDiploma") {
+      selectedEducationLevelObject = postgraduateDiplomaEducationLevels.find(
+        (item) => item.value === selectedOption
+      ) || { value: "", label: "" };
+    }
+    if (applicationType == "masters") {
+      selectedEducationLevelObject = mastersEducationLevels.find(
+        (item) => item.value === selectedOption
+      ) || { value: "", label: "" };
+    }
+    if (applicationType == "phd") {
+      selectedEducationLevelObject = phdEducationLevels.find(
+        (item) => item.value === selectedOption
+      ) || { value: "", label: "" };
+    }
+
+    setSelectedEducationLevel(selectedEducationLevelObject);
   };
 
   const getEducationLevels = (applicationType: string) => {
@@ -179,6 +225,13 @@ const StepperForm = () => {
 
     if (currentStep === 4 && !selectedApplicantOrigin) {
       setErrorMessage("Please select Origin of Education.");
+      return;
+    }
+
+    if (currentStep === 5 && !selectedEducationLevel) {
+      setErrorMessage(
+        "Please select your highest level of education to proceed."
+      );
       return;
     }
 
@@ -252,10 +305,8 @@ const StepperForm = () => {
         {currentStep === 0 && (
           <div className="grid items-center justify-center gap-8 md:grid-cols-2">
             <Image className="h-80 w-auto" src={door} alt="Image Description" />
-            <div className="rounded-lg bg-white shadow-md dark:bg-gray-900">
-              <h2 className="border-b border-gray-200 px-6 py-4 text-2xl font-semibold dark:border-gray-800">
-                Warm Welcome
-              </h2>
+            <div>
+              <h2 className="px-6 py-4 text-2xl font-semibold">Warm Welcome</h2>
               <div className="p-6">
                 <p>
                   Welcome to our University Application Portal! We’re thrilled
@@ -274,13 +325,8 @@ const StepperForm = () => {
         )}
         {currentStep === 1 && (
           <div className="grid gap-8 md:grid-cols-2">
-            <Image
-              className="h-80 w-auto"
-              src={payment}
-              alt="Image Description"
-            />
-            <div className="rounded-lg bg-white shadow-md dark:bg-gray-900">
-              <h2 className="border-b border-gray-200 px-6 py-4 text-2xl font-semibold dark:border-gray-800">
+            <div>
+              <h2 className="px-6 py-4 text-2xl font-semibold">
                 Application Fee
               </h2>
               <div className="p-6">
@@ -296,6 +342,11 @@ const StepperForm = () => {
                 </p>
               </div>
             </div>
+            <Image
+              className="h-80 w-auto"
+              src={payment}
+              alt="Image Description"
+            />
           </div>
         )}
         {currentStep === 2 && (
@@ -305,8 +356,8 @@ const StepperForm = () => {
               src={select}
               alt="Image Description"
             />
-            <div className="rounded-lg bg-white shadow-md dark:bg-gray-900">
-              <h2 className="border-b border-gray-200 px-6 py-4 text-2xl font-semibold dark:border-gray-800">
+            <div>
+              <h2 className="px-6 py-4 text-2xl font-semibold">
                 Choose Your Path
               </h2>
               <div className="p-6">
@@ -319,8 +370,6 @@ const StepperForm = () => {
                 </p>
                 <div className="my-3">
                   <Select
-                    placeholder={selectedApplicationType?.label}
-                    className="max-w-xs"
                     onValueChange={(value: string) => {
                       handleApplicationTypeChange(value);
                     }}
@@ -331,7 +380,7 @@ const StepperForm = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        <SelectLabel>Fruits</SelectLabel>
+                        <SelectLabel>Select Application Type</SelectLabel>
                         {applicationTypes.map((applicationType) => (
                           <SelectItem
                             key={applicationType.value}
@@ -350,18 +399,13 @@ const StepperForm = () => {
         )}
         {currentStep === 3 && (
           <div className="grid gap-8 md:grid-cols-2">
+            <Image
+              className="h-80 w-auto"
+              src={completion}
+              alt="Image Description"
+            />
             <div>
-              {" "}
-              <Image
-                width={640}
-                height={427}
-                className="w-full rounded-xl"
-                src="/ApplicationImages/form4.jpg"
-                alt="Image Description"
-              />
-            </div>
-            <div className="rounded-lg bg-white shadow-md dark:bg-gray-900">
-              <h2 className="border-b border-gray-200 px-6 py-4 text-2xl font-semibold dark:border-gray-800">
+              <h2 className="px-6 py-4 text-2xl font-semibold">
                 O Level Completion Confirmation
               </h2>
               <div className="p-6">
@@ -375,18 +419,17 @@ const StepperForm = () => {
                 </p>
                 <div className="my-3">
                   <Select
-                    placeholder={completedOLevel}
-                    className="max-w-xs"
                     onValueChange={(value: string) => {
                       setCompletedOLevel(value as "yes" | "no" | "");
                     }}
+                    value={completedOLevel}
                   >
                     <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="O Level Completion" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        <SelectLabel>O Level Completion</SelectLabel>
+                        <SelectLabel>Have you finished O Level?</SelectLabel>
                         <SelectItem key="yes" value="yes">
                           Yes
                         </SelectItem>
@@ -403,17 +446,13 @@ const StepperForm = () => {
         )}
         {currentStep === 4 && (
           <div className="grid gap-8 md:grid-cols-2">
+            <Image
+              className="h-80 w-auto"
+              src={globe}
+              alt="Image Description"
+            />
             <div>
-              <Image
-                width={640}
-                height={427}
-                className="w-full rounded-xl"
-                src="/ApplicationImages/EducationOrigin.jpg"
-                alt="Image Description"
-              />
-            </div>
-            <div className="rounded-lg bg-white shadow-md dark:bg-gray-900">
-              <h2 className="border-b border-gray-200 px-6 py-4 text-2xl font-semibold dark:border-gray-800">
+              <h2 className="px-6 py-4 text-2xl font-semibold">
                 Origin of Education
               </h2>
               <div className="p-6">
@@ -426,23 +465,24 @@ const StepperForm = () => {
                 </p>
                 <div className="my-3">
                   <Select
-                    items={applicantOrigins}
-                    label="Origin of Education"
-                    placeholder={selectedApplicantOrigin?.label}
-                    className="max-w-xs"
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                      handleApplicantOriginChange(e.target.value)
-                    }
+                    onValueChange={(value: string) => {
+                      handleApplicantOriginChange(value);
+                    }}
+                    value={selectedApplicantOrigin?.value || ""}
                   >
                     <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="Origin of Education" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
+                        <SelectLabel>Choose Education Background</SelectLabel>
                         {applicantOrigins.map((applicantOrigin) => (
-                          <SelectLabel key={applicantOrigin.value}>
+                          <SelectItem
+                            key={applicantOrigin.value}
+                            value={applicantOrigin.value}
+                          >
                             {applicantOrigin.label}
-                          </SelectLabel>
+                          </SelectItem>
                         ))}
                       </SelectGroup>
                     </SelectContent>
@@ -455,16 +495,7 @@ const StepperForm = () => {
         {currentStep === 5 && (
           <div className="grid gap-8 md:grid-cols-2">
             <div>
-              <Image
-                width={640}
-                height={427}
-                className="w-full rounded-xl"
-                src="/ApplicationImages/HighestEducation.jpg"
-                alt="Image Description"
-              />
-            </div>
-            <div className="rounded-lg bg-white shadow-md dark:bg-gray-900">
-              <h2 className="border-b border-gray-200 px-6 py-4 text-2xl font-semibold dark:border-gray-800">
+              <h2 className="px-6 py-4 text-2xl font-semibold">
                 Highest Education Level
               </h2>
               <div className="p-6">
@@ -472,31 +503,32 @@ const StepperForm = () => {
                   Now, let’s talk about your academic achievements!
                 </h2>
                 <p>
-                  {`Based on the application type you selected (${selectedApplicationType?.label}), please choose your highest level of education from the dropdown menu. This will help us understand your academic background better. Remember, every step you’ve taken in your academic journey counts.`}
+                  {`Considering your chosen application type (${selectedApplicationType?.label}), kindly select your highest level of education from the dropdown menu. This information is valuable in understanding your academic background. Every milestone in your educational journey holds significance. Once selected, click 'Next' to proceed.`}
                 </p>
                 <div className="my-3">
                   <Select
-                    items={getEducationLevels(
-                      selectedApplicationType?.value || ""
-                    )}
-                    label="Education Level"
-                    placeholder={selectedEducationLevel}
-                    className="max-w-xs"
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                      setSelectedEducationLevel(e.target.value)
-                    }
+                    onValueChange={(value: string) => {
+                      handleEducationChange(
+                        selectedApplicationType?.value || "",
+                        value
+                      );
+                    }}
+                    value={selectedEducationLevel?.value || ""}
                   >
                     <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="Education Level" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
+                        <SelectLabel>
+                          Select Your Highest Level of Education
+                        </SelectLabel>
                         {getEducationLevels(
                           selectedApplicationType?.value || ""
                         ).map((item) => (
-                          <SelectLabel key={item.value}>
+                          <SelectItem key={item.value} value={item.value}>
                             {item.label}
-                          </SelectLabel>
+                          </SelectItem>
                         ))}
                       </SelectGroup>
                     </SelectContent>
@@ -504,6 +536,11 @@ const StepperForm = () => {
                 </div>
               </div>
             </div>
+            <Image
+              className="h-80 w-auto"
+              src={education}
+              alt="Image Description"
+            />
           </div>
         )}
         {currentStep === 6 && (
