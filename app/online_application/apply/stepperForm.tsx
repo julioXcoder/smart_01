@@ -9,9 +9,11 @@ import { useRouter } from "next/navigation";
 import { useState, ChangeEvent } from "react";
 import {
   EyeOpenIcon,
-  EyeNoneIcon,
+  EyeClosedIcon,
   ExclamationTriangleIcon,
+  InfoCircledIcon,
 } from "@radix-ui/react-icons";
+import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { Input } from "@/components/ui/input";
@@ -70,6 +72,8 @@ const mastersEducationLevels = [
 const phdEducationLevels = [{ label: "Masters", value: "masters" }];
 
 const phoneRegex = /^\+\d{3}\d{6,9}$/;
+
+const indexFormat = z.string().regex(/^[SP]\d{4}\/\d{4}\/\d{4}$/);
 
 const schema = z
   .object({
@@ -243,7 +247,16 @@ const StepperForm = () => {
 
         return;
       } else {
+        const validate = indexFormat.safeParse(formIVIndex.trim());
+
+        if (!validate.success) {
+          setErrorMessage("Invalid format.");
+
+          return;
+        }
+
         setIsLoading(true);
+        // FIXME: trime form IV index
         // FIXME: get the students form IV data
         // const { data, error } = await getFormIVData(formIVIndex);
 
@@ -298,13 +311,17 @@ const StepperForm = () => {
 
   return (
     <div className="px-5 py-8 md:px-20 xl:px-36">
-      <h2 className="py-6 text-4xl font-semibold">
+      {/* <h2 className="py-6 text-4xl font-semibold">
         Online Application Step {`(${currentStep + 1}/${pages.length})`}
-      </h2>
+      </h2> */}
       <div>
         {currentStep === 0 && (
           <div className="grid items-center justify-center gap-8 md:grid-cols-2">
-            <Image className="h-80 w-auto" src={door} alt="Image Description" />
+            <Image
+              className="h-80 w-auto hidden md:block"
+              src={door}
+              alt="Image Description"
+            />
             <div>
               <h2 className="px-6 py-4 text-2xl font-semibold">Warm Welcome</h2>
               <div className="p-6">
@@ -343,7 +360,7 @@ const StepperForm = () => {
               </div>
             </div>
             <Image
-              className="h-80 w-auto"
+              className="h-80 w-auto hidden md:block"
               src={payment}
               alt="Image Description"
             />
@@ -352,7 +369,7 @@ const StepperForm = () => {
         {currentStep === 2 && (
           <div className="grid gap-8 md:grid-cols-2">
             <Image
-              className="h-80 w-auto"
+              className="h-80 w-auto hidden md:block"
               src={select}
               alt="Image Description"
             />
@@ -400,7 +417,7 @@ const StepperForm = () => {
         {currentStep === 3 && (
           <div className="grid gap-8 md:grid-cols-2">
             <Image
-              className="h-80 w-auto"
+              className="h-80 w-auto hidden md:block"
               src={completion}
               alt="Image Description"
             />
@@ -410,12 +427,12 @@ const StepperForm = () => {
               </h2>
               <div className="p-6">
                 <p>
-                  Great! Now, we need to confirm that you have completed your O
-                  level, as this is a requirement for our university. If you
-                  have completed it, please select ‘Yes’. If not, unfortunately,
-                  you may not be eligible to apply at this time. But don’t
-                  worry, there are always opportunities waiting for you. Click
-                  ‘Next’ when you’re ready.
+                  Excellent! As part of our university&apos;s requirement, we
+                  need to confirm if you&apos;ve completed your O level
+                  education. If you have, kindly select &apos;Yes&apos;. If not,
+                  you may not be eligible to apply at this time. Don&apos;t be
+                  disheartened; there are always opportunities awaiting you.
+                  Click &apos;Next&apos; when you&apos;re prepared.
                 </p>
                 <div className="my-3">
                   <Select
@@ -447,7 +464,7 @@ const StepperForm = () => {
         {currentStep === 4 && (
           <div className="grid gap-8 md:grid-cols-2">
             <Image
-              className="h-80 w-auto"
+              className="h-80 w-auto hidden md:block"
               src={globe}
               alt="Image Description"
             />
@@ -457,11 +474,12 @@ const StepperForm = () => {
               </h2>
               <div className="p-6">
                 <p>
-                  Let’s move forward! We need to know if you have studied in
-                  Tanzania - NECTA or Tanzania NECTA before 1988, or if you are
-                  a foreign student. This helps us tailor your application
-                  process. Please select the appropriate option and click
-                  ‘Next’.
+                  Let&apos;s proceed! We require information about your
+                  education background: whether you studied under Tanzania -
+                  NECTA or Tanzania NECTA before 1988, or if you are a foreign
+                  student. This allows us to customize your application process.
+                  Kindly select the relevant option and click &apos;Next&apos;
+                  to continue.
                 </p>
                 <div className="my-3">
                   <Select
@@ -537,7 +555,7 @@ const StepperForm = () => {
               </div>
             </div>
             <Image
-              className="h-80 w-auto"
+              className="h-80 w-auto hidden md:block"
               src={education}
               alt="Image Description"
             />
@@ -546,34 +564,38 @@ const StepperForm = () => {
         {currentStep === 6 && (
           <div className="grid gap-8 md:grid-cols-2">
             <div>
-              <Image
-                width={640}
-                height={427}
-                className="w-full rounded-xl"
-                src="/ApplicationImages/stepTwo.jpg"
-                alt="Image Description"
-              />
-            </div>
-            <div className="rounded-lg bg-white shadow-md dark:bg-gray-900">
-              <h2 className="border-b border-gray-200 px-6 py-4 text-2xl font-semibold dark:border-gray-800">
+              <h2 className="px-6 py-4 text-2xl font-semibold">
                 Form IV Index Number
               </h2>
               <div className="p-6">
                 <p>
-                  Excellent! Now, let’s register your Form IV Index Number. This
-                  is your unique identifier and cannot be changed once
-                  registered, so please double-check to make sure it’s correct!
-                  This is your unique academic fingerprint. When you’re ready,
-                  click ‘Next’.
+                  Let&apos;s proceed with registering your Form IV Index Number.
+                  This identifier is unique and cannot be changed once
+                  registered, so please double-check to ensure accuracy! Think
+                  of it as your unique academic fingerprint. Click
+                  &apos;Next&apos; when you&apos;re ready.
                 </p>
-                <div className="p-3">
-                  <Input
-                    onChange={(event) =>
-                      setFormIVIndex(event.currentTarget.value)
-                    }
-                    value={formIVIndex}
-                    // label=" Form IV Index Number"
-                  />
+              </div>
+            </div>
+            <div className="px-6">
+              <Label>Form IV Index Number</Label>
+              <Input
+                onChange={(event) => setFormIVIndex(event.currentTarget.value)}
+                value={formIVIndex}
+                className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600"
+              />
+              <div className="mt-4 bg-blue-50 border border-blue-500 text-sm text-gray-500 rounded-lg p-5 dark:bg-blue-600/[.15]">
+                <div className="flex">
+                  <InfoCircledIcon className="flex-shrink-0 h-4 w-4 text-blue-600 mt-0.5 dark:text-white" />
+                  <div className="ml-3">
+                    <h3 className="text-blue-600 font-semibold dark:font-medium dark:text-white">
+                      Form IV Index Format
+                    </h3>
+                    <p className="mt-2 text-gray-800 dark:text-slate-400">
+                      The required format for Form IV Index is S0129/0001/2020
+                      or P0199/0001/2020.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -605,11 +627,12 @@ const StepperForm = () => {
               <div>
                 <form onSubmit={handleSubmit(onSubmit)}>
                   <div>
+                    <Label>Form IV Index Number</Label>
                     <Input
                       readOnly
                       {...register("formIVIndex")}
                       type="text"
-                      value={formIVIndex}
+                      value={formIVIndex.trim()}
                       // label="Form IV Index "
                     />
                     {errors.formIVIndex?.message && (
@@ -621,12 +644,11 @@ const StepperForm = () => {
                   </div>
                   <div className="my-6 grid gap-6 md:grid-cols-2">
                     <div>
+                      <Label>Candidate First Name</Label>
                       <Input
-                        readOnly
                         {...register("firstName")}
                         type="text"
                         value={studentInformation.firstName}
-                        // label="First Name"
                         placeholder="Enter First Name"
                       />
                       {errors.firstName?.message && (
@@ -637,12 +659,11 @@ const StepperForm = () => {
                       )}
                     </div>
                     <div>
+                      <Label>Candidate Last Name</Label>
                       <Input
-                        readOnly
                         {...register("lastName")}
                         value={studentInformation.lastName}
                         type="text"
-                        // label="Last Name"
                         placeholder="Enter Last Name"
                       />
 
@@ -654,25 +675,26 @@ const StepperForm = () => {
                       )}
                     </div>
                     <div>
-                      <Input
-                        {...register("password")}
-                        // endContent={
-                        //   <button
-                        //     className="focus:outline-none"
-                        //     type="button"
-                        //     onClick={toggleShowPass}
-                        //   >
-                        //     {showPass ? (
-                        //       <EyeNoneIcon className="pointer-events-none text-2xl text-default-400" />
-                        //     ) : (
-                        //       <EyeOpenIcon className="pointer-events-none text-2xl text-default-400" />
-                        //     )}
-                        //   </button>
-                        // }
-                        type={showPass ? "text" : "password"}
-                        // label="Password"
-                        placeholder="Enter password"
-                      />
+                      <Label>Account Password</Label>
+                      <div className="relative">
+                        <Input
+                          className="pr-10"
+                          {...register("password")}
+                          type={showPass ? "text" : "password"}
+                          placeholder="Enter password"
+                        />
+                        <button
+                          className="absolute h-full mx-4 top-0 end-0 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                          type="button"
+                          onClick={toggleShowPass}
+                        >
+                          {showPass ? (
+                            <EyeOpenIcon className="flex-shrink-0 w-4 h-4 text-gray-400 dark:text-neutral-600" />
+                          ) : (
+                            <EyeClosedIcon className="flex-shrink-0 w-4 h-4 text-gray-400 dark:text-neutral-600" />
+                          )}
+                        </button>
+                      </div>
 
                       {errors.password?.message && (
                         <span className="flex items-center gap-x-1 text-red-600">
@@ -682,25 +704,26 @@ const StepperForm = () => {
                       )}
                     </div>
                     <div>
-                      <Input
-                        {...register("confirmPassword")}
-                        // endContent={
-                        //   <button
-                        //     className="focus:outline-none"
-                        //     type="button"
-                        //     onClick={toggleConfirmPass}
-                        //   >
-                        //     {showConfirm ? (
-                        //       <EyeNoneIcon className="pointer-events-none text-2xl text-default-400" />
-                        //     ) : (
-                        //       <EyeOpenIcon className="pointer-events-none text-2xl text-default-400" />
-                        //     )}
-                        //   </button>
-                        // }
-                        type={showConfirm ? "text" : "password"}
-                        // label="Confirm Password"
-                        placeholder="Confirm Password"
-                      />
+                      <Label>Confirm Account Password</Label>
+                      <div className="relative">
+                        <Input
+                          {...register("confirmPassword")}
+                          className="pr-10"
+                          type={showConfirm ? "text" : "password"}
+                          placeholder="Confirm Password"
+                        />
+                        <button
+                          className="absolute h-full mx-4 top-0 end-0 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                          type="button"
+                          onClick={toggleConfirmPass}
+                        >
+                          {showConfirm ? (
+                            <EyeOpenIcon className="flex-shrink-0 w-4 h-4 text-gray-400 dark:text-neutral-600" />
+                          ) : (
+                            <EyeClosedIcon className="flex-shrink-0 w-4 h-4 text-gray-400 dark:text-neutral-600" />
+                          )}
+                        </button>
+                      </div>
 
                       {errors.confirmPassword?.message && (
                         <span className="flex items-center gap-x-1 text-red-600">
@@ -710,13 +733,13 @@ const StepperForm = () => {
                       )}
                     </div>
                     <div>
+                      <Label>Candidate Phone number</Label>
                       <Input
                         {...register("phone")}
                         type="text"
                         // label="Phone Number"
                         placeholder="Enter your phone Number"
                       />
-
                       {errors.phone?.message && (
                         <span className="flex items-center gap-x-1 text-red-600">
                           <ExclamationTriangleIcon />
@@ -725,6 +748,7 @@ const StepperForm = () => {
                       )}
                     </div>
                     <div>
+                      <Label>Candidate Email Address</Label>
                       <Input
                         {...register("email")}
                         type="email"
