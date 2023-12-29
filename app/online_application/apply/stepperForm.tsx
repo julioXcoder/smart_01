@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getFormIVData } from "@/server/actions/applicant";
 import door from "@/public/online_application/welcome5.png";
 import payment from "@/public/online_application/payment3.png";
 import select from "@/public/online_application/select3.png";
@@ -256,22 +257,16 @@ const StepperForm = () => {
         }
 
         setIsLoading(true);
-        // FIXME: trime form IV index
+        // FIXME: trim form IV index
         // FIXME: get the students form IV data
-        // const { data, error } = await getFormIVData(formIVIndex);
+        const { data, error } = await getFormIVData(formIVIndex.trim());
 
         // FIXME: handle error
-        // if (error) {
-        //   setErrorMessage(error);
-        //   setIsLoading(false);
-        //   return;
-        // }
-
-        // FIXME: set form IV index as id
-        // setStudentInformation({
-        //   firstName: data.firstName,
-        //   lastName: data.lastName,
-        // });
+        if (error) {
+          setErrorMessage(error);
+          setIsLoading(false);
+          return;
+        }
 
         setIsLoading(false);
       }
@@ -637,7 +632,7 @@ const StepperForm = () => {
                     />
                     {errors.formIVIndex?.message && (
                       <span className="flex items-center gap-x-1 text-red-600">
-                        <ExclamationTriangleIcon />
+                        <ExclamationTriangleIcon className="flex-shrink-0 w-4 h-4" />
                         {errors.formIVIndex.message}
                       </span>
                     )}
@@ -653,7 +648,7 @@ const StepperForm = () => {
                       />
                       {errors.firstName?.message && (
                         <span className="flex items-center gap-x-1 text-red-600">
-                          <ExclamationTriangleIcon />
+                          <ExclamationTriangleIcon className="flex-shrink-0 w-4 h-4" />
                           {errors.firstName.message}
                         </span>
                       )}
@@ -669,7 +664,7 @@ const StepperForm = () => {
 
                       {errors.lastName?.message && (
                         <span className="flex items-center gap-x-1 text-red-600">
-                          <ExclamationTriangleIcon />
+                          <ExclamationTriangleIcon className="flex-shrink-0 w-4 h-4" />
                           {errors.lastName.message}
                         </span>
                       )}
@@ -698,7 +693,7 @@ const StepperForm = () => {
 
                       {errors.password?.message && (
                         <span className="flex items-center gap-x-1 text-red-600">
-                          <ExclamationTriangleIcon />
+                          <ExclamationTriangleIcon className="flex-shrink-0 w-4 h-4" />
                           {errors.password.message}
                         </span>
                       )}
@@ -727,7 +722,7 @@ const StepperForm = () => {
 
                       {errors.confirmPassword?.message && (
                         <span className="flex items-center gap-x-1 text-red-600">
-                          <ExclamationTriangleIcon />
+                          <ExclamationTriangleIcon className="flex-shrink-0 w-4 h-4" />
                           {errors.confirmPassword.message}
                         </span>
                       )}
@@ -742,7 +737,7 @@ const StepperForm = () => {
                       />
                       {errors.phone?.message && (
                         <span className="flex items-center gap-x-1 text-red-600">
-                          <ExclamationTriangleIcon />
+                          <ExclamationTriangleIcon className="flex-shrink-0 w-4 h-4" />
                           {errors.phone.message}
                         </span>
                       )}
@@ -759,7 +754,7 @@ const StepperForm = () => {
 
                       {errors.email?.message && (
                         <span className="flex items-center gap-x-1 text-red-600">
-                          <ExclamationTriangleIcon />
+                          <ExclamationTriangleIcon className="flex-shrink-0 w-4 h-4" />
                           {errors.email.message}
                         </span>
                       )}
@@ -790,7 +785,7 @@ const StepperForm = () => {
               Please hold on while we verify your Form IV index. We appreciate
               your patience.
             </span>{" "}
-            {/* <Spinner size="sm" /> */}
+            <span className="loader inline-flex w-4 h-4 text-black dark:text-white"></span>
           </div>
         )}
       </div>

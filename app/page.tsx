@@ -3,6 +3,7 @@ import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
 import StickyFooter from "@/components/layout/stickyFooter";
 import { ModeToggle } from "@/components/themeChanger";
+import Spinner from "@/components/spinner";
 
 export default function Home() {
   return (
@@ -16,17 +17,9 @@ export default function Home() {
         activities, resources, communication, and progress tracking.
         <ModeToggle />
       </div>
-      <div className="m-20">
-        <div className="lds-roller">
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-        </div>
+      <div className="m-5">
+        <span className="loader inline-flex w-4 h-4 text-black dark:text-white"></span>
+        LOLED
       </div>
       <StickyFooter />
     </main>
