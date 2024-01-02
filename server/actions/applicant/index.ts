@@ -84,18 +84,14 @@ export const getFormIVData = async (
 
     let student = students.find((obj) => obj.CNO === candidate);
 
-    if (!student)
-      return {
-        data: {} as StudentInfo,
-        error:
-          "We're sorry, but the Form IV verification was unsuccessful. Please try again or reach out to our support team for further assistance.",
-      };
+    if (!student) throw new Error();
 
     return { data: student, error: "" };
   } catch (error) {
     return {
       data: {} as StudentInfo,
-      error: "An error occurred while processing your request.",
+      error:
+        "We're sorry, but the Form IV verification was unsuccessful. Please try again or reach out to our support team for further assistance.",
     };
   }
 };

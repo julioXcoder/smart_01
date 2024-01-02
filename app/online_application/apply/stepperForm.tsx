@@ -639,7 +639,7 @@ const StepperForm = () => {
                   </div>
                   <div className="my-6 grid gap-6 md:grid-cols-2">
                     <div>
-                      <Label>Candidate First Name</Label>
+                      <Label>Applicant First Name</Label>
                       <Input
                         {...register("firstName")}
                         type="text"
@@ -654,7 +654,7 @@ const StepperForm = () => {
                       )}
                     </div>
                     <div>
-                      <Label>Candidate Last Name</Label>
+                      <Label>Applicant Last Name</Label>
                       <Input
                         {...register("lastName")}
                         value={studentInformation.lastName}
@@ -728,7 +728,7 @@ const StepperForm = () => {
                       )}
                     </div>
                     <div>
-                      <Label>Candidate Phone number</Label>
+                      <Label>Applicant Phone number</Label>
                       <Input
                         {...register("phone")}
                         type="text"
@@ -743,7 +743,7 @@ const StepperForm = () => {
                       )}
                     </div>
                     <div>
-                      <Label>Candidate Email Address</Label>
+                      <Label>Applicant Email Address</Label>
                       <Input
                         {...register("email")}
                         type="email"

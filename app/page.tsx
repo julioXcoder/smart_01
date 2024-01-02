@@ -17,10 +17,6 @@ export default function Home() {
         activities, resources, communication, and progress tracking.
         <ModeToggle />
       </div>
-      <div className="m-5">
-        <span className="loader inline-flex w-4 h-4 text-black dark:text-white"></span>
-        LOLED
-      </div>
       <StickyFooter />
     </main>
   );

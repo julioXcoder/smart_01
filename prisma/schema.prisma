@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum RoleName {
+  EXAMINATION_OFFICER
+  LECTURE
+  STUDENT
+  APPLICANT
+}
+
+enum ApplicantStatusName {
+  SUBMITTED //The application has been received but not yet reviewed
+  UNDER_REVIEW //The application is currently being reviewed by the admissions team.
+  WAITLISTED // The applicant meets the admission requirements but the program is full. If a spot opens up, they may be admitted.
+  ACCEPTED //The application has been approved. The applicant can now proceed to enrollment.
+  REJECTED //The application has not been approved. The applicant will not be able to enroll.
+  DEFERRED //The applicant has been accepted, but their admission has been postponed to a later date.
+}
+
+enum ApplicationTypeName {
+  CERTIFICATE
+  DIPLOMA
+  POSTGRADUATE_DIPLOMA
+  MASTERS
+  PHD
+}
+
+model Applicant {
+  formIVIndex     String              @id @map("_id")
+  hashedPassword  String
+  firstName       String
+  lastName        String
+  status          ApplicantStatusName @default(WAITLISTED)
+  role            RoleName            @default(APPLICANT)
+  applicationType ApplicationTypeName
+  controlNumberId String?
+  phone           String
+  email           String?
+}
