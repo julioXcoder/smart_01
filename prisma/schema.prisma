@@ -26,13 +26,20 @@ enum ApplicantStatusName {
   DEFERRED //The applicant has been accepted, but their admission has been postponed to a later date.
 }
 
-enum ApplicationTypeName {
-  CERTIFICATE
+enum ProgrammeTypeName {
+  FULL_TIME
+  PART_TIME
+}
+
+enum ProgrammeLevelName {
   DIPLOMA
-  POSTGRADUATE_DIPLOMA
+  CERTIFICATE
+  BACHELOR
   MASTERS
   PHD
 }
+
+//USERS
 
 model Applicant {
   formIVIndex     String              @id @map("_id")
@@ -41,8 +48,45 @@ model Applicant {
   lastName        String
   status          ApplicantStatusName @default(WAITLISTED)
   role            RoleName            @default(APPLICANT)
-  applicationType ApplicationTypeName
   controlNumberId String?
   phone           String
   email           String?
 }
+
+//USERS
+
+//UNIVERSITY HIERARCHY
+
+model Campus {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  location String
+}
+
+model College {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  campusId String @db.ObjectId
+}
+
+model Department {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  name      String @unique
+  collegeId String @db.ObjectId
+}
+
+model Programme {
+  code                String             @id @map("_id")
+  name                String
+  level               ProgrammeLevelName
+  duration            Int
+  type                ProgrammeTypeName
+  language            String
+  departmentId        String             @db.ObjectId
+  tuitionFee          Float
+  applicationFee      Float
+  qualification       String
+  applicationDeadline String
+}
+
+//UNIVERSITY HIERARCHY

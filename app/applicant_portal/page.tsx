@@ -94,7 +94,13 @@ const paymentStatus = false;
 const Page = () => {
   return (
     <div className="px-5 py-8 md:px-20 xl:px-36">
-      <div>
+      <h1 className="text-4xl font-extrabold dark:text-white">
+        Welcome,
+        <small className="ms-2 font-semibold text-gray-500 dark:text-gray-400">
+          Julio Njeza
+        </small>
+      </h1>
+      <div className="my-4 p-4">
         <div>
           <ol className="relative max-w-sm text-gray-500 border-s border-gray-200 dark:border-gray-700 dark:text-gray-400">
             <li className="mb-10 ms-6">
@@ -118,6 +124,7 @@ const Page = () => {
               <h3 className="font-medium leading-tight p-1">
                 Application Details Form
               </h3>
+              {/* {controlNumber && <ApplicationFormCard />} */}
               <ApplicationFormCard />
             </li>
           </ol>
