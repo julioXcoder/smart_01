@@ -1,119 +1,50 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { CheckIcon, CaretDownIcon } from "@radix-ui/react-icons";
+import { Programme } from "@/server/actions/programmes/types";
+import ProgrammeCard from "./programmeCard";
+import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import DropdownSelect from "@/components/dropdownSelect";
 
-const options = [
-  { label: "Option 1", value: "option1" },
-  { label: "Option 2", value: "option2" },
-  { label: "Option 3", value: "option3" },
-  // Add more options as needed
-];
-
-interface Option {
-  label: string;
-  value: string;
+interface Props {
+  programmes: Programme[] | null;
 }
 
-interface DropdownProps {
-  options: Option[];
-}
-
-const SearchComponent = () => {
-  const [selectedOptions, setSelectedOptions] = useState<Option[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    const handleEscapeKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleEscapeKey);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleEscapeKey);
-    };
-  }, []);
-
-  const handleToggle = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const handleSelect = (option: Option) => {
-    const isSelected = selectedOptions.some(
-      (selected) => selected.value === option.value
-    );
-
-    if (isSelected) {
-      const updatedOptions = selectedOptions.filter(
-        (selected) => selected.value !== option.value
-      );
-      setSelectedOptions(updatedOptions);
-    } else {
-      setSelectedOptions([...selectedOptions, option]);
-    }
-  };
-
-  return (
-    <div>
-      <div className="relative inline-block text-left" ref={ref}>
-        <div>
-          <span
-            className="rounded-md shadow-sm cursor-pointer border border-gray-300 px-4 py-2 inline-flex justify-between items-center"
-            onClick={handleToggle}
-          >
-            Select options
-            <CaretDownIcon className="ml-2" />
-          </span>
-        </div>
-        {isOpen && (
-          <div className="origin-top-right absolute left-0 mt-2 w-56 ring-1 ring-black ring-opacity-5 z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2">
-            <div
-              className="py-1"
-              role="menu"
-              aria-orientation="vertical"
-              aria-labelledby="options-menu"
-            >
-              {options.map((option) => (
-                <div
-                  key={option.value}
-                  className={`flex leading-5 cursor-pointer focus:outline-none select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-gray-100 text-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-300 dark:focus:bg-gray-700`}
-                  onClick={() => handleSelect(option)}
-                >
-                  <CheckIcon
-                    className={`mr-2 ${
-                      selectedOptions.some(
-                        (selected) => selected.value === option.value
-                      )
-                        ? ""
-                        : "invisible"
-                    }`}
-                  />
-                  {option.label}
-                </div>
-              ))}
+const SearchComponent = ({ programmes }: Props) => {
+  if (programmes) {
+    return (
+      <>
+        {/* HEADER */}
+        <div className="py-4 grid gap-3 md:flex md:justify-between md:items-center border-b border-gray-200 dark:border-gray-700">
+          <div>
+            <div className="relative">
+              <input
+                type="text"
+                className="py-2 px-3 ps-11 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600"
+                placeholder="Search"
+              />
+              <div className="absolute inset-y-0 start-0 flex items-center pointer-events-none ps-4">
+                <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+              </div>
             </div>
           </div>
-        )}
-      </div>
-      <div>
-        {selectedOptions.map((item, index) => (
-          <div key={index}>{item.label}</div>
-        ))}
-      </div>
-    </div>
-  );
+          <div>
+            <div className="inline-flex gap-x-2">
+              <DropdownSelect />
+              <DropdownSelect />
+            </div>
+          </div>
+        </div>
+        {/* HEADER */}
+        <div className="flex flex-col gap-6 mt-5">
+          {programmes.map((programme, index) => (
+            <ProgrammeCard key={index} programme={programme} />
+          ))}
+        </div>
+      </>
+    );
+  }
+
+  return <div>No Programmes available!</div>;
 };
 
 export default SearchComponent;

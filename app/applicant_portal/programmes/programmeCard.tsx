@@ -2,12 +2,17 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import mustLogo from "@/public/logo/must.svg";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
+import { Programme } from "@/server/actions/programmes/types";
 
-const ProgrammeCard = () => {
+interface Props {
+  programme: Programme;
+}
+
+const ProgrammeCard = ({ programme }: Props) => {
   return (
-    <div className="grid grid-cols-12 gap-2 max-w-5xl group bg-white border shadow-sm rounded-xl overflow-hidden hover:shadow p-4 transition dark:bg-slate-900 dark:border-gray-700 dark:shadow-slate-700/[.7]">
+    <div className="grid grid-cols-12 gap-2 group bg-white border shadow-md rounded-lg overflow-hidden hover:shadow-lg p-4 transition dark:bg-slate-900 dark:border-gray-700 dark:shadow-slate-700/[.7]">
       {/* column 1 */}
-      <div className="col-span-12 md:col-span-4 md:border-r-2 dark:border-gray-700">
+      <div className="col-span-12 md:col-span-4">
         <div className="flex flex-col h-full sm:px-4">
           <div className="flex w-full items-center justify-start">
             <Image
@@ -18,33 +23,36 @@ const ProgrammeCard = () => {
             />
           </div>
           <p className="font-semibold text-gray-800 dark:text-white">
-            MBEYA UNIVERSITY OF SCIENCE AND TECHNOLOGY
+            {programme.campus.name}
+          </p>
+          {/* FIXME: Add country in campus model */}
+          <p className="text-xs capitalize text-gray-500 dark:text-gray-300">
+            Tanzania, {programme.campus.location}
           </p>
           <p className="text-xs capitalize text-gray-500 dark:text-gray-300">
-            Tanzania, MBEYA
-          </p>
-          <p className="text-xs capitalize text-gray-500 dark:text-gray-300">
-            Department of Computer Science and Engineering
+            Department of {programme.department.name}
           </p>
         </div>
       </div>
 
       {/* column 2 */}
-      <div className="col-span-12 md:col-span-5 md:border-r-2 dark:border-gray-700">
+      <div className="col-span-12 md:col-span-5">
         <div className="flex flex-col justify-between capitalize h-full sm:px-4">
           <div>
             <p className="font-semibold text-gray-800 dark:text-white">
-              Computer Science
+              {programme.name}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-300">
-              FULL-TIME, 3 years
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-300">diploma</p>
-            <p className="text-sm text-gray-500 dark:text-gray-300">
-              Study language: English
+              {programme.level.toLowerCase()}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-300">
-              Tuition fee: €1,400 per year
+              {programme.type}, {programme.duration} years
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-300">
+              Study language: {programme.language}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-300">
+              Tuition fee: {programme.tuitionFee} per year
             </p>
           </div>
           <Button variant="secondary" className="w-full mt-2">
@@ -61,11 +69,15 @@ const ProgrammeCard = () => {
             <p className="font-semibold text-gray-800 dark:text-white">
               Application deadline
             </p>
+            {/* FIXME: Add valid deadline */}
             <p className="text-sm text-gray-500 dark:text-gray-300">
               31 Aug 2024, 23:59:59 Europe/Warsaw time
             </p>
+            <p className="text-sm text-gray-500 dark:text-gray-300">
+              Application fee: {programme.applicationFee}
+            </p>
           </div>
-          <Button className="w-full mt-2">Apply Now! - 2023/2024</Button>
+          <Button className="w-full mt-2">Apply Now!</Button>
         </div>
       </div>
     </div>
