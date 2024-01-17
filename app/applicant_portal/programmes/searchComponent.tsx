@@ -19,28 +19,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getLevelDisplayText } from "@/utils/programme";
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 
 interface Props {
   programmes: Programme[] | null;
-}
-
-export function getLevelDisplayText(level: EducationLevel): string {
-  switch (level) {
-    case EducationLevel.DIPLOMA:
-      return "Diploma";
-    case EducationLevel.CERTIFICATE:
-      return "Certificate";
-    case EducationLevel.BACHELOR:
-      return "Bachelor";
-    case EducationLevel.MASTERS:
-      return "Masters";
-    case EducationLevel.PHD:
-      return "PhD";
-    default:
-      return "";
-  }
 }
 
 const SearchComponent = ({ programmes }: Props) => {
@@ -56,9 +40,9 @@ const SearchComponent = ({ programmes }: Props) => {
         programmes
           .reduce(
             (map, programme) => map.set(programme.campus.id, programme.campus),
-            new Map()
+            new Map(),
           )
-          .values()
+          .values(),
       )
     : [];
 
@@ -72,8 +56,8 @@ const SearchComponent = ({ programmes }: Props) => {
       filtered =
         filtered?.filter((programme) =>
           selectedCampuses.some(
-            (selectedCampus) => programme.campus.id === selectedCampus.id
-          )
+            (selectedCampus) => programme.campus.id === selectedCampus.id,
+          ),
         ) || null;
     }
 
@@ -81,7 +65,7 @@ const SearchComponent = ({ programmes }: Props) => {
     if (selectedLevels.length > 0) {
       filtered =
         filtered?.filter((programme) =>
-          selectedLevels.includes(programme.level)
+          selectedLevels.includes(programme.level),
         ) || null;
     }
 
@@ -93,7 +77,7 @@ const SearchComponent = ({ programmes }: Props) => {
     if (selectedCampuses.find((campus) => campus.id === selectedCampus.id)) {
       // If the campus is already selected, remove it from the array
       updatedSelectedCampuses = selectedCampuses.filter(
-        (campus) => campus.id !== selectedCampus.id
+        (campus) => campus.id !== selectedCampus.id,
       );
     } else {
       // If the campus is not selected, add it to the array
@@ -108,7 +92,7 @@ const SearchComponent = ({ programmes }: Props) => {
     if (selectedLevels.includes(selectedLevel)) {
       // If the level is already selected, remove it from the array
       updatedSelectedLevels = selectedLevels.filter(
-        (level) => level !== selectedLevel
+        (level) => level !== selectedLevel,
       );
     } else {
       // If the level is not selected, add it to the array
@@ -118,8 +102,8 @@ const SearchComponent = ({ programmes }: Props) => {
     if (updatedSelectedLevels.length > 0) {
       setFilteredProgrammes(
         programmes?.filter((programme) =>
-          updatedSelectedLevels.includes(programme.level)
-        ) || null
+          updatedSelectedLevels.includes(programme.level),
+        ) || null,
       );
     } else {
       setFilteredProgrammes(programmes);
@@ -133,8 +117,8 @@ const SearchComponent = ({ programmes }: Props) => {
         programmes?.filter((programme) =>
           programme.name
             .toLowerCase()
-            .includes(event.target.value.toLowerCase())
-        ) || null
+            .includes(event.target.value.toLowerCase()),
+        ) || null,
       );
     } else {
       setFilteredProgrammes(programmes);
@@ -145,17 +129,17 @@ const SearchComponent = ({ programmes }: Props) => {
     return (
       <>
         {/* HEADER */}
-        <div className="py-4 grid gap-3 md:flex md:justify-between md:items-center border-b border-gray-200 dark:border-gray-700">
+        <div className="grid gap-3 border-b border-gray-200 py-4 md:flex md:items-center md:justify-between dark:border-gray-700">
           <div>
             <div className="relative">
               <input
                 type="text"
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="py-2 px-3 ps-11 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600"
+                className="block w-full rounded-lg border-gray-200 px-3 py-2 ps-11 text-sm focus:border-blue-500 focus:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-400 dark:focus:ring-gray-600"
                 placeholder="Search"
               />
-              <div className="absolute inset-y-0 start-0 flex items-center pointer-events-none ps-4">
+              <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-4">
                 <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
               </div>
             </div>
@@ -174,7 +158,7 @@ const SearchComponent = ({ programmes }: Props) => {
                       <DropdownMenuCheckboxItem
                         key={campus.id}
                         checked={selectedCampuses.some(
-                          (selectedCampus) => selectedCampus.id === campus.id
+                          (selectedCampus) => selectedCampus.id === campus.id,
                         )}
                         onCheckedChange={() => handleCampusChange(campus)}
                       >
@@ -208,7 +192,7 @@ const SearchComponent = ({ programmes }: Props) => {
           </div>
         </div>
         {/* HEADER */}
-        <div className="flex flex-col gap-6 mt-5">
+        <div className="mt-5 flex flex-col gap-6">
           {filteredProgrammes?.map((programme, index) => (
             <ProgrammeCard key={index} programme={programme} />
           ))}

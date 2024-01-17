@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import mustLogo from "@/public/logo/must.svg";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { Programme } from "@/server/actions/programmes/types";
-import { getLevelDisplayText } from "./searchComponent";
+import { getEducationLevel, getProgrammeType } from "@/utils/programme";
 
 interface Props {
   programme: Programme;
@@ -11,14 +11,14 @@ interface Props {
 
 const ProgrammeCard = ({ programme }: Props) => {
   return (
-    <div className="grid grid-cols-12 gap-2 group bg-white border shadow-md rounded-lg overflow-hidden hover:shadow-lg p-4 transition dark:bg-slate-900 dark:border-gray-700 dark:shadow-slate-700/[.7]">
+    <div className="group grid grid-cols-12 gap-2 overflow-hidden rounded-lg border bg-white p-4 shadow-md transition hover:shadow-lg dark:border-gray-700 dark:bg-slate-900 dark:shadow-slate-700/[.7]">
       {/* column 1 */}
       <div className="col-span-12 md:col-span-4">
-        <div className="flex flex-col h-full sm:px-4">
+        <div className="flex h-full flex-col sm:px-4">
           <div className="flex w-full items-center justify-start">
             <Image
               quality={100}
-              className="h-10 w-auto mb-2"
+              className="mb-2 h-10 w-auto bg-white"
               src={mustLogo}
               alt="smart logo"
             />
@@ -26,10 +26,10 @@ const ProgrammeCard = ({ programme }: Props) => {
           <p className="font-semibold text-gray-800 dark:text-white">
             {programme.campus.name}
           </p>
-          <p className="text-xs capitalize text-gray-500 dark:text-gray-300">
+          <p className="hidden text-xs capitalize text-gray-500 md:block dark:text-gray-300">
             {programme.campus.country}, {programme.campus.location}
           </p>
-          <p className="text-xs capitalize text-gray-500 dark:text-gray-300">
+          <p className="hidden text-xs capitalize text-gray-500 md:block dark:text-gray-300">
             Department of {programme.department.name}
           </p>
         </div>
@@ -37,25 +37,25 @@ const ProgrammeCard = ({ programme }: Props) => {
 
       {/* column 2 */}
       <div className="col-span-12 md:col-span-5">
-        <div className="flex flex-col justify-between capitalize h-full sm:px-4">
+        <div className="flex h-full flex-col justify-between capitalize sm:px-4">
           <div>
             <p className="font-semibold text-gray-800 dark:text-white">
-              {programme.name}
+              {getEducationLevel(programme.level)} {programme.name}
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-300">
-              {getLevelDisplayText(programme.level)}
+            <p className="hidden text-sm text-gray-500 md:block dark:text-gray-300">
+              Status: {getProgrammeType(programme.type)}
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-300">
-              {programme.type}, {programme.duration} years
+            <p className="hidden text-sm text-gray-500 md:block dark:text-gray-300">
+              Duration: {programme.duration} years
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-300">
+            <p className="hidden text-sm text-gray-500 md:block dark:text-gray-300">
               Study language: {programme.language}
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-300">
+            <p className="hidden text-sm text-gray-500 md:block dark:text-gray-300">
               Tuition fee: {programme.tuitionFee} per year
             </p>
           </div>
-          <Button variant="secondary" className="w-full mt-2">
+          <Button variant="secondary" className="mt-2 hidden w-full md:flex">
             <InfoCircledIcon className="mr-2" />
             More Information
           </Button>
@@ -64,20 +64,26 @@ const ProgrammeCard = ({ programme }: Props) => {
 
       {/* column 3 */}
       <div className="col-span-12 md:col-span-3">
-        <div className="flex flex-col justify-between capitalize h-full sm:px-4">
-          <div className="hidden md:block">
+        <div className="flex h-full flex-col justify-between capitalize sm:px-4">
+          {/* <div className="hidden md:block"> */}
+          <div>
             <p className="font-semibold text-gray-800 dark:text-white">
               Application deadline
             </p>
             {/* FIXME: Add valid deadline */}
             <p className="text-sm text-gray-500 dark:text-gray-300">
-              31 Aug 2024, 23:59:59 Europe/Warsaw time
+              31 Aug 2024,23:59:59
+              <div>East Africa Time (EAT)</div>
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-300">
               Application fee: {programme.applicationFee}
             </p>
           </div>
-          <Button className="w-full mt-2">Apply Now!</Button>
+          <Button variant="secondary" className="mt-2 w-full md:hidden">
+            <InfoCircledIcon className="mr-2" />
+            More Information
+          </Button>
+          <Button className="mt-2 w-full">Apply Now!</Button>
         </div>
       </div>
     </div>

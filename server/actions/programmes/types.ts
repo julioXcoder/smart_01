@@ -6,6 +6,11 @@ export enum EducationLevel {
   PHD = "PHD",
 }
 
+export enum ProgrammeTypes {
+  FULL_TIME = "FULL_TIME",
+  PART_TIME = "PART_TIME",
+}
+
 type Campus = {
   id: string;
   name: string;
@@ -31,7 +36,7 @@ type Programme = {
   name: string;
   level: EducationLevel;
   duration: number;
-  type: "FULL_TIME" | "PART_TIME";
+  type: ProgrammeTypes;
   language: string;
   departmentId: string;
   tuitionFee: number;
