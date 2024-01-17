@@ -5,6 +5,8 @@ import z from "zod";
 const schema = z.object({
   name: z.string(),
   location: z.string(),
+  shortHand: z.string(),
+  country: z.string(),
 });
 
 type Body = z.infer<typeof schema>;
@@ -18,12 +20,14 @@ export async function POST(request: NextRequest) {
     if (!validate.success)
       return NextResponse.json({ error: validate.error }, { status: 400 });
 
-    const { name, location } = body;
+    const { name, location, shortHand, country } = body;
 
     const newCampus = await prisma.campus.create({
       data: {
         name,
         location,
+        shortHand,
+        country,
       },
     });
 

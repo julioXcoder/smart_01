@@ -1,4 +1,4 @@
-enum EducationLevel {
+export enum EducationLevel {
   DIPLOMA = "DIPLOMA",
   CERTIFICATE = "CERTIFICATE",
   BACHELOR = "BACHELOR",
@@ -10,6 +10,8 @@ type Campus = {
   id: string;
   name: string;
   location: string;
+  shortHand: string;
+  country: string;
 };
 
 type College = {
@@ -27,7 +29,7 @@ type Department = {
 type Programme = {
   code: string;
   name: string;
-  level: "DIPLOMA" | "CERTIFICATE" | "BACHELOR" | "MASTERS" | "PHD";
+  level: EducationLevel;
   duration: number;
   type: "FULL_TIME" | "PART_TIME";
   language: string;
@@ -43,4 +45,4 @@ type Programme = {
 
 type ProgrammeResponse = { data: Programme[] | null; error: string | null };
 
-export type { ProgrammeResponse, Programme };
+export type { ProgrammeResponse, Programme, Campus };

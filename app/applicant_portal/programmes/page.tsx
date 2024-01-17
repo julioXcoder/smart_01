@@ -7,23 +7,6 @@ import { Button } from "@/components/ui/button";
 import mustLogo from "@/public/logo/must.svg";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 
-const fakeProgram = {
-  code: "PROG123",
-  programmeName: "Computer Science",
-  level: "BACHELOR",
-  duration: 36,
-  type: "FULL_TIME",
-  language: "English",
-  departmentId: "DEPT456",
-  tuitionFee: 15000,
-  applicationFee: 50,
-  qualification: "High School Diploma",
-  applicationDeadline: "2024-08-15",
-  departmentName: "School of Computer Science",
-  location: "Cityville",
-  collegeName: "Tech University",
-};
-
 const Page = async () => {
   const { data, error } = await getAllProgrammes();
 

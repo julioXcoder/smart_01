@@ -58,9 +58,11 @@ model Applicant {
 //UNIVERSITY HIERARCHY
 
 model Campus {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
-  name     String
-  location String
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  location  String
+  shortHand String
+  country   String
 }
 
 model College {

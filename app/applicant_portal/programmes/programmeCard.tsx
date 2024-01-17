@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import mustLogo from "@/public/logo/must.svg";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { Programme } from "@/server/actions/programmes/types";
+import { getLevelDisplayText } from "./searchComponent";
 
 interface Props {
   programme: Programme;
@@ -25,9 +26,8 @@ const ProgrammeCard = ({ programme }: Props) => {
           <p className="font-semibold text-gray-800 dark:text-white">
             {programme.campus.name}
           </p>
-          {/* FIXME: Add country in campus model */}
           <p className="text-xs capitalize text-gray-500 dark:text-gray-300">
-            Tanzania, {programme.campus.location}
+            {programme.campus.country}, {programme.campus.location}
           </p>
           <p className="text-xs capitalize text-gray-500 dark:text-gray-300">
             Department of {programme.department.name}
@@ -43,7 +43,7 @@ const ProgrammeCard = ({ programme }: Props) => {
               {programme.name}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-300">
-              {programme.level.toLowerCase()}
+              {getLevelDisplayText(programme.level)}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-300">
               {programme.type}, {programme.duration} years
