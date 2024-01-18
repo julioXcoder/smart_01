@@ -4,6 +4,8 @@ import mustLogo from "@/public/logo/must.svg";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { Programme } from "@/server/actions/programmes/types";
 import { getEducationLevel, getProgrammeType } from "@/utils/programme";
+// import { MdBook  } from "react-icons/fa6";
+import { MdEventNote, MdBook } from "react-icons/md";
 
 interface Props {
   programme: Programme;
@@ -24,8 +26,10 @@ const ProgrammeCard = ({ programme }: Props) => {
             />
           </div>
           <p className="font-semibold text-gray-800 dark:text-white">
+            {/* <FaUniversity className="mr-2 inline" /> */}
             {programme.campus.name}
           </p>
+
           <p className="hidden text-xs capitalize text-gray-500 md:block dark:text-gray-300">
             {programme.campus.country}, {programme.campus.location}
           </p>
@@ -37,53 +41,70 @@ const ProgrammeCard = ({ programme }: Props) => {
 
       {/* column 2 */}
       <div className="col-span-12 md:col-span-5">
-        <div className="flex h-full flex-col justify-between capitalize sm:px-4">
-          <div>
-            <p className="font-semibold text-gray-800 dark:text-white">
-              {getEducationLevel(programme.level)} {programme.name}
-            </p>
-            <p className="hidden text-sm text-gray-500 md:block dark:text-gray-300">
-              Status: {getProgrammeType(programme.type)}
-            </p>
-            <p className="hidden text-sm text-gray-500 md:block dark:text-gray-300">
-              Duration: {programme.duration} years
-            </p>
-            <p className="hidden text-sm text-gray-500 md:block dark:text-gray-300">
-              Study language: {programme.language}
-            </p>
-            <p className="hidden text-sm text-gray-500 md:block dark:text-gray-300">
-              Tuition fee: {programme.tuitionFee} per year
-            </p>
+        <div className="flex h-full capitalize sm:px-4">
+          <div className="flex items-start gap-2">
+            <MdBook className="mt-0.5 h-5 w-5 shrink-0" />
+            <div className="flex h-full flex-col justify-between">
+              <div>
+                <p className="font-semibold text-gray-800 dark:text-white">
+                  {getEducationLevel(programme.level)} {programme.name}
+                </p>
+                <div className="hidden md:block">
+                  <p className="text-sm text-gray-500 dark:text-gray-300">
+                    Status: {getProgrammeType(programme.type)}
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-300">
+                    Duration: {programme.duration} years
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-300">
+                    Study language: {programme.language}
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-300">
+                    Tuition fee: {programme.tuitionFee} per year
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="secondary"
+                className="mt-2 hidden w-full md:flex"
+              >
+                <InfoCircledIcon className="mr-2" />
+                More Information
+              </Button>
+            </div>
           </div>
-          <Button variant="secondary" className="mt-2 hidden w-full md:flex">
-            <InfoCircledIcon className="mr-2" />
-            More Information
-          </Button>
         </div>
       </div>
 
       {/* column 3 */}
       <div className="col-span-12 md:col-span-3">
-        <div className="flex h-full flex-col justify-between capitalize sm:px-4">
+        <div className="capitalize sm:px-4">
           {/* <div className="hidden md:block"> */}
-          <div>
-            <p className="font-semibold text-gray-800 dark:text-white">
-              Application deadline
-            </p>
-            {/* FIXME: Add valid deadline */}
-            <p className="text-sm text-gray-500 dark:text-gray-300">
-              31 Aug 2024,23:59:59
-              <div>East Africa Time (EAT)</div>
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-300">
-              Application fee: {programme.applicationFee}
-            </p>
+          <div className="flex items-start gap-2">
+            <MdEventNote className="mt-0.5 h-5 w-5 shrink-0" />
+            <div className="flex h-full flex-col justify-between">
+              <div>
+                <p className="font-semibold text-gray-800 dark:text-white">
+                  Application deadline
+                </p>
+                {/* FIXME: Add valid deadline */}
+                <p className="text-sm text-gray-500 dark:text-gray-300">
+                  31 Aug 2024,23:59:59
+                  <div>East Africa Time (EAT)</div>
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-300">
+                  Application fee: {programme.applicationFee}
+                </p>
+              </div>
+              <div>
+                <Button variant="secondary" className="mt-2 w-full md:hidden">
+                  <InfoCircledIcon className="mr-2" />
+                  More Information
+                </Button>
+                <Button className="mt-2 w-full">Apply Now!</Button>
+              </div>
+            </div>
           </div>
-          <Button variant="secondary" className="mt-2 w-full md:hidden">
-            <InfoCircledIcon className="mr-2" />
-            More Information
-          </Button>
-          <Button className="mt-2 w-full">Apply Now!</Button>
         </div>
       </div>
     </div>
