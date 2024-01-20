@@ -42,7 +42,7 @@ const ProgrammeCard = ({ programme }: Props) => {
       {/* column 2 */}
       <div className="col-span-12 md:col-span-5">
         <div className="flex h-full capitalize sm:px-4">
-          <div className="flex items-start gap-2">
+          <div className="flex h-full items-start gap-2">
             <MdBook className="mt-0.5 h-5 w-5 shrink-0" />
             <div className="flex h-full flex-col justify-between">
               <div>
@@ -78,9 +78,9 @@ const ProgrammeCard = ({ programme }: Props) => {
 
       {/* column 3 */}
       <div className="col-span-12 md:col-span-3">
-        <div className="capitalize sm:px-4">
+        <div className="h-full capitalize sm:px-4">
           {/* <div className="hidden md:block"> */}
-          <div className="flex items-start gap-2">
+          <div className="flex h-full items-start gap-2">
             <MdEventNote className="mt-0.5 h-5 w-5 shrink-0" />
             <div className="flex h-full flex-col justify-between">
               <div>

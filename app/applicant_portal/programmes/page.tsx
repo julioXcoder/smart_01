@@ -13,7 +13,7 @@ const Page = async () => {
   if (error) return <div className="mt-20">{error}</div>;
 
   return (
-    <div className="max-w-5xl py-6 sm:px-4 lg:px-8 lg:py-10 mx-auto">
+    <div className="mx-auto max-w-6xl py-6 sm:px-4 lg:px-8 lg:py-10">
       <SearchComponent programmes={data} />
     </div>
   );

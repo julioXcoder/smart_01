@@ -9,19 +9,16 @@ const Badge = ({
   value?: number;
 }) => {
   return (
-    <button
-      type="button"
-      className="relative h-9 w-9 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-950 dark:border-gray-900 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
-    >
-      <span className="h-5 w-5 inline-flex justify-center items-center">
+    <Button className="relative h-9 w-9 rounded-lg border border-gray-200 bg-white text-sm font-semibold text-gray-800 shadow-sm hover:bg-gray-50 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-900 dark:bg-slate-950 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
+      <span className="inline-flex h-5 w-5 items-center justify-center">
         {children}
       </span>
       {value && (
-        <span className="absolute top-0 end-0 inline-flex items-center py-0.5 px-1.5 rounded-full text-xs font-medium transform -translate-y-1/2 translate-x-1/2 bg-red-500 text-white">
+        <span className="absolute end-0 top-0 inline-flex -translate-y-1/2 translate-x-1/2 transform items-center rounded-full bg-red-500 px-1.5 py-0.5 text-xs font-medium text-white">
           {value >= 9 ? "9+" : value}
         </span>
       )}
-    </button>
+    </Button>
   );
 };
 

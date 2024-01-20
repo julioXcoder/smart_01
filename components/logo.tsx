@@ -7,12 +7,11 @@ const Logo = () => {
   return (
     <Link
       href="#"
-      className={`m-2 inline-flex items-center gap-x-2 text-xl font-semibold dark:text-white ${esb.className}`}
+      className={`inline-flex items-center gap-x-2 font-semibold lg:text-xl dark:text-white ${esb.className}`}
     >
       <Image
-        color="red"
         quality={100}
-        className="h-10 w-auto"
+        className="h-6 w-auto lg:h-8"
         src={smartLogo}
         alt="smart logo"
       />
