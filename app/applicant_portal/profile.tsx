@@ -18,6 +18,7 @@ import { IoSearch } from "react-icons/io5";
 import { LuUser } from "react-icons/lu";
 import { MdEvent, MdLogout } from "react-icons/md";
 import ProfileThemeChanger from "./profileThemeChanger";
+import Link from "next/link";
 
 const Profile = () => {
   return (
@@ -38,11 +39,19 @@ const Profile = () => {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
-            <LuUser className="mr-2 h-4 w-4" />
-            <span>Profile</span>
+            <Link
+              href="/applicant_portal/profile"
+              className="flex w-full items-center"
+            >
+              <LuUser className="mr-2 h-4 w-4" />
+              <span>Profile</span>
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <div className="flex w-full items-center justify-between">
+            <Link
+              href="/applicant_portal/applications"
+              className="flex w-full items-center justify-between"
+            >
               <div className="flex items-center">
                 <BiLayer className="mr-2 h-4 w-4" />
                 <span>My Applications</span>
@@ -50,14 +59,19 @@ const Profile = () => {
               <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-800 dark:bg-blue-800/30 dark:text-blue-50">
                 4
               </div>
-            </div>
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
-            <IoSearch className="mr-2 h-4 w-4" />
-            <span>Search Programmes</span>
+            <Link
+              href="/applicant_portal/programmes"
+              className="flex w-full items-center"
+            >
+              <IoSearch className="mr-2 h-4 w-4" />
+              <span>Search Programmes</span>
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <FaQuestionCircle className="mr-2 h-4 w-4" />
