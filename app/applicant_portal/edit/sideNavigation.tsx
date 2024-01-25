@@ -6,7 +6,7 @@ interface Props {
 
 const SideNavigation = ({ steps, step, onGotoStep }: Props) => {
   return (
-    <nav className="flex w-full flex-col flex-wrap p-6">
+    <nav className="flex w-full flex-col flex-wrap px-6">
       <ul className="space-y-2">
         {steps.map((item, index) => (
           <li key={index}>

@@ -1,63 +1,136 @@
-import { FiArrowUp, FiArrowDown, FiTrash2 } from "react-icons/fi";
-import {
-  AiFillApple,
-  AiOutlineArrowUp,
-  AiOutlineArrowDown,
-  AiOutlineDelete,
-  AiOutlineCheckCircle,
-} from "react-icons/ai";
-import { FaClipboardList, FaRegListAlt } from "react-icons/fa";
-import { MdAssignment } from "react-icons/md";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { FaUniversity } from "react-icons/fa";
+import { FiArrowDown, FiArrowUp, FiTrash2 } from "react-icons/fi";
+import { IoWarning } from "react-icons/io5";
+import FlipMove from "react-flip-move";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const Priorities = () => {
+  const [items, setItems] = useState<string[]>([
+    "Diploma In Computer Science",
+    "Bachelor's Degree In Mechanical Engineering With Industrial Safety AndOccupational Health",
+    "Master's Degree In Technical Education in Civil Engineering",
+  ]);
+
+  const handleMoveUp = (index: number) => {
+    if (index === 0) return;
+    const newItems = [...items];
+    const temp = newItems[index];
+    newItems[index] = newItems[index - 1];
+    newItems[index - 1] = temp;
+    setItems(newItems);
+  };
+
+  const handleMoveDown = (index: number) => {
+    if (index === items.length - 1) return;
+    const newItems = [...items];
+    const temp = newItems[index];
+    newItems[index] = newItems[index + 1];
+    newItems[index + 1] = temp;
+    setItems(newItems);
+  };
+
+  const handleDelete = (index: number) => {
+    const newItems = [...items];
+    newItems.splice(index, 1);
+    setItems(newItems);
+  };
+
   return (
     <div>
-      <div className="mx-auto max-w-lg overflow-hidden rounded-md bg-white shadow-lg">
-        <div className="p-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">
-              <Badge># 1</Badge>{" "}
-            </span>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="icon"
-                className="text-blue-500 hover:text-blue-700"
-              >
-                <AiOutlineArrowUp className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="text-blue-500 hover:text-blue-700"
-              >
-                <AiOutlineArrowDown className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="text-red-500 hover:text-red-700"
-              >
-                <AiOutlineDelete className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-          <div className="mt-2">
-            <h2 className="text-lg font-semibold text-gray-800">
-              Bachelor's Degree In Mechanical Engineering With Industrial Safety
-              AndOccupational Health
-            </h2>
-            <MdAssignment />
-            <p className="mt-1 text-sm text-gray-600">
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-              Reiciendis, earum?
-            </p>
-            <p className="mt-1 text-sm text-gray-600">Vistula, 23 agust 2024</p>
-          </div>
-        </div>
-      </div>
+      <FlipMove
+        staggerDelayBy={150}
+        appearAnimation="accordionVertical"
+        enterAnimation="fade"
+        leaveAnimation="fade"
+      >
+        {items.map((item, index) => (
+          <Card key={index} className="my-3 max-w-xl">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <Badge># {index + 1}</Badge>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    onClick={() => handleMoveUp(index)}
+                    variant="outline"
+                    size="icon"
+                    className="text-blue-500 hover:text-blue-700"
+                  >
+                    <FiArrowUp className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    onClick={() => handleMoveDown(index)}
+                    variant="outline"
+                    size="icon"
+                    className="text-blue-500 hover:text-blue-700"
+                  >
+                    <FiArrowDown className="h-4 w-4" />
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="text-red-500 hover:bg-red-600 hover:text-white "
+                      >
+                        <FiTrash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Confirm Priority Removal
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to remove{" "}
+                          <span className="text-orange-500 underline underline-offset-2">
+                            {item}
+                          </span>{" "}
+                          from your priorities?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>No, Keep It</AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-red-500 hover:bg-red-700"
+                          onClick={() => handleDelete(index)}
+                        >
+                          Yes, Remove
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </div>
+              <CardTitle>{item}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex">
+                <FaUniversity className="mr-2 mt-0.5 h-4 w-4 shrink-0" /> MBEYA
+                UNIVERSITY OF SCIENCE AND TECHNOLOGY
+              </div>
+              <div className="flex">
+                <IoWarning className="mr-2 mt-0.5 h-5 w-5 shrink-0 text-orange-400" />
+                Deadline: 31 Aug 2024
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </FlipMove>
     </div>
   );
 };

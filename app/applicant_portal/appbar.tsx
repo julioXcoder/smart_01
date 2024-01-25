@@ -33,7 +33,7 @@ const Appbar = ({ name, value }: Props) => {
   return (
     <nav
       className={`fixed top-0 z-50 w-full transform border-b border-gray-200 bg-white transition-transform duration-300 dark:border-gray-700 dark:bg-gray-800 ${
-        show ? "translate-y-0" : "-translate-y-full"
+        show ? "translate-y-0" : "-translate-y-full md:translate-y-0"
       }`}
     >
       <div className="p-3 lg:px-5 lg:pl-3">

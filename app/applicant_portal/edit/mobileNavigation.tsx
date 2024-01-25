@@ -6,6 +6,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
+import { BiChevronDown } from "react-icons/bi";
 
 interface Props {
   steps: { label: string }[];
@@ -27,7 +28,7 @@ const MobileNavigation = ({
   const currentStep = steps[step];
 
   return (
-    <div className="flex items-center gap-x-2">
+    <div className="flex items-center gap-x-2 md:hidden">
       <Button
         disabled={isFirstStep}
         onClick={onPrevStep}
@@ -38,7 +39,12 @@ const MobileNavigation = ({
       </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline">{currentStep.label}</Button>
+          <Button variant="outline">
+            <div className="flex w-full items-center justify-between">
+              {currentStep.label}
+              <BiChevronDown className="ml-2 h-4 w-4 shrink-0" />
+            </div>
+          </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
           {steps.map((item, index) => (

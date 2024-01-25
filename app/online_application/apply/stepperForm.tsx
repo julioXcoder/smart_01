@@ -137,7 +137,7 @@ const StepperForm = () => {
 
   const handleApplicationTypeChange = (selectedOption: string) => {
     const selectedApplicationTypeObject = applicationTypes.find(
-      (applicationType) => applicationType.value === selectedOption
+      (applicationType) => applicationType.value === selectedOption,
     );
 
     setSelectedApplicationType(selectedApplicationTypeObject || null);
@@ -145,7 +145,7 @@ const StepperForm = () => {
 
   const handleApplicantOriginChange = (selectedOption: string) => {
     const selectedApplicationOriginObject = applicantOrigins.find(
-      (applicationOrigin) => applicationOrigin.value === selectedOption
+      (applicationOrigin) => applicationOrigin.value === selectedOption,
     );
 
     setSelectedApplicantOrigin(selectedApplicationOriginObject || null);
@@ -153,7 +153,7 @@ const StepperForm = () => {
 
   const handleEducationChange = (
     applicationType: string,
-    selectedOption: string
+    selectedOption: string,
   ) => {
     let selectedEducationLevelObject: { value: string; label: string } = {
       value: "",
@@ -162,29 +162,29 @@ const StepperForm = () => {
 
     if (applicationType == "certificate") {
       selectedEducationLevelObject = certificateEducationLevels.find(
-        (item) => item.value === selectedOption
+        (item) => item.value === selectedOption,
       ) || { value: "", label: "" };
     }
 
     if (applicationType == "diploma") {
       selectedEducationLevelObject = diplomaEducationLevels.find(
-        (item) => item.value === selectedOption
+        (item) => item.value === selectedOption,
       ) || { value: "", label: "" };
     }
 
     if (applicationType == "postgraduateDiploma") {
       selectedEducationLevelObject = postgraduateDiplomaEducationLevels.find(
-        (item) => item.value === selectedOption
+        (item) => item.value === selectedOption,
       ) || { value: "", label: "" };
     }
     if (applicationType == "masters") {
       selectedEducationLevelObject = mastersEducationLevels.find(
-        (item) => item.value === selectedOption
+        (item) => item.value === selectedOption,
       ) || { value: "", label: "" };
     }
     if (applicationType == "phd") {
       selectedEducationLevelObject = phdEducationLevels.find(
-        (item) => item.value === selectedOption
+        (item) => item.value === selectedOption,
       ) || { value: "", label: "" };
     }
 
@@ -222,7 +222,7 @@ const StepperForm = () => {
         return;
       } else if (completedOLevel === "no") {
         setErrorMessage(
-          "Unfortunately, completion of O Level is a requirement for our university. Please check back when you have completed your O Level."
+          "Unfortunately, completion of O Level is a requirement for our university. Please check back when you have completed your O Level.",
         );
         return;
       }
@@ -235,7 +235,7 @@ const StepperForm = () => {
 
     if (currentStep === 5 && !selectedEducationLevel) {
       setErrorMessage(
-        "Please select your highest level of education to proceed."
+        "Please select your highest level of education to proceed.",
       );
       return;
     }
@@ -243,7 +243,7 @@ const StepperForm = () => {
     if (currentStep === 6) {
       if (!formIVIndex) {
         setErrorMessage(
-          "Kindly provide your Form IV Index Number. It's crucial for us to proceed with your application."
+          "Kindly provide your Form IV Index Number. It's crucial for us to proceed with your application.",
         );
 
         return;
@@ -294,7 +294,7 @@ const StepperForm = () => {
       console.log(formData);
     } catch (error) {
       setErrorMessage(
-        "We’re sorry, but we were unable to create your account at this time. Please try again later, and if the problem persists, reach out to our support team for assistance."
+        "We’re sorry, but we were unable to create your account at this time. Please try again later, and if the problem persists, reach out to our support team for assistance.",
       );
     } finally {
       setIsLoading(false);
@@ -313,7 +313,7 @@ const StepperForm = () => {
         {currentStep === 0 && (
           <div className="grid items-center justify-center gap-8 md:grid-cols-2">
             <Image
-              className="h-80 w-auto hidden md:block"
+              className="hidden h-80 w-auto md:block"
               src={door}
               alt="Image Description"
             />
@@ -355,7 +355,7 @@ const StepperForm = () => {
               </div>
             </div>
             <Image
-              className="h-80 w-auto hidden md:block"
+              className="hidden h-80 w-auto md:block"
               src={payment}
               alt="Image Description"
             />
@@ -364,7 +364,7 @@ const StepperForm = () => {
         {currentStep === 2 && (
           <div className="grid gap-8 md:grid-cols-2">
             <Image
-              className="h-80 w-auto hidden md:block"
+              className="hidden h-80 w-auto md:block"
               src={select}
               alt="Image Description"
             />
@@ -412,7 +412,7 @@ const StepperForm = () => {
         {currentStep === 3 && (
           <div className="grid gap-8 md:grid-cols-2">
             <Image
-              className="h-80 w-auto hidden md:block"
+              className="hidden h-80 w-auto md:block"
               src={completion}
               alt="Image Description"
             />
@@ -459,7 +459,7 @@ const StepperForm = () => {
         {currentStep === 4 && (
           <div className="grid gap-8 md:grid-cols-2">
             <Image
-              className="h-80 w-auto hidden md:block"
+              className="hidden h-80 w-auto md:block"
               src={globe}
               alt="Image Description"
             />
@@ -523,7 +523,7 @@ const StepperForm = () => {
                     onValueChange={(value: string) => {
                       handleEducationChange(
                         selectedApplicationType?.value || "",
-                        value
+                        value,
                       );
                     }}
                     value={selectedEducationLevel?.value || ""}
@@ -537,7 +537,7 @@ const StepperForm = () => {
                           Select Your Highest Level of Education
                         </SelectLabel>
                         {getEducationLevels(
-                          selectedApplicationType?.value || ""
+                          selectedApplicationType?.value || "",
                         ).map((item) => (
                           <SelectItem key={item.value} value={item.value}>
                             {item.label}
@@ -550,7 +550,7 @@ const StepperForm = () => {
               </div>
             </div>
             <Image
-              className="h-80 w-auto hidden md:block"
+              className="hidden h-80 w-auto md:block"
               src={education}
               alt="Image Description"
             />
@@ -577,13 +577,13 @@ const StepperForm = () => {
               <Input
                 onChange={(event) => setFormIVIndex(event.currentTarget.value)}
                 value={formIVIndex}
-                className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600"
+                className="block w-full rounded-lg border-gray-200 px-4 py-3 text-sm focus:border-blue-500 focus:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-400 dark:focus:ring-gray-600"
               />
-              <div className="mt-4 bg-blue-50 border border-blue-500 text-sm text-gray-500 rounded-lg p-5 dark:bg-blue-600/[.15]">
+              <div className="mt-4 rounded-lg border border-blue-500 bg-blue-50 p-5 text-sm text-gray-500 dark:bg-blue-600/[.15]">
                 <div className="flex">
-                  <InfoCircledIcon className="flex-shrink-0 h-4 w-4 text-blue-600 mt-0.5 dark:text-white" />
+                  <InfoCircledIcon className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600 dark:text-white" />
                   <div className="ml-3">
-                    <h3 className="text-blue-600 font-semibold dark:font-medium dark:text-white">
+                    <h3 className="font-semibold text-blue-600 dark:font-medium dark:text-white">
                       Form IV Index Format
                     </h3>
                     <p className="mt-2 text-gray-800 dark:text-slate-400">
@@ -632,7 +632,7 @@ const StepperForm = () => {
                     />
                     {errors.formIVIndex?.message && (
                       <span className="flex items-center gap-x-1 text-red-600">
-                        <ExclamationTriangleIcon className="flex-shrink-0 w-4 h-4" />
+                        <ExclamationTriangleIcon className="h-4 w-4 flex-shrink-0" />
                         {errors.formIVIndex.message}
                       </span>
                     )}
@@ -648,7 +648,7 @@ const StepperForm = () => {
                       />
                       {errors.firstName?.message && (
                         <span className="flex items-center gap-x-1 text-red-600">
-                          <ExclamationTriangleIcon className="flex-shrink-0 w-4 h-4" />
+                          <ExclamationTriangleIcon className="h-4 w-4 flex-shrink-0" />
                           {errors.firstName.message}
                         </span>
                       )}
@@ -664,7 +664,7 @@ const StepperForm = () => {
 
                       {errors.lastName?.message && (
                         <span className="flex items-center gap-x-1 text-red-600">
-                          <ExclamationTriangleIcon className="flex-shrink-0 w-4 h-4" />
+                          <ExclamationTriangleIcon className="h-4 w-4 flex-shrink-0" />
                           {errors.lastName.message}
                         </span>
                       )}
@@ -679,21 +679,21 @@ const StepperForm = () => {
                           placeholder="Enter password"
                         />
                         <button
-                          className="absolute h-full mx-4 top-0 end-0 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                          className="absolute end-0 top-0 mx-4 h-full dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
                           type="button"
                           onClick={toggleShowPass}
                         >
                           {showPass ? (
-                            <EyeOpenIcon className="flex-shrink-0 w-4 h-4 text-gray-400 dark:text-neutral-600" />
+                            <EyeOpenIcon className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-neutral-600" />
                           ) : (
-                            <EyeClosedIcon className="flex-shrink-0 w-4 h-4 text-gray-400 dark:text-neutral-600" />
+                            <EyeClosedIcon className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-neutral-600" />
                           )}
                         </button>
                       </div>
 
                       {errors.password?.message && (
                         <span className="flex items-center gap-x-1 text-red-600">
-                          <ExclamationTriangleIcon className="flex-shrink-0 w-4 h-4" />
+                          <ExclamationTriangleIcon className="h-4 w-4 flex-shrink-0" />
                           {errors.password.message}
                         </span>
                       )}
@@ -708,21 +708,21 @@ const StepperForm = () => {
                           placeholder="Confirm Password"
                         />
                         <button
-                          className="absolute h-full mx-4 top-0 end-0 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                          className="absolute end-0 top-0 mx-4 h-full dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
                           type="button"
                           onClick={toggleConfirmPass}
                         >
                           {showConfirm ? (
-                            <EyeOpenIcon className="flex-shrink-0 w-4 h-4 text-gray-400 dark:text-neutral-600" />
+                            <EyeOpenIcon className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-neutral-600" />
                           ) : (
-                            <EyeClosedIcon className="flex-shrink-0 w-4 h-4 text-gray-400 dark:text-neutral-600" />
+                            <EyeClosedIcon className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-neutral-600" />
                           )}
                         </button>
                       </div>
 
                       {errors.confirmPassword?.message && (
                         <span className="flex items-center gap-x-1 text-red-600">
-                          <ExclamationTriangleIcon className="flex-shrink-0 w-4 h-4" />
+                          <ExclamationTriangleIcon className="h-4 w-4 flex-shrink-0" />
                           {errors.confirmPassword.message}
                         </span>
                       )}
@@ -737,7 +737,7 @@ const StepperForm = () => {
                       />
                       {errors.phone?.message && (
                         <span className="flex items-center gap-x-1 text-red-600">
-                          <ExclamationTriangleIcon className="flex-shrink-0 w-4 h-4" />
+                          <ExclamationTriangleIcon className="h-4 w-4 flex-shrink-0" />
                           {errors.phone.message}
                         </span>
                       )}
@@ -754,7 +754,7 @@ const StepperForm = () => {
 
                       {errors.email?.message && (
                         <span className="flex items-center gap-x-1 text-red-600">
-                          <ExclamationTriangleIcon className="flex-shrink-0 w-4 h-4" />
+                          <ExclamationTriangleIcon className="h-4 w-4 flex-shrink-0" />
                           {errors.email.message}
                         </span>
                       )}
@@ -785,7 +785,7 @@ const StepperForm = () => {
               Please hold on while we verify your Form IV index. We appreciate
               your patience.
             </span>{" "}
-            <span className="loader inline-flex w-4 h-4 text-black dark:text-white"></span>
+            <span className="loader inline-flex h-4 w-4 text-black dark:text-white"></span>
           </div>
         )}
       </div>
