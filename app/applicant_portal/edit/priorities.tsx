@@ -59,7 +59,8 @@ const Priorities = () => {
         leaveAnimation="fade"
       >
         {items.map((item, index) => (
-          <Card key={index} className="my-3 max-w-xl">
+          // max-w-xl
+          <Card key={index} className="my-3 w-full">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <Badge># {index + 1}</Badge>

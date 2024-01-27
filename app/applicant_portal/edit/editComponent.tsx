@@ -16,6 +16,9 @@ import z from "zod";
 import { FormSchema } from "./data";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import toast from "react-hot-toast";
+import { MdOutlineAccessTime } from "react-icons/md";
+import { FaPaperPlane } from "react-icons/fa6";
 
 import Profile from "./profile";
 import Priorities from "./priorities";
@@ -60,14 +63,17 @@ const EditComponent = () => {
   function onSubmit(data: z.infer<typeof FormSchema>) {
     console.log("logged");
     console.log(data);
+    // FIXME: Call save method
   }
 
   const handleSaveForm = () => {
-    const errors = form.formState.errors;
     const data = form.getValues();
 
+    toast.success("Draft saved. Resume anytime.", {
+      duration: 6000,
+    });
+
     console.log("Data - ", data);
-    console.log("Errors - ", errors);
   };
 
   const steps: Step[] = [
@@ -81,7 +87,7 @@ const EditComponent = () => {
     },
     {
       label: "Contacts",
-      stepContent: <Contacts />,
+      stepContent: <Contacts form={form} />,
     },
     {
       label: "Education",
@@ -127,7 +133,7 @@ const EditComponent = () => {
       </div>
 
       <div className="grid grid-cols-10">
-        <div className="hidden overflow-y-auto pt-2  transition-all duration-300 md:col-span-2 md:block">
+        <div className="hidden overflow-y-auto pt-2 transition-all duration-300 md:col-span-2 md:block">
           <SideNavigation
             step={step}
             onGotoStep={handleGoToStep}
@@ -137,21 +143,31 @@ const EditComponent = () => {
 
         <div className="col-span-10 mt-3 md:col-span-8 md:m-0">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
+            <form>
               {currentStep.stepContent}
               {/* FIXME: ADD A TOAST TO SHOW SAVED! */}
-              <Button
-                className="mt-2 w-full"
-                variant="secondary"
-                onClick={handleSaveForm}
-              >
-                Save as Draft
-              </Button>
-              <Button className="mt-2 w-full" type="submit">
-                Submit Application
-              </Button>
             </form>
           </Form>
+          <Button
+            className="mt-2 w-full"
+            variant="secondary"
+            onClick={handleSaveForm}
+          >
+            <span className="flex items-center gap-2">
+              <MdOutlineAccessTime className="h-4 w-4 shrink-0" />
+              Save as Draft
+            </span>
+          </Button>
+          <Button
+            className="mt-2 w-full"
+            type="submit"
+            onClick={form.handleSubmit(onSubmit)}
+          >
+            <span className="flex items-center gap-2">
+              <FaPaperPlane className="h-4 w-4 shrink-0" />
+              Submit Application
+            </span>
+          </Button>
         </div>
       </div>
     </div>

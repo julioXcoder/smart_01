@@ -4,6 +4,7 @@ import * as React from "react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { type ThemeProviderProps } from "next-themes/dist/types";
 import Spinner from "@/components/spinner";
+import { Toaster } from "react-hot-toast";
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   const [mounted, setMounted] = React.useState(false);
@@ -13,5 +14,10 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
 
   if (!mounted) return <Spinner />;
 
-  return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
+  return (
+    <NextThemesProvider {...props}>
+      <main>{children}</main>
+      <Toaster />
+    </NextThemesProvider>
+  );
 }

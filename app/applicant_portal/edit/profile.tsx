@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -14,6 +15,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
@@ -32,7 +34,7 @@ import { cn } from "@/lib/utils";
 import { UseFormReturn } from "react-hook-form";
 import { BiCheck, BiChevronDown, BiSolidWatch, BiTime } from "react-icons/bi";
 import z from "zod";
-import { countries, genders, FormSchema } from "./data";
+import { nationalities, genders, FormSchema } from "./data";
 
 interface Props {
   form: UseFormReturn<z.infer<typeof FormSchema>>;
@@ -49,7 +51,7 @@ const Profile = ({ form }: Props) => {
             <FormItem>
               <FormLabel>First Name</FormLabel>
               <FormControl>
-                <Input placeholder="First Name" {...field} />
+                <Input placeholder="Enter your first name" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -62,7 +64,7 @@ const Profile = ({ form }: Props) => {
             <FormItem>
               <FormLabel>Middle Name</FormLabel>
               <FormControl>
-                <Input placeholder="Middle Name" {...field} />
+                <Input placeholder="Enter your middle name" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -75,7 +77,7 @@ const Profile = ({ form }: Props) => {
             <FormItem>
               <FormLabel>Last Name</FormLabel>
               <FormControl>
-                <Input placeholder="Last Name" {...field} />
+                <Input placeholder="Enter your last name" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -92,7 +94,7 @@ const Profile = ({ form }: Props) => {
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select Gender" />
+                    <SelectValue placeholder="Select your Gender" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -125,8 +127,8 @@ const Profile = ({ form }: Props) => {
                       )}
                     >
                       {field.value
-                        ? countries.find(
-                            (country) => country.value === field.value,
+                        ? nationalities.find(
+                            (nationality) => nationality.value === field.value,
                           )?.label
                         : "Select nationality"}
                       <BiChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -139,23 +141,23 @@ const Profile = ({ form }: Props) => {
                     <CommandList>
                       <CommandEmpty>No nationality found.</CommandEmpty>
                       <CommandGroup>
-                        {countries.map((country) => (
+                        {nationalities.map((nationality) => (
                           <CommandItem
-                            value={country.label}
-                            key={country.value}
+                            value={nationality.label}
+                            key={nationality.value}
                             onSelect={() => {
-                              form.setValue("citizenship", country.value);
+                              form.setValue("citizenship", nationality.value);
                             }}
                           >
                             <BiCheck
                               className={cn(
                                 "mr-2 h-4 w-4",
-                                country.value === field.value
+                                nationality.value === field.value
                                   ? "opacity-100"
                                   : "opacity-0",
                               )}
                             />
-                            {country.label}
+                            {nationality.label}
                           </CommandItem>
                         ))}
                       </CommandGroup>
@@ -174,8 +176,21 @@ const Profile = ({ form }: Props) => {
             <FormItem>
               <FormLabel>NIDA</FormLabel>
               <FormControl>
-                <Input placeholder="NIDA" {...field} />
+                <Input placeholder="Enter your NIDA number" {...field} />
               </FormControl>
+              <FormDescription>
+                Your NIDA number is a unique identifier assigned to you by
+                Tanzania’s National Identification Authority (NIDA). If you
+                don’t have one, you can apply for it on the{" "}
+                <Link
+                  target="_blank"
+                  href="https://services.nida.go.tz/nidportal/"
+                  className="font-medium text-blue-600 decoration-2 hover:underline dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                >
+                  official NIDA website
+                </Link>
+                .
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
