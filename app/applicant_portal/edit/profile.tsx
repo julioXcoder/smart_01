@@ -42,7 +42,7 @@ interface Props {
 
 const Profile = ({ form }: Props) => {
   return (
-    <div className="my-6 grid gap-6 md:grid-cols-2">
+    <form className="my-6 grid gap-6 md:grid-cols-2">
       <div className="space-y-4">
         <FormField
           control={form.control}
@@ -196,7 +196,7 @@ const Profile = ({ form }: Props) => {
           )}
         />
       </div>
-    </div>
+    </form>
   );
 };
 

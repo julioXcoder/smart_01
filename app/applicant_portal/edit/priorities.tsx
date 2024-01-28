@@ -52,86 +52,80 @@ const Priorities = () => {
 
   return (
     <div>
-      <FlipMove
-        staggerDelayBy={150}
-        appearAnimation="accordionVertical"
-        enterAnimation="fade"
-        leaveAnimation="fade"
-      >
-        {items.map((item, index) => (
-          // max-w-xl
-          <Card key={index} className="my-3 w-full">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <Badge># {index + 1}</Badge>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    onClick={() => handleMoveUp(index)}
-                    variant="outline"
-                    size="icon"
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    <FiArrowUp className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    onClick={() => handleMoveDown(index)}
-                    variant="outline"
-                    size="icon"
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    <FiArrowDown className="h-4 w-4" />
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="text-red-500 hover:bg-red-600 hover:text-white "
+      {items.map((item, index) => (
+        // max-w-xl
+        <Card key={index} className="my-3 w-full">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <Badge className="shrink-0"># {index + 1}</Badge>
+
+              <div className="flex items-center space-x-2">
+                <Button
+                  onClick={() => handleMoveUp(index)}
+                  variant="outline"
+                  size="icon"
+                  className="text-blue-500 hover:text-blue-700"
+                >
+                  <FiArrowUp className="h-4 w-4" />
+                </Button>
+                <Button
+                  onClick={() => handleMoveDown(index)}
+                  variant="outline"
+                  size="icon"
+                  className="text-blue-500 hover:text-blue-700"
+                >
+                  <FiArrowDown className="h-4 w-4" />
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="text-red-500 hover:bg-red-600 hover:text-white "
+                    >
+                      <FiTrash2 className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Confirm Priority Removal
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to remove{" "}
+                        <span className="text-orange-500 underline underline-offset-2">
+                          {item}
+                        </span>{" "}
+                        from your priorities?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>No, Keep It</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-red-500 hover:bg-red-700"
+                        onClick={() => handleDelete(index)}
                       >
-                        <FiTrash2 className="h-4 w-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          Confirm Priority Removal
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to remove{" "}
-                          <span className="text-orange-500 underline underline-offset-2">
-                            {item}
-                          </span>{" "}
-                          from your priorities?
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>No, Keep It</AlertDialogCancel>
-                        <AlertDialogAction
-                          className="bg-red-500 hover:bg-red-700"
-                          onClick={() => handleDelete(index)}
-                        >
-                          Yes, Remove
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
+                        Yes, Remove
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
-              <CardTitle>{item}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex">
-                <FaUniversity className="mr-2 mt-0.5 h-4 w-4 shrink-0" /> MBEYA
-                UNIVERSITY OF SCIENCE AND TECHNOLOGY
-              </div>
-              <div className="flex">
-                <IoWarning className="mr-2 mt-0.5 h-5 w-5 shrink-0 text-orange-400" />
-                Deadline: 31 Aug 2024
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </FlipMove>
+            </div>
+            <CardTitle>{item}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex">
+              <FaUniversity className="mr-2 mt-0.5 h-4 w-4 shrink-0" /> MBEYA
+              UNIVERSITY OF SCIENCE AND TECHNOLOGY
+            </div>
+            <div className="flex">
+              <IoWarning className="mr-2 mt-0.5 h-5 w-5 shrink-0 text-orange-400" />
+              Deadline: 31 Aug 2024
+            </div>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 };

@@ -12,7 +12,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import z from "zod";
+import z, { Schema } from "zod";
 import { FormSchema } from "./data";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,6 +34,9 @@ interface Step {
 const EditComponent = () => {
   const [step, setStep] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
+
+  const [profileErrors, setProfileErrors] = useState(0);
+  const [contactErrors, setContactErrors] = useState(0);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -57,6 +60,23 @@ const EditComponent = () => {
       middleName: "",
       lastName: "",
       nida: "",
+      applicantEmail: "",
+      applicantPhoneNumber: "",
+      citizenship: "",
+      country: "",
+      emergencyContactCity: "",
+      emergencyContactCountry: "",
+      emergencyContactEmail: "",
+      emergencyContactPhoneNumber: "",
+      emergencyContactPostalCode: "",
+      emergencyContactRegion: "",
+      emergencyContactRelation: "",
+      emergencyContactStreetAddress: "",
+      city: "",
+      gender: "",
+      region: "",
+      postalCode: "",
+      streetAddress: "",
     },
   });
 
@@ -69,11 +89,34 @@ const EditComponent = () => {
   const handleSaveForm = () => {
     const data = form.getValues();
 
+    const validation = FormSchema.safeParse(data);
+
+    if (!validation.success) {
+      const profileFields = ["firstName", "middleName", "lastName"];
+      const contactFields = ["email", "phone", "applicantPhoneNumber"];
+
+      const profileFieldErrors = profileFields.filter(
+        (field) =>
+          validation.error.formErrors.fieldErrors[
+            field as keyof typeof validation.error.formErrors.fieldErrors
+          ],
+      ).length;
+      const contactFieldErrors = contactFields.filter(
+        (field) =>
+          validation.error.formErrors.fieldErrors[
+            field as keyof typeof validation.error.formErrors.fieldErrors
+          ],
+      ).length;
+
+      setProfileErrors(profileFieldErrors);
+      setContactErrors(contactFieldErrors);
+    }
+
+    form.handleSubmit(onSubmit)();
+
     toast.success("Draft saved. Resume anytime.", {
       duration: 6000,
     });
-
-    console.log("Data - ", data);
   };
 
   const steps: Step[] = [
@@ -119,7 +162,9 @@ const EditComponent = () => {
 
   return (
     <div>
-      <div className="flex w-full items-center justify-between">
+      <div>profile {profileErrors}</div>
+      <div>contact {contactErrors}</div>
+      <div className="flex w-full items-center justify-center">
         <div>
           <MobileNavigation
             step={step}
@@ -129,7 +174,7 @@ const EditComponent = () => {
             steps={steps}
           />
         </div>
-        <Button>Submit Application</Button>
+        {/* <Button>Submit Application</Button> */}
       </div>
 
       <div className="grid grid-cols-10">
@@ -142,12 +187,7 @@ const EditComponent = () => {
         </div>
 
         <div className="col-span-10 mt-3 md:col-span-8 md:m-0">
-          <Form {...form}>
-            <form>
-              {currentStep.stepContent}
-              {/* FIXME: ADD A TOAST TO SHOW SAVED! */}
-            </form>
-          </Form>
+          <Form {...form}>{currentStep.stepContent}</Form>
           <Button
             className="mt-2 w-full"
             variant="secondary"
@@ -158,11 +198,7 @@ const EditComponent = () => {
               Save as Draft
             </span>
           </Button>
-          <Button
-            className="mt-2 w-full"
-            type="submit"
-            onClick={form.handleSubmit(onSubmit)}
-          >
+          <Button className="mt-2 w-full" onClick={form.handleSubmit(onSubmit)}>
             <span className="flex items-center gap-2">
               <FaPaperPlane className="h-4 w-4 shrink-0" />
               Submit Application
