@@ -52,7 +52,7 @@ const Contacts = ({ form }: Props) => {
             Enter your primary contact details.
           </p>
         </div>
-        <div className="space-y-4">
+        <div className="space-y-6">
           <FormField
             control={form.control}
             name="applicantEmail"
@@ -92,9 +92,7 @@ const Contacts = ({ form }: Props) => {
               </FormItem>
             )}
           />
-          <h1 className="text-lg font-bold text-green-400 dark:text-white">
-            Address
-          </h1>
+          <h1 className="text-lg font-bold text-green-700">Address</h1>
           <FormField
             control={form.control}
             name="streetAddress"
@@ -224,7 +222,20 @@ const Contacts = ({ form }: Props) => {
             Enter the contact details of a person reachable in emergencies.
           </p>
         </div>
-        <div className="space-y-4">
+        <div className="space-y-6">
+          <FormField
+            control={form.control}
+            name="emergencyContactFullName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Emergency Contact Full Name</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="emergencyContactEmail"
@@ -267,7 +278,7 @@ const Contacts = ({ form }: Props) => {
               </FormItem>
             )}
           />
-          <h1 className="text-lg font-bold text-green-400 dark:text-white">
+          <h1 className="text-lg font-bold text-green-700">
             Emergency Contact Address
           </h1>
           <FormField
@@ -373,7 +384,10 @@ const Contacts = ({ form }: Props) => {
                               value={country.label}
                               key={country.value}
                               onSelect={() => {
-                                form.setValue("country", country.value);
+                                form.setValue(
+                                  "emergencyContactCountry",
+                                  country.value,
+                                );
                               }}
                             >
                               <BiCheck

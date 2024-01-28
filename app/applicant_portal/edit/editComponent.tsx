@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, ReactNode } from "react";
+import React, {
+  useState,
+  useEffect,
+  ReactNode,
+  useRef,
+  ChangeEvent,
+} from "react";
 import MobileNavigation from "./mobileNavigation";
 import SideNavigation from "./sideNavigation";
 import { Button } from "@/components/ui/button";
@@ -29,6 +35,7 @@ import Attachments from "./attachments";
 interface Step {
   label: string;
   stepContent: ReactNode;
+  errors?: number;
 }
 
 const EditComponent = () => {
@@ -37,6 +44,12 @@ const EditComponent = () => {
 
   const [profileErrors, setProfileErrors] = useState(0);
   const [contactErrors, setContactErrors] = useState(0);
+
+  const [image, setImage] = useState<File | null>(null);
+  const [error, setError] = useState<String>("");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [loading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -51,7 +64,7 @@ const EditComponent = () => {
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [isSaved]); // Add this dependency
+  }, [isSaved]);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -77,23 +90,72 @@ const EditComponent = () => {
       region: "",
       postalCode: "",
       streetAddress: "",
+      emergencyContactFullName: "",
     },
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log("logged");
-    console.log(data);
-    // FIXME: Call save method
+    handleSaveAsDraft();
+
+    toast.success(
+      "Your application is successfully submitted and under review. Stay tuned!",
+      {
+        duration: 6000,
+      },
+    );
   }
 
-  const handleSaveForm = () => {
+  const handleSaveAsDraft = () => {
+    const data = form.getValues();
+    form.clearErrors();
+    setProfileErrors(0);
+    setContactErrors(0);
+
+    toast.success("Draft saved. Resume anytime.", {
+      duration: 6000,
+    });
+  };
+
+  const handleSubmitApplication = () => {
     const data = form.getValues();
 
     const validation = FormSchema.safeParse(data);
 
+    setProfileErrors(0);
+    setContactErrors(0);
+
     if (!validation.success) {
-      const profileFields = ["firstName", "middleName", "lastName"];
-      const contactFields = ["email", "phone", "applicantPhoneNumber"];
+      toast.error(
+        "Oops! Some fields are incomplete. Please review and fill all required fields.",
+        { duration: 6000 },
+      );
+
+      const profileFields = [
+        "firstName",
+        "middleName",
+        "lastName",
+        "gender",
+        "citizenship",
+        "nida",
+      ];
+      const contactFields = [
+        "emergencyContactFullName",
+        "applicantEmail",
+        "applicantPhoneNumber",
+        "streetAddress",
+        "city",
+        "region",
+        "postalCode",
+        "country",
+        "emergencyContactEmail",
+        "emergencyContactPhoneNumber",
+        "emergencyContactStreetAddress",
+        "emergencyContactCity",
+        "emergencyContactRegion",
+        "emergencyContactPostalCode",
+        "emergencyContactCountry",
+        "emergencyContactRelation",
+      ];
 
       const profileFieldErrors = profileFields.filter(
         (field) =>
@@ -113,10 +175,26 @@ const EditComponent = () => {
     }
 
     form.handleSubmit(onSubmit)();
+  };
 
-    toast.success("Draft saved. Resume anytime.", {
-      duration: 6000,
-    });
+  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+    // Get the first file from the input
+    const file = event.target.files ? event.target.files[0] : null;
+    // Update the image state variable
+    setImage(file);
+    // Create a temporary URL for the file
+    const url = file ? URL.createObjectURL(file) : null;
+    // Update the preview state variable
+    setImagePreview(url);
+
+    console.log("Call server 💻");
+
+    event.target.value = "";
+  };
+
+  const handleFileRemove = () => {
+    setImage(null);
+    setImagePreview(null);
   };
 
   const steps: Step[] = [
@@ -126,11 +204,21 @@ const EditComponent = () => {
     },
     {
       label: "Profile",
-      stepContent: <Profile form={form} />,
+      stepContent: (
+        <Profile
+          image={image}
+          imagePreview={imagePreview}
+          onImageDelete={handleFileRemove}
+          onImageUpdate={handleImageChange}
+          form={form}
+        />
+      ),
+      errors: profileErrors,
     },
     {
       label: "Contacts",
       stepContent: <Contacts form={form} />,
+      errors: contactErrors,
     },
     {
       label: "Education",
@@ -162,8 +250,6 @@ const EditComponent = () => {
 
   return (
     <div>
-      <div>profile {profileErrors}</div>
-      <div>contact {contactErrors}</div>
       <div className="flex w-full items-center justify-center">
         <div>
           <MobileNavigation
@@ -183,27 +269,31 @@ const EditComponent = () => {
             step={step}
             onGotoStep={handleGoToStep}
             steps={steps}
+            profileErrors={profileErrors}
           />
         </div>
 
         <div className="col-span-10 mt-3 md:col-span-8 md:m-0">
-          <Form {...form}>{currentStep.stepContent}</Form>
-          <Button
-            className="mt-2 w-full"
-            variant="secondary"
-            onClick={handleSaveForm}
-          >
-            <span className="flex items-center gap-2">
-              <MdOutlineAccessTime className="h-4 w-4 shrink-0" />
-              Save as Draft
-            </span>
-          </Button>
-          <Button className="mt-2 w-full" onClick={form.handleSubmit(onSubmit)}>
-            <span className="flex items-center gap-2">
-              <FaPaperPlane className="h-4 w-4 shrink-0" />
-              Submit Application
-            </span>
-          </Button>
+          <Form {...form}>
+            {currentStep.stepContent}
+
+            <Button
+              className="mt-2 w-full"
+              variant="secondary"
+              onClick={handleSaveAsDraft}
+            >
+              <span className="flex items-center gap-2">
+                <MdOutlineAccessTime className="h-4 w-4 shrink-0" />
+                Save as Draft
+              </span>
+            </Button>
+            <Button className="mt-2 w-full" onClick={handleSubmitApplication}>
+              <span className="flex items-center gap-2">
+                <FaPaperPlane className="h-4 w-4 shrink-0" />
+                Submit Application
+              </span>
+            </Button>
+          </Form>
         </div>
       </div>
     </div>

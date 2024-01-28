@@ -479,6 +479,10 @@ const FormSchema = z.object({
     .optional()
     .or(z.literal("")),
 
+  emergencyContactFullName: z
+    .string()
+    .min(1, { message: "Emergency contact full name is required" }),
+
   emergencyContactPhoneNumber: z
     .string()
     .refine((value) => phoneRegex.test(value), {
