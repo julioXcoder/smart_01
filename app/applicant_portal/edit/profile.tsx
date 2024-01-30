@@ -241,7 +241,14 @@ const Profile = ({
             </p>
             <p>
               Need details on photo requirements? Check out our{" "}
-              <a href="#">photo guidelines</a> for all the information you need.
+              <Link
+                target="_blank"
+                href="#"
+                className="font-medium text-blue-600 decoration-2 hover:underline dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+              >
+                photo guidelines
+              </Link>{" "}
+              for all the information you need.
             </p>
           </div>
         </div>

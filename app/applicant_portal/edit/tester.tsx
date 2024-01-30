@@ -47,7 +47,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useForm, useFieldArray, FieldError } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 
 interface Props {
   form: UseFormReturn<z.infer<typeof FormSchema>>;
@@ -61,7 +61,7 @@ const years = Array.from(
   },
 );
 
-const Education = ({ form }: Props) => {
+const Tester = ({ form }: Props) => {
   const { fields, append, move, remove } = useFieldArray({
     control: form.control,
     name: "education",
@@ -80,9 +80,7 @@ const Education = ({ form }: Props) => {
   };
 
   const handleDelete = (index: number) => {
-    if (fields.length > 1) {
-      remove(index);
-    }
+    remove(index);
   };
 
   const handleAddItem = () => {
@@ -118,97 +116,57 @@ const Education = ({ form }: Props) => {
                 >
                   <FiArrowDown className="h-4 w-4" />
                 </Button>
-                {fields.length > 1 && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="text-red-500 hover:bg-red-600 hover:text-white "
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="text-red-500 hover:bg-red-600 hover:text-white "
+                    >
+                      <FiTrash2 className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Confirm Priority Removal
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to remove{" "}
+                        <span className="text-orange-500 underline underline-offset-2">
+                          {item.schoolName}
+                        </span>{" "}
+                        from your priorities?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>No, Keep It</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-red-500 hover:bg-red-700"
+                        onClick={() => handleDelete(index)}
                       >
-                        <FiTrash2 className="h-4 w-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          Confirm Priority Removal
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to remove{" "}
-                          <span className="text-orange-500 underline underline-offset-2">
-                            {item.schoolName}
-                          </span>{" "}
-                          from your priorities?
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>No, Keep It</AlertDialogCancel>
-                        <AlertDialogAction
-                          className="bg-red-500 hover:bg-red-700"
-                          onClick={() => handleDelete(index)}
-                        >
-                          Yes, Remove
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                )}
+                        Yes, Remove
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-6">
             <div className="space-y-3">
-              <Input
-                {...form.register(`education.${index}.level`)}
-                defaultValue={item.level}
-              />
-              {form.formState.errors.education && (
-                <p className="text-red-500">
-                  {form.formState.errors.education[index]?.level?.message}
-                </p>
-              )}
-
-              <Input
-                {...form.register(`education.${index}.schoolName`)}
-                defaultValue={item.schoolName}
-              />
-              {form.formState.errors.education && (
-                <p className="text-red-500">
-                  {form.formState.errors.education[index]?.schoolName?.message}
-                </p>
-              )}
+              <Input {...item} value={item.level} />
+              <Input {...item} value={item.schoolName} />
             </div>
             <div className="space-y-3">
-              <Input
-                {...form.register(`education.${index}.startYear`)}
-                defaultValue={item.startYear}
-              />
-              {form.formState.errors.education && (
-                <p className="text-red-500">
-                  {form.formState.errors.education[index]?.startYear?.message}
-                </p>
-              )}
-
-              <Input
-                {...form.register(`education.${index}.endYear`)}
-                defaultValue={item.endYear}
-              />
-              {form.formState.errors.education && (
-                <p className="text-red-500">
-                  {form.formState.errors.education[index]?.endYear?.message}
-                </p>
-              )}
+              <Input {...item} value={item.startYear} />
+              <Input {...item} value={item.endYear} />
             </div>
           </CardContent>
         </Card>
       ))}
-
-      <div className="my-5">
-        <Button onClick={handleAddItem}>Add Card</Button>
-      </div>
     </>
   );
 };
 
-export default Education;
+export default Tester;

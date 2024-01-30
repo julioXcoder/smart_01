@@ -24,19 +24,26 @@ import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 import { MdOutlineAccessTime } from "react-icons/md";
-import { FaPaperPlane } from "react-icons/fa6";
+import { Step } from "@/types";
+import {
+  FaPaperPlane,
+  FaList,
+  FaUser,
+  FaAddressBook,
+  FaBook,
+  FaPaperclip,
+  FaCreditCard,
+  FaShield,
+  FaExclamation,
+} from "react-icons/fa6";
 
 import Profile from "./profile";
 import Priorities from "./priorities";
 import Contacts from "./contacts";
 import Education from "./education";
 import Attachments from "./attachments";
-
-interface Step {
-  label: string;
-  stepContent: ReactNode;
-  errors?: number;
-}
+import Payment from "./payment";
+import EmergencyContact from "./emergencyContact";
 
 const EditComponent = () => {
   const [step, setStep] = useState(0);
@@ -44,6 +51,7 @@ const EditComponent = () => {
 
   const [profileErrors, setProfileErrors] = useState(0);
   const [contactErrors, setContactErrors] = useState(0);
+  const [emergencyContactErrors, setEmergencyContactErrors] = useState(0);
 
   const [image, setImage] = useState<File | null>(null);
   const [error, setError] = useState<String>("");
@@ -91,6 +99,18 @@ const EditComponent = () => {
       postalCode: "",
       streetAddress: "",
       emergencyContactFullName: "",
+      applicantAlternativeEmail: "",
+      applicantAlternativePhoneNumber: "",
+      emergencyContactAlternativeEmail: "",
+      emergencyContactAlternativePhoneNumber: "",
+      education: [
+        {
+          level: "",
+          schoolName: "",
+          startYear: "",
+          endYear: "",
+        },
+      ],
     },
   });
 
@@ -114,6 +134,9 @@ const EditComponent = () => {
     toast.success("Draft saved. Resume anytime.", {
       duration: 6000,
     });
+
+    console.log("data", data);
+    console.log("Education Errors", form.formState.errors.education);
   };
 
   const handleSubmitApplication = () => {
@@ -139,14 +162,18 @@ const EditComponent = () => {
         "nida",
       ];
       const contactFields = [
-        "emergencyContactFullName",
         "applicantEmail",
+        "applicantAlternativeEmail",
         "applicantPhoneNumber",
+        "applicantAlternativePhoneNumber",
         "streetAddress",
         "city",
         "region",
         "postalCode",
         "country",
+      ];
+      const emergencyFields = [
+        "emergencyContactFullName",
         "emergencyContactEmail",
         "emergencyContactPhoneNumber",
         "emergencyContactStreetAddress",
@@ -155,6 +182,8 @@ const EditComponent = () => {
         "emergencyContactPostalCode",
         "emergencyContactCountry",
         "emergencyContactRelation",
+        "emergencyContactAlternativeEmail",
+        "emergencyContactAlternativePhoneNumber",
       ];
 
       const profileFieldErrors = profileFields.filter(
@@ -169,9 +198,16 @@ const EditComponent = () => {
             field as keyof typeof validation.error.formErrors.fieldErrors
           ],
       ).length;
+      const emergencyContactFieldErrors = emergencyFields.filter(
+        (field) =>
+          validation.error.formErrors.fieldErrors[
+            field as keyof typeof validation.error.formErrors.fieldErrors
+          ],
+      ).length;
 
       setProfileErrors(profileFieldErrors);
       setContactErrors(contactFieldErrors);
+      setEmergencyContactErrors(emergencyContactFieldErrors);
     }
 
     form.handleSubmit(onSubmit)();
@@ -201,6 +237,7 @@ const EditComponent = () => {
     {
       label: "Priorities",
       stepContent: <Priorities />,
+      Icon: FaList,
     },
     {
       label: "Profile",
@@ -214,19 +251,34 @@ const EditComponent = () => {
         />
       ),
       errors: profileErrors,
+      Icon: FaUser,
     },
     {
       label: "Contacts",
       stepContent: <Contacts form={form} />,
       errors: contactErrors,
+      Icon: FaAddressBook,
+    },
+    {
+      label: "Emergency",
+      stepContent: <EmergencyContact form={form} />,
+      errors: emergencyContactErrors,
+      Icon: FaExclamation,
     },
     {
       label: "Education",
-      stepContent: <Education />,
+      stepContent: <Education form={form} />,
+      Icon: FaBook,
     },
     {
       label: "Attachments",
       stepContent: <Attachments />,
+      Icon: FaPaperclip,
+    },
+    {
+      label: "Payments",
+      stepContent: <Payment />,
+      Icon: FaCreditCard,
     },
   ];
 
@@ -260,7 +312,6 @@ const EditComponent = () => {
             steps={steps}
           />
         </div>
-        {/* <Button>Submit Application</Button> */}
       </div>
 
       <div className="grid grid-cols-10">
@@ -269,13 +320,24 @@ const EditComponent = () => {
             step={step}
             onGotoStep={handleGoToStep}
             steps={steps}
-            profileErrors={profileErrors}
           />
         </div>
 
         <div className="col-span-10 mt-3 md:col-span-8 md:m-0">
           <Form {...form}>
             {currentStep.stepContent}
+
+            <div className="mb-5 flex w-full items-center justify-center">
+              <div>
+                <MobileNavigation
+                  step={step}
+                  onGotoStep={handleGoToStep}
+                  onNextStep={handleGoToNextStep}
+                  onPrevStep={handleGoToPreviousStep}
+                  steps={steps}
+                />
+              </div>
+            </div>
 
             <Button
               className="mt-2 w-full"

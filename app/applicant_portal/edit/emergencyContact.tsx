@@ -40,26 +40,39 @@ interface Props {
   form: UseFormReturn<z.infer<typeof FormSchema>>;
 }
 
-const Contacts = ({ form }: Props) => {
+const EmergencyContact = ({ form }: Props) => {
   return (
-    <div className="my-6 grid gap-6 md:grid-cols-2">
+    <form className="my-6 grid gap-6 md:grid-cols-2">
       <div>
         <div className="mb-5">
-          <h3 className="text-xl font-bold text-gray-800 dark:text-white">
-            Applicant contact
+          <h3 className="text-lg font-bold text-gray-800 dark:text-white">
+            Emergency contact
           </h3>
           <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-            Enter your primary contact details.
+            Enter the contact details of a person reachable in emergencies.
           </p>
         </div>
         <div className="space-y-6">
           <FormField
             control={form.control}
-            name="applicantEmail"
+            name="emergencyContactFullName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Emergency Contact Full Name</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="emergencyContactEmail"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  Applicant Email
+                  Emergency Contact Email
                   <span className="ml-1 text-xs text-gray-500">(Optional)</span>
                 </FormLabel>
                 <FormControl>
@@ -71,10 +84,10 @@ const Contacts = ({ form }: Props) => {
           />
           <FormField
             control={form.control}
-            name="applicantPhoneNumber"
+            name="emergencyContactPhoneNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone Number</FormLabel>
+                <FormLabel>Emergency contact Phone Number</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="Include country code, e.g., +25512345678"
@@ -87,11 +100,11 @@ const Contacts = ({ form }: Props) => {
           />
           <FormField
             control={form.control}
-            name="applicantAlternativeEmail"
+            name="emergencyContactAlternativeEmail"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  Applicant Alternative Email
+                  Emergency Contact Alternative Email
                   <span className="ml-1 text-xs text-gray-500">(Optional)</span>
                 </FormLabel>
                 <FormControl>
@@ -103,11 +116,11 @@ const Contacts = ({ form }: Props) => {
           />
           <FormField
             control={form.control}
-            name="applicantAlternativePhoneNumber"
+            name="emergencyContactAlternativePhoneNumber"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  Applicant Alternative PhoneNumber
+                  Emergency Contact Alternative Phone Number
                   <span className="ml-1 text-xs text-gray-500">(Optional)</span>
                 </FormLabel>
                 <FormControl>
@@ -124,22 +137,22 @@ const Contacts = ({ form }: Props) => {
       </div>
       <div>
         <div className="mb-5">
-          <h3 className="text-xl font-bold text-gray-800 dark:text-white">
-            Applicant Address
+          <h3 className="text-lg font-bold text-gray-800 dark:text-white">
+            Emergency Address
           </h3>
           <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-            Please provide your full residential address.
+            Specify the location of your emergency contact.
           </p>
         </div>
         <div className="space-y-6">
           <FormField
             control={form.control}
-            name="streetAddress"
+            name="emergencyContactStreetAddress"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Street Address</FormLabel>
+                <FormLabel>Emergency Contact Street Address</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter your street address" {...field} />
+                  <Input {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -147,15 +160,12 @@ const Contacts = ({ form }: Props) => {
           />
           <FormField
             control={form.control}
-            name="city"
+            name="emergencyContactCity"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>City, town, village</FormLabel>
+                <FormLabel>Emergency Contact City, town, village</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Enter your City, town or your village"
-                    {...field}
-                  />
+                  <Input {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -163,15 +173,14 @@ const Contacts = ({ form }: Props) => {
           />
           <FormField
             control={form.control}
-            name="region"
+            name="emergencyContactRegion"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Region, province, county</FormLabel>
+                <FormLabel>
+                  Emergency Contact Region, province, county
+                </FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Enter your Region, province or your county"
-                    {...field}
-                  />
+                  <Input {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -179,12 +188,12 @@ const Contacts = ({ form }: Props) => {
           />
           <FormField
             control={form.control}
-            name="postalCode"
+            name="emergencyContactPostalCode"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Postal Code</FormLabel>
+                <FormLabel>Emergency Contact Postal Code</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter your postal code" {...field} />
+                  <Input {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -192,10 +201,10 @@ const Contacts = ({ form }: Props) => {
           />
           <FormField
             control={form.control}
-            name="country"
+            name="emergencyContactCountry"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Country</FormLabel>
+                <FormLabel>Emergency Contact Country</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -211,7 +220,7 @@ const Contacts = ({ form }: Props) => {
                           ? countries.find(
                               (country) => country.value === field.value,
                             )?.label
-                          : "Select country"}
+                          : "Select emergency contact country"}
                         <BiChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </FormControl>
@@ -227,7 +236,10 @@ const Contacts = ({ form }: Props) => {
                               value={country.label}
                               key={country.value}
                               onSelect={() => {
-                                form.setValue("country", country.value);
+                                form.setValue(
+                                  "emergencyContactCountry",
+                                  country.value,
+                                );
                               }}
                             >
                               <BiCheck
@@ -250,10 +262,30 @@ const Contacts = ({ form }: Props) => {
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="emergencyContactRelation"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Emergency Contact Relation</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormDescription>
+                  This could be a parent, sibling, spouse, fiancée, friend, or
+                  any other individual who is typically able to respond
+                  promptly. Please ensure that this person is aware that they
+                  have been listed as your emergency contact. Thank you for your
+                  cooperation.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
       </div>
-    </div>
+    </form>
   );
 };
 
-export default Contacts;
+export default EmergencyContact;

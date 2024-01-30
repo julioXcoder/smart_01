@@ -437,6 +437,23 @@ const genders: SelectableOption[] = [
   { value: "F", label: "Female" },
 ];
 
+const educationLevel: SelectableOption[] = [
+  { value: "secondary_education", label: "Secondary Education" },
+  { value: "nva_level_3_veta", label: "NVA Level 3 - Veta" },
+  { value: "postgraduate_certificate", label: "Postgraduate Certificate" },
+  { value: "postgraduate_diploma", label: "Postgraduate Diploma" },
+  { value: "bachelors_degree", label: "Bachelor's Degree" },
+  { value: "masters_degree", label: "Master's Degree" },
+  { value: "phd", label: "PhD" },
+];
+
+const EducationSchema = z.object({
+  level: z.string().min(1, { message: "First name is required" }),
+  schoolName: z.string(),
+  startYear: z.string(),
+  endYear: z.string(),
+});
+
 const FormSchema = z.object({
   firstName: z.string().min(1, { message: "First name is required" }),
   middleName: z.string().min(1, { message: "Last name is required" }),
@@ -446,6 +463,7 @@ const FormSchema = z.object({
   citizenship: z
     .string()
     .min(1, { message: "Please select your nationality." }),
+
   applicantEmail: z
     .string()
     .email({
@@ -454,12 +472,26 @@ const FormSchema = z.object({
     .optional()
     .or(z.literal("")),
 
-  applicantPhoneNumber: z
+  applicantAlternativeEmail: z
+    .string()
+    .email({
+      message: "Applicant's alternative email must be in a valid format.",
+    })
+    .optional()
+    .or(z.literal("")),
+
+  applicantPhoneNumber: z.string().refine((value) => phoneRegex.test(value), {
+    message: "Applicant's phone number must be in a valid format.",
+  }),
+
+  applicantAlternativePhoneNumber: z
     .string()
     .refine((value) => phoneRegex.test(value), {
-      message: "Applicant's phone number must be in a valid format.",
+      message:
+        "Applicant's alternative phone number must be in a valid format.",
     })
-    .optional(),
+    .optional()
+    .or(z.literal("")),
 
   streetAddress: z.string().min(1, { message: "Street address is required." }),
 
@@ -479,6 +511,15 @@ const FormSchema = z.object({
     .optional()
     .or(z.literal("")),
 
+  emergencyContactAlternativeEmail: z
+    .string()
+    .email({
+      message:
+        "Emergency contact's alternative email must be in a valid format.",
+    })
+    .optional()
+    .or(z.literal("")),
+
   emergencyContactFullName: z
     .string()
     .min(1, { message: "Emergency contact full name is required" }),
@@ -488,6 +529,15 @@ const FormSchema = z.object({
     .refine((value) => phoneRegex.test(value), {
       message: "Emergency contact's phone number must be in a valid format.",
     }),
+
+  emergencyContactAlternativePhoneNumber: z
+    .string()
+    .refine((value) => phoneRegex.test(value), {
+      message:
+        "Emergency contact's alternative phone number must be in a valid format.",
+    })
+    .optional()
+    .or(z.literal("")),
 
   emergencyContactStreetAddress: z
     .string()
@@ -508,6 +558,8 @@ const FormSchema = z.object({
   emergencyContactRelation: z
     .string()
     .min(1, { message: "Relationship to the emergency contact is required." }),
+
+  education: z.array(EducationSchema),
 });
 
 export { countries, genders, nationalities, FormSchema };
