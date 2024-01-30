@@ -38,6 +38,7 @@ const EditComponent = () => {
   const [profileErrors, setProfileErrors] = useState(0);
   const [contactErrors, setContactErrors] = useState(0);
   const [emergencyContactErrors, setEmergencyContactErrors] = useState(0);
+  const [educationErrors, setEducationErrors] = useState(0);
 
   const [image, setImage] = useState<File | null>(null);
   const [error, setError] = useState<String>("");
@@ -117,6 +118,7 @@ const EditComponent = () => {
     setProfileErrors(0);
     setContactErrors(0);
     setEmergencyContactErrors(0);
+    setEducationErrors(0);
 
     toast.success("Draft saved. Resume anytime.", {
       duration: 6000,
@@ -133,6 +135,8 @@ const EditComponent = () => {
 
     setProfileErrors(0);
     setContactErrors(0);
+    setEmergencyContactErrors(0);
+    setEducationErrors(0);
 
     if (!validation.success) {
       toast.error(
@@ -192,9 +196,13 @@ const EditComponent = () => {
           ],
       ).length;
 
+      const educationErrors =
+        validation.error.formErrors.fieldErrors.education?.length || 0;
+
       setProfileErrors(profileFieldErrors);
       setContactErrors(contactFieldErrors);
       setEmergencyContactErrors(emergencyContactFieldErrors);
+      setEducationErrors(educationErrors);
     }
 
     form.handleSubmit(onSubmit)();
@@ -255,6 +263,7 @@ const EditComponent = () => {
     {
       label: "Education",
       stepContent: <Education form={form} />,
+      errors: educationErrors,
       Icon: FaBook,
     },
     {
