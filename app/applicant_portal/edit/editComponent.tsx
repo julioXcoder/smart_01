@@ -1,49 +1,35 @@
 "use client";
 
-import React, {
-  useState,
-  useEffect,
-  ReactNode,
-  useRef,
-  ChangeEvent,
-} from "react";
-import MobileNavigation from "./mobileNavigation";
-import SideNavigation from "./sideNavigation";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import z, { Schema } from "zod";
-import { FormSchema } from "./data";
-import { useForm, UseFormReturn } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import toast from "react-hot-toast";
-import { MdOutlineAccessTime } from "react-icons/md";
+import { Form } from "@/components/ui/form";
 import { Step } from "@/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import {
-  FaPaperPlane,
-  FaList,
-  FaUser,
   FaAddressBook,
   FaBook,
-  FaPaperclip,
   FaCreditCard,
-  FaShield,
   FaExclamation,
+  FaList,
+  FaPaperPlane,
+  FaPaperclip,
+  FaUser,
 } from "react-icons/fa6";
+import { MdOutlineAccessTime } from "react-icons/md";
+import z from "zod";
+import { FormSchema } from "./data";
+import MobileNavigation from "./mobileNavigation";
+import SideNavigation from "./sideNavigation";
 
-import Profile from "./profile";
-import Priorities from "./priorities";
+import Attachments from "./attachments";
 import Contacts from "./contacts";
 import Education from "./education";
-import Attachments from "./attachments";
-import Payment from "./payment";
 import EmergencyContact from "./emergencyContact";
+import Payment from "./payment";
+import Priorities from "./priorities";
+import Profile from "./profile";
 
 const EditComponent = () => {
   const [step, setStep] = useState(0);
@@ -130,6 +116,7 @@ const EditComponent = () => {
     form.clearErrors();
     setProfileErrors(0);
     setContactErrors(0);
+    setEmergencyContactErrors(0);
 
     toast.success("Draft saved. Resume anytime.", {
       duration: 6000,

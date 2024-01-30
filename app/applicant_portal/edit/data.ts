@@ -448,10 +448,12 @@ const educationLevel: SelectableOption[] = [
 ];
 
 const EducationSchema = z.object({
-  level: z.string().min(1, { message: "First name is required" }),
-  schoolName: z.string(),
-  startYear: z.string(),
-  endYear: z.string(),
+  level: z.string().min(1, { message: "Level of education is required" }),
+  schoolName: z
+    .string()
+    .min(1, { message: "Official name of school / university is required" }),
+  startYear: z.string().min(1, { message: "Level of education is required" }),
+  endYear: z.string().min(1, { message: "Level of education is required" }),
 });
 
 const FormSchema = z.object({
@@ -562,4 +564,10 @@ const FormSchema = z.object({
   education: z.array(EducationSchema),
 });
 
-export { countries, genders, nationalities, FormSchema };
+const currentYear = new Date().getFullYear();
+const years = Array.from({ length: currentYear - 1970 + 1 }, (_, i) => {
+  const year = i + 1970;
+  return { value: year.toString(), label: year.toString() };
+});
+
+export { countries, genders, nationalities, years, educationLevel, FormSchema };

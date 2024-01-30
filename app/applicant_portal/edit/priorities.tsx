@@ -5,7 +5,6 @@ import { useState } from "react";
 import { FaUniversity } from "react-icons/fa";
 import { FiArrowDown, FiArrowUp, FiTrash2 } from "react-icons/fi";
 import { IoWarning } from "react-icons/io5";
-import FlipMove from "react-flip-move";
 
 import {
   AlertDialog,
@@ -52,6 +51,15 @@ const Priorities = () => {
 
   return (
     <div>
+      <h1 className="block text-2xl font-bold text-gray-800 dark:text-white">
+        Choose Your Programs
+      </h1>
+      <p className="my-3 text-gray-800 dark:text-gray-400">
+        Kickstart your application adventure by selecting your preferred
+        programs. The order you set influences your academic journey, so pick
+        wisely!
+      </p>
+
       {items.map((item, index) => (
         // max-w-xl
         <Card key={index} className="my-3 w-full">

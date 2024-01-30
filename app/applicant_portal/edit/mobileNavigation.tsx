@@ -5,9 +5,9 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MdChevronLeft, MdChevronRight } from "react-icons/md";
-import { BiChevronDown } from "react-icons/bi";
 import { Step } from "@/types";
+import { BiChevronDown } from "react-icons/bi";
+import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 
 interface Props {
   steps: Step[];

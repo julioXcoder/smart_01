@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -9,13 +8,12 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import {
-  Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,16 +28,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
-import { UseFormReturn } from "react-hook-form";
-import { BiCheck, BiChevronDown, BiSolidWatch, BiTime } from "react-icons/bi";
-import z from "zod";
-import { IoMdTrash } from "react-icons/io";
-import { nationalities, genders, FormSchema } from "./data";
-import { AiOutlineCloudUpload } from "react-icons/ai";
 import { Separator } from "@/components/ui/separator";
-import { ChangeEvent, useRef } from "react";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
+import Link from "next/link";
+import { ChangeEvent, useRef } from "react";
+import { UseFormReturn } from "react-hook-form";
+import { AiOutlineCloudUpload } from "react-icons/ai";
+import { BiCheck, BiChevronDown } from "react-icons/bi";
+import { IoMdTrash } from "react-icons/io";
+import z from "zod";
+import { FormSchema, genders, nationalities } from "./data";
 
 interface Props {
   form: UseFormReturn<z.infer<typeof FormSchema>>;
@@ -65,6 +64,13 @@ const Profile = ({
 
   return (
     <>
+      <h1 className="block text-2xl font-bold text-gray-800 dark:text-white">
+        Build Your Profile
+      </h1>
+      <p className="my-3 text-gray-800 dark:text-gray-400">
+        Let&rsquo;s get personal! Share your details to begin crafting your
+        unique academic profile.
+      </p>
       <form className="my-6 grid gap-6 md:grid-cols-2">
         <div className="space-y-4">
           <FormField

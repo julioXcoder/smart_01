@@ -1,4 +1,3 @@
-import Badge from "@/components/badge";
 import { Step } from "@/types";
 
 interface Props {

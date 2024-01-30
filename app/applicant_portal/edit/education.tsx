@@ -1,23 +1,3 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useState } from "react";
-import { FaUniversity } from "react-icons/fa";
-import { FiArrowDown, FiArrowUp, FiTrash2 } from "react-icons/fi";
-import { IoWarning } from "react-icons/io5";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  FormDescription,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { UseFormReturn } from "react-hook-form";
-import { FormSchema } from "./data";
-import { IoCalendarOutline } from "react-icons/io5";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,37 +9,33 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import z from "zod";
-import { getYear, format } from "date-fns";
-import { cn } from "@/lib/utils";
-import { Calendar } from "@/components/ui/calendar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useForm, useFieldArray, FieldError } from "react-hook-form";
+import { UseFormReturn, useFieldArray } from "react-hook-form";
+import { FiArrowDown, FiArrowUp, FiTrash2 } from "react-icons/fi";
+import { MdAdd } from "react-icons/md";
+import z from "zod";
+import { FormSchema, educationLevel, years } from "./data";
 
 interface Props {
   form: UseFormReturn<z.infer<typeof FormSchema>>;
 }
-
-const years = Array.from(
-  { length: new Date().getFullYear() - 1899 },
-  (_, i) => {
-    const year = i + 1900;
-    return { value: year.toString(), label: year.toString() };
-  },
-);
 
 const Education = ({ form }: Props) => {
   const { fields, append, move, remove } = useFieldArray({
@@ -96,6 +72,13 @@ const Education = ({ form }: Props) => {
 
   return (
     <>
+      <h1 className="block text-2xl font-bold text-gray-800 dark:text-white">
+        Share Your Academic Journey
+      </h1>
+      <p className="my-3 text-gray-800 dark:text-gray-400">
+        Unfold the chapters of your educational journey. Every step contributes
+        to your application story.
+      </p>
       {fields.map((item, index) => (
         <Card key={item.id} className="my-3 w-full">
           <CardHeader>
@@ -132,14 +115,10 @@ const Education = ({ form }: Props) => {
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>
-                          Confirm Priority Removal
+                          Confirm Item Removal
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                          Are you sure you want to remove{" "}
-                          <span className="text-orange-500 underline underline-offset-2">
-                            {item.schoolName}
-                          </span>{" "}
-                          from your priorities?
+                          Are you sure you want to remove this Item?
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
@@ -159,53 +138,116 @@ const Education = ({ form }: Props) => {
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-6">
             <div className="space-y-3">
-              <Input
-                {...form.register(`education.${index}.level`)}
-                defaultValue={item.level}
+              <FormField
+                control={form.control}
+                name={`education.${index}.level`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Level of education</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select education level" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {educationLevel.map((level) => (
+                          <SelectItem key={level.value} value={level.value}>
+                            {level.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {form.formState.errors.education && (
-                <p className="text-red-500">
-                  {form.formState.errors.education[index]?.level?.message}
-                </p>
-              )}
-
-              <Input
-                {...form.register(`education.${index}.schoolName`)}
-                defaultValue={item.schoolName}
+              <FormField
+                control={form.control}
+                name={`education.${index}.schoolName`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Official name of school or university</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {form.formState.errors.education && (
-                <p className="text-red-500">
-                  {form.formState.errors.education[index]?.schoolName?.message}
-                </p>
-              )}
             </div>
             <div className="space-y-3">
-              <Input
-                {...form.register(`education.${index}.startYear`)}
-                defaultValue={item.startYear}
+              <FormField
+                control={form.control}
+                name={`education.${index}.startYear`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Start Year</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your start year" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {years.map((year) => (
+                          <SelectItem key={year.value} value={year.value}>
+                            {year.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {form.formState.errors.education && (
-                <p className="text-red-500">
-                  {form.formState.errors.education[index]?.startYear?.message}
-                </p>
-              )}
-
-              <Input
-                {...form.register(`education.${index}.endYear`)}
-                defaultValue={item.endYear}
+              <FormField
+                control={form.control}
+                name={`education.${index}.endYear`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>End Year (Graduation)</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your end year" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {years.map((year) => (
+                          <SelectItem key={year.value} value={year.value}>
+                            {year.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {form.formState.errors.education && (
-                <p className="text-red-500">
-                  {form.formState.errors.education[index]?.endYear?.message}
-                </p>
-              )}
             </div>
           </CardContent>
         </Card>
       ))}
 
-      <div className="my-5">
-        <Button onClick={handleAddItem}>Add Card</Button>
+      <div className="my-5 flex w-full items-center justify-center">
+        <Button
+          className="flex items-center gap-2"
+          variant={"outline"}
+          onClick={handleAddItem}
+        >
+          <MdAdd className="h-5 w-5 shrink-0" />
+          Add new Education Card
+        </Button>
       </div>
     </>
   );
