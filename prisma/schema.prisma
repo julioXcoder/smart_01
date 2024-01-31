@@ -39,21 +39,96 @@ enum ProgrammeLevelName {
   PHD
 }
 
-//USERS
-
-model Applicant {
-  formIVIndex     String              @id @map("_id")
-  hashedPassword  String
-  firstName       String
-  lastName        String
-  status          ApplicantStatusName @default(WAITLISTED)
-  role            RoleName            @default(APPLICANT)
-  controlNumberId String?
-  phone           String
-  email           String?
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  CANCELLED
 }
 
 //USERS
+
+model Applicant {
+  username       String   @id @map("_id")
+  hashedPassword String
+  role           RoleName @default(APPLICANT)
+  firstName      String
+  lastName       String
+  middleName     String
+  applications   String[] @db.ObjectId
+}
+
+//USERS
+
+//APPLICANT DATA
+
+model ApplicantApplication {
+  id                  String              @id @default(auto()) @map("_id") @db.ObjectId
+  status              ApplicantStatusName @default(WAITLISTED)
+  applicantUsername   String
+  programs            String[]            @db.ObjectId
+  educationBackground String[]            @db.ObjectId
+  formIVIndex         String
+  controlNumber       Int?
+}
+
+model ApplicantPrograms {
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  programmeCode String
+  priority      Int
+}
+
+model ApplicantProfile {
+  applicantApplicationId String @id @map("_id")
+  nida                   String @default("")
+  nationality            String @default("")
+  gender                 String @default("")
+}
+
+model ApplicantContacts {
+  applicantApplicationId String  @id @map("_id")
+  phone                  String  @default("")
+  email                  String? @default("")
+  alternativeEmail       String? @default("")
+  alternativePhoneNumber String? @default("")
+  streetAddress          String  @default("")
+  city                   String  @default("")
+  region                 String  @default("")
+  postalCode             String  @default("")
+  country                String  @default("")
+}
+
+model ApplicantEmergencyContacts {
+  applicantApplicationId String  @id @map("_id")
+  fullName               String  @default("")
+  phone                  String  @default("")
+  email                  String? @default("")
+  alternativeEmail       String? @default("")
+  alternativePhoneNumber String? @default("")
+  streetAddress          String  @default("")
+  city                   String  @default("")
+  region                 String  @default("")
+  postalCode             String  @default("")
+  country                String  @default("")
+  relation               String  @default("")
+}
+
+model ApplicantEducationBackground {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  position   Int
+  level      String
+  schoolName String
+  startYear  String
+  endYear    String
+}
+
+model ApplicationPayment {
+  controlNumber     Int           @id @map("_id")
+  applicantUsername String
+  status            PaymentStatus @default(PENDING)
+}
+
+//APPLICANT DATA
 
 //UNIVERSITY HIERARCHY
 
