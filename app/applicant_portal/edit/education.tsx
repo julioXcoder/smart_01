@@ -76,8 +76,8 @@ const Education = ({ form }: Props) => {
         Share Your Academic Journey
       </h1>
       <p className="my-3 text-gray-800 dark:text-gray-400">
-        Unfold the chapters of your educational journey. Every step contributes
-        to your application story.
+        Tell us about your educational background. Every step of your academic
+        journey is important to us.
       </p>
       {fields.map((item, index) => (
         <Card key={item.id} className="my-3 w-full">
