@@ -26,6 +26,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { getFormIVData } from "@/server/actions/applicant";
 import door from "@/public/online_application/welcome5.png";
 import payment from "@/public/online_application/payment3.png";
@@ -33,53 +42,63 @@ import select from "@/public/online_application/select3.png";
 import completion from "@/public/online_application/completion2.png";
 import globe from "@/public/online_application/globe2.png";
 import education from "@/public/online_application/education3.png";
+import {
+  ProgrammeLevelName,
+  Origin,
+  EducationLevelName,
+} from "@/types/application";
 
-const applicationTypes = [
-  { label: "Certificate", value: "certificate" },
-  { label: "Diploma", value: "diploma" },
-  { label: "Postgraduate Diploma", value: "postgraduateDiploma" },
-  { label: "Masters", value: "masters" },
-  { label: "phD", value: "phd" },
+const applicationTypes: { label: string; value: ProgrammeLevelName }[] = [
+  { label: "Certificate", value: ProgrammeLevelName.CERTIFICATE },
+  { label: "Diploma", value: ProgrammeLevelName.DIPLOMA },
+  { label: "Postgraduate Diploma", value: ProgrammeLevelName.BACHELOR },
+  { label: "Masters", value: ProgrammeLevelName.MASTERS },
+  { label: "phD", value: ProgrammeLevelName.PHD },
 ];
 
-const applicantOrigins = [
-  { label: "Tanzania - NECTA", value: "necta" },
-  { label: "NON NECTA - Foreign", value: "foreign" },
-  { label: "Tanzania NECTA before 1988", value: "necta1988" },
+const applicantOrigins: { label: string; value: Origin }[] = [
+  { label: "Tanzania - NECTA", value: Origin.NECTA },
+  { label: "NON NECTA - Foreign", value: Origin.FOREIGN },
+  { label: "Tanzania NECTA before 1988", value: Origin.NECTA1988 },
 ];
 
-const certificateEducationLevels = [
-  { label: "Form IV", value: "formIV" },
-  { label: "Veta NVA III", value: "vetaNVAIII" },
+const certificateEducationLevels: {
+  label: string;
+  value: EducationLevelName;
+}[] = [
+  { label: "Form IV", value: EducationLevelName.FORM_IV },
+  { label: "Veta NVA III", value: EducationLevelName.VETA_NVA_III },
 ];
 
-const diplomaEducationLevels = [
-  { label: "Form IV", value: "formIV" },
-  { label: "Veta NVA III", value: "vetaNVAIII" },
-  { label: "NTA Level 4", value: "ntaLevel4" },
-  { label: "Form VI", value: "formVI" },
-  { label: "NTA Level 5", value: "ntaLevel5" },
+const diplomaEducationLevels: { label: string; value: EducationLevelName }[] = [
+  { label: "Form IV", value: EducationLevelName.FORM_IV },
+  { label: "Veta NVA III", value: EducationLevelName.VETA_NVA_III },
+  { label: "NTA Level 4", value: EducationLevelName.NTA_LEVEL_IV },
+  { label: "Form VI", value: EducationLevelName.FORM_VI },
+  { label: "NTA Level 5", value: EducationLevelName.NTA_LEVEL_V },
 ];
 
-const postgraduateDiplomaEducationLevels = [
-  { label: "Degree", value: "degree" },
+const postgraduateDiplomaEducationLevels: {
+  label: string;
+  value: EducationLevelName;
+}[] = [{ label: "Degree", value: EducationLevelName.DEGREE }];
+
+const mastersEducationLevels: { label: string; value: EducationLevelName }[] = [
+  { label: "Degree", value: EducationLevelName.DEGREE },
+  { label: "Postgraduate Diploma", value: EducationLevelName.DIPLOMA },
 ];
 
-const mastersEducationLevels = [
-  { label: "Degree", value: "degree" },
-  { label: "Postgraduate Diploma", value: "postgraduateDiploma" },
+const phdEducationLevels: { label: string; value: EducationLevelName }[] = [
+  { label: "Masters", value: EducationLevelName.MASTERS },
 ];
-
-const phdEducationLevels = [{ label: "Masters", value: "masters" }];
-
-const phoneRegex = /^\+\d{3}\d{6,9}$/;
 
 const indexFormat = z.string().regex(/^[SP]\d{4}\/\d{4}\/\d{4}$/);
 
-const schema = z
+const FormSchema = z
   .object({
-    formIVIndex: z.string().min(1, { message: "Form IV Index  is required" }),
+    username: z.string().min(1, { message: "username is required" }),
     firstName: z.string().min(1, { message: "First name is required" }),
+    middleName: z.string().min(1, { message: "Middle name is required" }),
     lastName: z.string().min(1, { message: "Last name is required" }),
     password: z
       .string()
@@ -87,46 +106,43 @@ const schema = z
     confirmPassword: z.string().min(8, {
       message: "Confirm password must be at least 8 characters long",
     }),
-    email: z.string().optional(),
-    phone: z.string().refine((value) => {
-      return phoneRegex.test(value);
-    }, "Please enter your phone number in the following format: '+255123456789"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
 
-type FormData = z.infer<typeof schema>;
+// type FormData = z.infer<typeof schema>;
 
 const StepperForm = () => {
-  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedApplicationType, setSelectedApplicationType] = useState<{
     label: string;
-    value: string;
+    value: ProgrammeLevelName;
   } | null>(null);
   const [selectedApplicantOrigin, setSelectedApplicantOrigin] = useState<{
     label: string;
-    value: string;
+    value: Origin;
   } | null>(null);
   const [selectedEducationLevel, setSelectedEducationLevel] = useState<{
     label: string;
-    value: string;
+    value: EducationLevelName;
   } | null>(null);
   const [completedOLevel, setCompletedOLevel] = useState<"yes" | "no" | "">("");
   const [formIVIndex, setFormIVIndex] = useState("");
   const [loading, setIsLoading] = useState(false);
-  const [studentInformation, setStudentInformation] = useState({
-    firstName: "",
-    lastName: "",
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      username: "",
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isValid },
-  } = useForm<FormData>({ resolver: zodResolver(schema) });
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -152,56 +168,58 @@ const StepperForm = () => {
   };
 
   const handleEducationChange = (
-    applicationType: string,
-    selectedOption: string,
+    applicationType: ProgrammeLevelName,
+    selectedOption: EducationLevelName,
   ) => {
-    let selectedEducationLevelObject: { value: string; label: string } = {
-      value: "",
-      label: "",
-    };
+    let selectedEducationLevelObject: {
+      label: string;
+      value: EducationLevelName;
+    } | null = null;
 
-    if (applicationType == "certificate") {
-      selectedEducationLevelObject = certificateEducationLevels.find(
-        (item) => item.value === selectedOption,
-      ) || { value: "", label: "" };
-    }
-
-    if (applicationType == "diploma") {
-      selectedEducationLevelObject = diplomaEducationLevels.find(
-        (item) => item.value === selectedOption,
-      ) || { value: "", label: "" };
+    if (applicationType == ProgrammeLevelName.CERTIFICATE) {
+      selectedEducationLevelObject =
+        certificateEducationLevels.find(
+          (item) => item.value === selectedOption,
+        ) || null;
     }
 
-    if (applicationType == "postgraduateDiploma") {
-      selectedEducationLevelObject = postgraduateDiplomaEducationLevels.find(
-        (item) => item.value === selectedOption,
-      ) || { value: "", label: "" };
+    if (applicationType == ProgrammeLevelName.DIPLOMA) {
+      selectedEducationLevelObject =
+        diplomaEducationLevels.find((item) => item.value === selectedOption) ||
+        null;
     }
-    if (applicationType == "masters") {
-      selectedEducationLevelObject = mastersEducationLevels.find(
-        (item) => item.value === selectedOption,
-      ) || { value: "", label: "" };
+
+    if (applicationType == ProgrammeLevelName.BACHELOR) {
+      selectedEducationLevelObject =
+        postgraduateDiplomaEducationLevels.find(
+          (item) => item.value === selectedOption,
+        ) || null;
     }
-    if (applicationType == "phd") {
-      selectedEducationLevelObject = phdEducationLevels.find(
-        (item) => item.value === selectedOption,
-      ) || { value: "", label: "" };
+    if (applicationType == ProgrammeLevelName.MASTERS) {
+      selectedEducationLevelObject =
+        mastersEducationLevels.find((item) => item.value === selectedOption) ||
+        null;
+    }
+    if (applicationType == ProgrammeLevelName.PHD) {
+      selectedEducationLevelObject =
+        phdEducationLevels.find((item) => item.value === selectedOption) ||
+        null;
     }
 
     setSelectedEducationLevel(selectedEducationLevelObject);
   };
 
-  const getEducationLevels = (applicationType: string) => {
+  const getEducationLevels = (applicationType: ProgrammeLevelName | "") => {
     switch (applicationType) {
-      case "certificate":
+      case ProgrammeLevelName.CERTIFICATE:
         return certificateEducationLevels;
-      case "diploma":
+      case ProgrammeLevelName.DIPLOMA:
         return diplomaEducationLevels;
-      case "postgraduateDiploma":
+      case ProgrammeLevelName.BACHELOR:
         return postgraduateDiplomaEducationLevels;
-      case "masters":
+      case ProgrammeLevelName.MASTERS:
         return mastersEducationLevels;
-      case "phd":
+      case ProgrammeLevelName.PHD:
         return phdEducationLevels;
       default:
         return [];
@@ -285,21 +303,9 @@ const StepperForm = () => {
     }
   };
 
-  const onSubmit = async (formData: FormData) => {
-    setIsLoading(true);
-
-    try {
-      // const redirect = await newApplicantAccount(formData);
-      // router.push(redirect);
-      console.log(formData);
-    } catch (error) {
-      setErrorMessage(
-        "We’re sorry, but we were unable to create your account at this time. Please try again later, and if the problem persists, reach out to our support team for assistance.",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  function onSubmit(data: z.infer<typeof FormSchema>) {
+    console.log("Data", data);
+  }
 
   const isLastStep = currentStep === pages.length - 1;
   const isFirstStep = currentStep === 0;
@@ -520,11 +526,13 @@ const StepperForm = () => {
                 </p>
                 <div className="my-3">
                   <Select
-                    onValueChange={(value: string) => {
-                      handleEducationChange(
-                        selectedApplicationType?.value || "",
-                        value,
-                      );
+                    onValueChange={(value: EducationLevelName) => {
+                      if (selectedApplicationType) {
+                        handleEducationChange(
+                          selectedApplicationType.value,
+                          value,
+                        );
+                      }
                     }}
                     value={selectedEducationLevel?.value || ""}
                   >
@@ -620,157 +628,137 @@ const StepperForm = () => {
                 </div>
               </div>
               <div>
-                <form onSubmit={handleSubmit(onSubmit)}>
-                  <div>
-                    <Label>Form IV Index Number</Label>
-                    <Input
-                      readOnly
-                      {...register("formIVIndex")}
-                      type="text"
-                      value={formIVIndex.trim()}
-                      // label="Form IV Index "
-                    />
-                    {errors.formIVIndex?.message && (
-                      <span className="flex items-center gap-x-1 text-red-600">
-                        <ExclamationTriangleIcon className="h-4 w-4 flex-shrink-0" />
-                        {errors.formIVIndex.message}
-                      </span>
-                    )}
-                  </div>
-                  <div className="my-6 grid gap-6 md:grid-cols-2">
-                    <div>
-                      <Label>Applicant First Name</Label>
-                      <Input
-                        {...register("firstName")}
-                        type="text"
-                        value={studentInformation.firstName}
-                        placeholder="Enter First Name"
+                <Form {...form}>
+                  <>
+                    <div className="my-6 grid gap-6 md:grid-cols-2">
+                      <FormField
+                        control={form.control}
+                        name="username"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Username</FormLabel>
+                            <FormControl>
+                              <Input placeholder="username" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                      {errors.firstName?.message && (
-                        <span className="flex items-center gap-x-1 text-red-600">
-                          <ExclamationTriangleIcon className="h-4 w-4 flex-shrink-0" />
-                          {errors.firstName.message}
-                        </span>
-                      )}
-                    </div>
-                    <div>
-                      <Label>Applicant Last Name</Label>
-                      <Input
-                        {...register("lastName")}
-                        value={studentInformation.lastName}
-                        type="text"
-                        placeholder="Enter Last Name"
+                      <FormField
+                        control={form.control}
+                        name="firstName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>First Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="First Name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-
-                      {errors.lastName?.message && (
-                        <span className="flex items-center gap-x-1 text-red-600">
-                          <ExclamationTriangleIcon className="h-4 w-4 flex-shrink-0" />
-                          {errors.lastName.message}
-                        </span>
-                      )}
-                    </div>
-                    <div>
-                      <Label>Account Password</Label>
-                      <div className="relative">
-                        <Input
-                          className="pr-10"
-                          {...register("password")}
-                          type={showPass ? "text" : "password"}
-                          placeholder="Enter password"
-                        />
-                        <button
-                          className="absolute end-0 top-0 mx-4 h-full dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
-                          type="button"
-                          onClick={toggleShowPass}
-                        >
-                          {showPass ? (
-                            <EyeOpenIcon className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-neutral-600" />
-                          ) : (
-                            <EyeClosedIcon className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-neutral-600" />
-                          )}
-                        </button>
-                      </div>
-
-                      {errors.password?.message && (
-                        <span className="flex items-center gap-x-1 text-red-600">
-                          <ExclamationTriangleIcon className="h-4 w-4 flex-shrink-0" />
-                          {errors.password.message}
-                        </span>
-                      )}
-                    </div>
-                    <div>
-                      <Label>Confirm Account Password</Label>
-                      <div className="relative">
-                        <Input
-                          {...register("confirmPassword")}
-                          className="pr-10"
-                          type={showConfirm ? "text" : "password"}
-                          placeholder="Confirm Password"
-                        />
-                        <button
-                          className="absolute end-0 top-0 mx-4 h-full dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
-                          type="button"
-                          onClick={toggleConfirmPass}
-                        >
-                          {showConfirm ? (
-                            <EyeOpenIcon className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-neutral-600" />
-                          ) : (
-                            <EyeClosedIcon className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-neutral-600" />
-                          )}
-                        </button>
-                      </div>
-
-                      {errors.confirmPassword?.message && (
-                        <span className="flex items-center gap-x-1 text-red-600">
-                          <ExclamationTriangleIcon className="h-4 w-4 flex-shrink-0" />
-                          {errors.confirmPassword.message}
-                        </span>
-                      )}
-                    </div>
-                    <div>
-                      <Label>Applicant Phone number</Label>
-                      <Input
-                        {...register("phone")}
-                        type="text"
-                        // label="Phone Number"
-                        placeholder="Enter your phone Number"
+                      <FormField
+                        control={form.control}
+                        name="middleName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Middle Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Middle Name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                      {errors.phone?.message && (
-                        <span className="flex items-center gap-x-1 text-red-600">
-                          <ExclamationTriangleIcon className="h-4 w-4 flex-shrink-0" />
-                          {errors.phone.message}
-                        </span>
-                      )}
-                    </div>
-                    <div>
-                      <Label>Applicant Email Address</Label>
-                      <Input
-                        {...register("email")}
-                        type="email"
-                        // label="Email Address"
-                        placeholder="Enter your Email Address"
-                        // description="The email field is optional"
+                      <FormField
+                        control={form.control}
+                        name="lastName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Last Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Last Name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-
-                      {errors.email?.message && (
-                        <span className="flex items-center gap-x-1 text-red-600">
-                          <ExclamationTriangleIcon className="h-4 w-4 flex-shrink-0" />
-                          {errors.email.message}
-                        </span>
-                      )}
+                      <FormField
+                        control={form.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Password</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input
+                                  className="pr-10"
+                                  type={showPass ? "text" : "password"}
+                                  placeholder="Enter Password"
+                                  {...field}
+                                />
+                                <button
+                                  className="absolute end-0 top-0 mx-4 h-full dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                                  onClick={toggleShowPass}
+                                >
+                                  {showPass ? (
+                                    <EyeOpenIcon className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-neutral-600" />
+                                  ) : (
+                                    <EyeClosedIcon className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-neutral-600" />
+                                  )}
+                                </button>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="confirmPassword"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Confirm Password</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input
+                                  className="pr-10"
+                                  type={showConfirm ? "text" : "password"}
+                                  placeholder="Confirm Password"
+                                  {...field}
+                                />
+                                <button
+                                  className="absolute end-0 top-0 mx-4 h-full dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                                  onClick={toggleConfirmPass}
+                                >
+                                  {showConfirm ? (
+                                    <EyeOpenIcon className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-neutral-600" />
+                                  ) : (
+                                    <EyeClosedIcon className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-neutral-600" />
+                                  )}
+                                </button>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
-                  </div>
-                  <div className="flex justify-end gap-2">
-                    <Link href="/online_application">
-                      <Button disabled={loading} color="danger">
-                        Cancel Application
+                    <div className="flex justify-end gap-2">
+                      <Link href="/online_application">
+                        <Button disabled={loading} color="danger">
+                          Cancel Application
+                        </Button>
+                      </Link>
+                      <Button
+                        disabled={loading}
+                        onClick={form.handleSubmit(onSubmit)}
+                      >
+                        {loading ? "Creating Account..." : "Create Account"}
                       </Button>
-                    </Link>
-                    <Button disabled={loading} type="submit" color="success">
-                      {loading ? "Creating Account..." : "Create Account"}
-                    </Button>
-                  </div>
-                </form>
+                    </div>
+                  </>
+                </Form>
               </div>
             </div>
           </>

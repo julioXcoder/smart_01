@@ -39,11 +39,28 @@ enum ProgrammeLevelName {
   PHD
 }
 
+enum ORIGIN {
+  NECTA
+  FOREIGN
+  NECTA1988
+}
+
 enum PaymentStatus {
   PENDING
   SUCCESS
   FAILED
   CANCELLED
+}
+
+enum EducationLevelName {
+  FORM_IV
+  FORM_VI
+  VETA_NVA_III
+  NTA_LEVEL_IV
+  NTA_LEVEL_V
+  DIPLOMA
+  DEGREE
+  MASTERS
 }
 
 //USERS
@@ -63,13 +80,16 @@ model Applicant {
 //APPLICANT DATA
 
 model ApplicantApplication {
-  id                  String              @id @default(auto()) @map("_id") @db.ObjectId
-  status              ApplicantStatusName @default(WAITLISTED)
-  applicantUsername   String
-  programs            String[]            @db.ObjectId
-  educationBackground String[]            @db.ObjectId
-  formIVIndex         String
-  controlNumber       Int?
+  id                    String              @id @default(auto()) @map("_id") @db.ObjectId
+  status                ApplicantStatusName @default(WAITLISTED)
+  applicantUsername     String
+  programs              String[]            @db.ObjectId
+  educationBackground   String[]            @db.ObjectId
+  formIVIndex           String
+  controlNumber         Int?
+  applicationType       ProgrammeLevelName
+  origin                ORIGIN
+  highestEducationLevel EducationLevelName
 }
 
 model ApplicantPrograms {
