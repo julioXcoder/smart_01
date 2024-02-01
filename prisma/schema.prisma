@@ -99,10 +99,11 @@ model ApplicantPrograms {
 }
 
 model ApplicantProfile {
-  applicantApplicationId String @id @map("_id")
-  nida                   String @default("")
-  nationality            String @default("")
-  gender                 String @default("")
+  applicantApplicationId String  @id @map("_id")
+  nida                   String  @default("")
+  nationality            String  @default("")
+  gender                 String  @default("")
+  imageUrl               String?
 }
 
 model ApplicantContacts {
