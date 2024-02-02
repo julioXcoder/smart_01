@@ -7,6 +7,8 @@ import type {
   StudentInfo,
   NewApplicant,
   NewApplicantResponse,
+  ApplicantData,
+  ApplicantDataResponse,
 } from "./schema";
 import prisma from "@/prisma/db";
 import bcrypt from "bcrypt";
@@ -112,47 +114,60 @@ export const newApplicantAccount = async (
   try {
     const {
       username,
-      firstName,
-      middleName,
-      lastName,
       formIVIndex,
       password,
       origin,
       highestEducationLevel,
       applicationType,
+      firstName,
+      middleName,
+      lastName,
     } = newApplicantData;
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const newApplicant = await prisma.applicant.create({
-      data: {
+    const applicant = await prisma.applicant.findUnique({
+      where: {
         username,
-        firstName,
-        middleName,
-        lastName,
-        hashedPassword,
       },
     });
 
-    const newApplication = await prisma.applicantApplication.create({
+    if (applicant) {
+      return { error: "username already exist." };
+    }
+
+    const newApplicant = await prisma.applicant.create({
       data: {
+        username,
+        hashedPassword,
         formIVIndex,
         applicationType,
         origin,
         highestEducationLevel,
+      },
+    });
+
+    await prisma.applicantProfile.create({
+      data: {
+        applicantUsername: newApplicant.username,
+        firstName,
+        middleName,
+        lastName,
+      },
+    });
+
+    await prisma.applicantContacts.create({
+      data: {
         applicantUsername: newApplicant.username,
       },
     });
 
-    await prisma.applicant.update({
-      where: { username },
+    await prisma.applicantEmergencyContacts.create({
       data: {
-        applications: { push: newApplication.id },
+        applicantUsername: newApplicant.username,
       },
     });
-
-    // FIXME: Login user then return link
 
     const data = { id: newApplicant.username, role: newApplicant.role };
 
@@ -167,5 +182,31 @@ export const newApplicantAccount = async (
       error:
         "We’re sorry, but we were unable to create your account at this time. Please try again later, and if the problem persists, reach out to our support team for assistance.",
     };
+  }
+};
+
+export const getApplicantData = async (): Promise<ApplicantDataResponse> => {
+  try {
+    const headersList = headers();
+    const username = headersList.get("userId");
+
+    if (!username) {
+      return { error: "Error occurred while fetching applicant data." };
+    }
+
+    const applicant = await prisma.applicant.findUnique({
+      where: {
+        username,
+      },
+    });
+
+    if (!applicant) {
+      return { error: "Not Found!" };
+    }
+
+    return { data: { username: applicant.username } };
+  } catch (error) {
+    logOperationError(error);
+    return { error: "Error occurred while fetching applicant data." };
   }
 };

@@ -21,7 +21,7 @@ const roleConfig: {
     allowedUrls: ["/staff/examination_officer"],
   },
   APPLICANT: {
-    dashboardUrl: "/applicant_portal/applications",
+    dashboardUrl: "/applicant_portal/dashboard",
     allowedUrls: ["/applicant_portal"],
   },
   // Add more roles and their configurations here
@@ -89,5 +89,8 @@ export async function middleware(request: NextRequest) {
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ["/student/:path*", "/staff/:path*", "/applicant_portal/:path*"],
+  matcher: ["/student/:path*", "/staff/:path*"],
 };
+// export const config = {
+//   matcher: ["/student/:path*", "/staff/:path*", "/applicant_portal/:path*"],
+// };

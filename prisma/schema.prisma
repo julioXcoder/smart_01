@@ -18,12 +18,10 @@ enum RoleName {
 }
 
 enum ApplicantStatusName {
-  SUBMITTED //The application has been received but not yet reviewed
   UNDER_REVIEW //The application is currently being reviewed by the admissions team.
-  WAITLISTED // The applicant meets the admission requirements but the program is full. If a spot opens up, they may be admitted.
   ACCEPTED //The application has been approved. The applicant can now proceed to enrollment.
   REJECTED //The application has not been approved. The applicant will not be able to enroll.
-  DEFERRED //The applicant has been accepted, but their admission has been postponed to a later date.
+  DRAFT
 }
 
 enum ProgrammeTypeName {
@@ -66,23 +64,10 @@ enum EducationLevelName {
 //USERS
 
 model Applicant {
-  username       String   @id @map("_id")
-  hashedPassword String
-  role           RoleName @default(APPLICANT)
-  firstName      String
-  lastName       String
-  middleName     String
-  applications   String[] @db.ObjectId
-}
-
-//USERS
-
-//APPLICANT DATA
-
-model ApplicantApplication {
-  id                    String              @id @default(auto()) @map("_id") @db.ObjectId
-  status                ApplicantStatusName @default(WAITLISTED)
-  applicantUsername     String
+  username              String              @id @map("_id")
+  hashedPassword        String
+  role                  RoleName            @default(APPLICANT)
+  applicationStatus     ApplicantStatusName @default(DRAFT)
   programs              String[]            @db.ObjectId
   educationBackground   String[]            @db.ObjectId
   formIVIndex           String
@@ -92,22 +77,40 @@ model ApplicantApplication {
   highestEducationLevel EducationLevelName
 }
 
+//USERS
+
+//APPLICANT DATA
+// FIXME: ADD University application ID to check the application period
 model ApplicantPrograms {
-  id            String @id @default(auto()) @map("_id") @db.ObjectId
-  programmeCode String
-  priority      Int
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
+  applicantUsername String
+  programmeCode     String
+  priority          Int
+}
+
+model ApplicantEducationBackground {
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
+  applicantUsername String
+  position          Int
+  level             String
+  schoolName        String
+  startYear         String
+  endYear           String
 }
 
 model ApplicantProfile {
-  applicantApplicationId String  @id @map("_id")
-  nida                   String  @default("")
-  nationality            String  @default("")
-  gender                 String  @default("")
-  imageUrl               String?
+  applicantUsername String  @id @map("_id")
+  nida              String  @default("")
+  firstName         String  @default("")
+  middleName        String  @default("")
+  lastName          String  @default("")
+  nationality       String  @default("")
+  gender            String  @default("")
+  imageUrl          String?
 }
 
 model ApplicantContacts {
-  applicantApplicationId String  @id @map("_id")
+  applicantUsername      String  @id @map("_id")
   phone                  String  @default("")
   email                  String? @default("")
   alternativeEmail       String? @default("")
@@ -120,7 +123,7 @@ model ApplicantContacts {
 }
 
 model ApplicantEmergencyContacts {
-  applicantApplicationId String  @id @map("_id")
+  applicantUsername      String  @id @map("_id")
   fullName               String  @default("")
   phone                  String  @default("")
   email                  String? @default("")
@@ -132,15 +135,6 @@ model ApplicantEmergencyContacts {
   postalCode             String  @default("")
   country                String  @default("")
   relation               String  @default("")
-}
-
-model ApplicantEducationBackground {
-  id         String @id @default(auto()) @map("_id") @db.ObjectId
-  position   Int
-  level      String
-  schoolName String
-  startYear  String
-  endYear    String
 }
 
 model ApplicationPayment {
@@ -185,6 +179,25 @@ model Programme {
   applicationFee      Float
   qualification       String
   applicationDeadline String
+  availability        Boolean            @default(true)
 }
 
 //UNIVERSITY HIERARCHY
+
+//UNIVERSITY ANUAL EVENTS
+
+model AcademicYear {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime
+  name      String   @unique
+}
+
+model UniversityApplication {
+  id             String @id @default(auto()) @map("_id") @db.ObjectId
+  academicYearId String @db.ObjectId
+
+  startTime DateTime // Start time of the application
+  endTime   DateTime // End time of the application
+}
+
+//UNIVERSITY ANUAL EVENTS

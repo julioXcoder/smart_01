@@ -63,6 +63,7 @@ import { newApplicantAccount } from "@/server/actions/applicant";
 import { NewApplicant } from "@/server/actions/applicant/schema";
 
 const StepperForm = () => {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedApplicationType, setSelectedApplicationType] = useState<{
@@ -246,12 +247,14 @@ const StepperForm = () => {
   };
 
   const handleBack = () => {
+    setErrorMessage("");
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
   };
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
+    setIsLoading(true);
     if (
       !selectedApplicantOrigin ||
       !selectedApplicationType ||
@@ -273,15 +276,21 @@ const StepperForm = () => {
       formIVIndex,
     };
 
-    const { data: link, error } = await newApplicantAccount(newApplicantData);
-    // FIXME: Handle both scenarios
+    const { data: redirect, error } =
+      await newApplicantAccount(newApplicantData);
+    if (error) {
+      setErrorMessage(error);
+    } else if (redirect) {
+      router.push(redirect);
+    }
+    setIsLoading(false);
   };
 
   const isLastStep = currentStep === pages.length - 1;
   const isFirstStep = currentStep === 0;
 
   return (
-    <div className="px-5 py-8 md:px-20 xl:px-36">
+    <div className="px-2 py-8 md:px-20 xl:px-36">
       {/* <h2 className="py-6 text-4xl font-semibold">
         Online Application Step {`(${currentStep + 1}/${pages.length})`}
       </h2> */}
@@ -294,8 +303,13 @@ const StepperForm = () => {
               alt="Image Description"
             />
             <div>
-              <h2 className="px-6 py-4 text-2xl font-semibold">Warm Welcome</h2>
-              <div className="p-6">
+              <h2 className="py-4 text-2xl font-semibold md:px-6">
+                Warm Welcome{" "}
+                <span className="text-xl font-semibold text-gray-500 dark:text-gray-400">{`[${
+                  currentStep + 1
+                }/${pages.length}]`}</span>
+              </h2>
+              <div className="md:p-6">
                 <p>
                   Welcome to our University Application Portal! We’re thrilled
                   you’re considering us for your academic journey. Our
@@ -314,19 +328,19 @@ const StepperForm = () => {
         {currentStep === 1 && (
           <div className="grid gap-8 md:grid-cols-2">
             <div>
-              <h2 className="px-6 py-4 text-2xl font-semibold">
-                Application Fee
+              <h2 className="py-4 text-2xl font-semibold md:px-6">
+                Application Fee{" "}
+                <span className="text-xl font-semibold text-gray-500 dark:text-gray-400">{`[${
+                  currentStep + 1
+                }/${pages.length}]`}</span>
               </h2>
-              <div className="p-6">
+              <div className="md:p-6">
                 <p>
-                  Next, let&apos;s talk about the application fee. To process
-                  your application, we require 10,000 Tanzanian Shillings to
-                  process your application. Please make sure to pay this within
-                  four days of starting your application. If the fee isn&apos;t
-                  paid within this time, we&apos;ll have to delete your account
-                  permanently. We don&apos;t want that to happen, so please
-                  don&apos;t forget! Click &apos;Next&apos; when you&apos;re
-                  ready to proceed.
+                  Next, let’s talk about the application fee. To process your
+                  application, we require 10,000 Tanzanian Shillings. Please
+                  ensure to complete the payment as it is a crucial part of the
+                  application process. Click ‘Next’ when you’re ready to
+                  proceed.
                 </p>
               </div>
             </div>
@@ -345,10 +359,13 @@ const StepperForm = () => {
               alt="Image Description"
             />
             <div>
-              <h2 className="px-6 py-4 text-2xl font-semibold">
-                Choose Your Path
+              <h2 className="py-4 text-2xl font-semibold md:px-6">
+                Choose Your Path{" "}
+                <span className="text-xl font-semibold text-gray-500 dark:text-gray-400">{`[${
+                  currentStep + 1
+                }/${pages.length}]`}</span>
               </h2>
-              <div className="p-6">
+              <div className="md:p-6">
                 <p>
                   Fantastic! Your first step is to select the type of
                   application. We offer a variety of programs. Please choose the
@@ -393,10 +410,13 @@ const StepperForm = () => {
               alt="Image Description"
             />
             <div>
-              <h2 className="px-6 py-4 text-2xl font-semibold">
-                O Level Completion Confirmation
+              <h2 className="py-4 text-2xl font-semibold md:px-6">
+                O Level Completion Confirmation{" "}
+                <span className="text-xl font-semibold text-gray-500 dark:text-gray-400">{`[${
+                  currentStep + 1
+                }/${pages.length}]`}</span>
               </h2>
-              <div className="p-6">
+              <div className="md:p-6">
                 <p>
                   Excellent! As part of our university&apos;s requirement, we
                   need to confirm if you&apos;ve completed your O level
@@ -440,10 +460,13 @@ const StepperForm = () => {
               alt="Image Description"
             />
             <div>
-              <h2 className="px-6 py-4 text-2xl font-semibold">
-                Origin of Education
+              <h2 className="py-4 text-2xl font-semibold md:px-6">
+                Origin of Education{" "}
+                <span className="text-xl font-semibold text-gray-500 dark:text-gray-400">{`[${
+                  currentStep + 1
+                }/${pages.length}]`}</span>
               </h2>
-              <div className="p-6">
+              <div className="md:p-6">
                 <p>
                   Let&apos;s proceed! We require information about your
                   education background: whether you studied under Tanzania -
@@ -484,10 +507,13 @@ const StepperForm = () => {
         {currentStep === 5 && (
           <div className="grid gap-8 md:grid-cols-2">
             <div>
-              <h2 className="px-6 py-4 text-2xl font-semibold">
-                Highest Education Level
+              <h2 className="py-4 text-2xl font-semibold md:px-6">
+                Highest Education Level{" "}
+                <span className="text-xl font-semibold text-gray-500 dark:text-gray-400">{`[${
+                  currentStep + 1
+                }/${pages.length}]`}</span>
               </h2>
-              <div className="p-6">
+              <div className="md:p-6">
                 <h2 className="font-semibold">
                   Now, let’s talk about your academic achievements!
                 </h2>
@@ -537,10 +563,13 @@ const StepperForm = () => {
         {currentStep === 6 && (
           <div className="grid gap-8 md:grid-cols-2">
             <div>
-              <h2 className="px-6 py-4 text-2xl font-semibold">
-                Form IV Index Number
+              <h2 className="py-4 text-2xl font-semibold md:px-6">
+                Form IV Index Number{" "}
+                <span className="text-xl font-semibold text-gray-500 dark:text-gray-400">{`[${
+                  currentStep + 1
+                }/${pages.length}]`}</span>
               </h2>
-              <div className="p-6">
+              <div className="md:p-6">
                 <p>
                   Let&apos;s proceed with registering your Form IV Index Number.
                   This identifier is unique and cannot be changed once
@@ -578,10 +607,13 @@ const StepperForm = () => {
           <>
             <div className="grid gap-8 md:grid-cols-2">
               <div className="rounded-lg bg-white shadow-md dark:bg-gray-900">
-                <h2 className="border-b border-gray-200 px-6 py-4 text-2xl font-semibold dark:border-gray-800">
-                  Account Creation
+                <h2 className="border-b border-gray-200 py-4 text-2xl font-semibold md:px-6 dark:border-gray-800">
+                  Account Creation{" "}
+                  <span className="text-xl font-semibold text-gray-500 dark:text-gray-400">{`[${
+                    currentStep + 1
+                  }/${pages.length}]`}</span>
                 </h2>
-                <div className="p-6">
+                <div className="md:p-6">
                   <p>
                     Almost there! Now, let’s create your account. This will be
                     your gateway to complete the application process and beyond.

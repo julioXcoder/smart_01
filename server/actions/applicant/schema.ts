@@ -21,16 +21,27 @@ export interface GetFormIVDataResponse {
 
 interface NewApplicant {
   username: string;
+  formIVIndex: string;
   firstName: string;
   middleName: string;
   lastName: string;
-  formIVIndex: string;
   password: string;
   origin: Origin;
   applicationType: ProgrammeLevelName;
   highestEducationLevel: EducationLevelName;
 }
 
-type NewApplicantResponse = Response<String>;
+interface ApplicantData {
+  username: string;
+}
 
-export type { NewApplicant, NewApplicantResponse };
+type NewApplicantResponse = Response<string>;
+
+type ApplicantDataResponse = Response<ApplicantData>;
+
+export type {
+  NewApplicant,
+  NewApplicantResponse,
+  ApplicantData,
+  ApplicantDataResponse,
+};
