@@ -125,31 +125,31 @@ const StepperForm = () => {
       value: EducationLevelName;
     } | null = null;
 
-    if (applicationType == ProgrammeLevelName.CERTIFICATE) {
+    if (applicationType == "CERTIFICATE") {
       selectedEducationLevelObject =
         certificateEducationLevels.find(
           (item) => item.value === selectedOption,
         ) || null;
     }
 
-    if (applicationType == ProgrammeLevelName.DIPLOMA) {
+    if (applicationType == "DIPLOMA") {
       selectedEducationLevelObject =
         diplomaEducationLevels.find((item) => item.value === selectedOption) ||
         null;
     }
 
-    if (applicationType == ProgrammeLevelName.BACHELOR) {
+    if (applicationType == "BACHELOR") {
       selectedEducationLevelObject =
         postgraduateDiplomaEducationLevels.find(
           (item) => item.value === selectedOption,
         ) || null;
     }
-    if (applicationType == ProgrammeLevelName.MASTERS) {
+    if (applicationType == "MASTERS") {
       selectedEducationLevelObject =
         mastersEducationLevels.find((item) => item.value === selectedOption) ||
         null;
     }
-    if (applicationType == ProgrammeLevelName.PHD) {
+    if (applicationType == "PHD") {
       selectedEducationLevelObject =
         phdEducationLevels.find((item) => item.value === selectedOption) ||
         null;
@@ -160,15 +160,15 @@ const StepperForm = () => {
 
   const getEducationLevels = (applicationType: ProgrammeLevelName | "") => {
     switch (applicationType) {
-      case ProgrammeLevelName.CERTIFICATE:
+      case "CERTIFICATE":
         return certificateEducationLevels;
-      case ProgrammeLevelName.DIPLOMA:
+      case "DIPLOMA":
         return diplomaEducationLevels;
-      case ProgrammeLevelName.BACHELOR:
+      case "BACHELOR":
         return postgraduateDiplomaEducationLevels;
-      case ProgrammeLevelName.MASTERS:
+      case "MASTERS":
         return mastersEducationLevels;
-      case ProgrammeLevelName.PHD:
+      case "PHD":
         return phdEducationLevels;
       default:
         return [];
@@ -607,7 +607,7 @@ const StepperForm = () => {
           <>
             <div className="grid gap-8 md:grid-cols-2">
               <div className="rounded-lg bg-white shadow-md dark:bg-gray-900">
-                <h2 className="border-b border-gray-200 py-4 text-2xl font-semibold md:px-6 dark:border-gray-800">
+                <h2 className="border-b border-gray-200 py-4 text-2xl font-semibold dark:border-gray-800 md:px-6">
                   Account Creation{" "}
                   <span className="text-xl font-semibold text-gray-500 dark:text-gray-400">{`[${
                     currentStep + 1

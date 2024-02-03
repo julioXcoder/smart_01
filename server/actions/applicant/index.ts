@@ -9,14 +9,83 @@ import type {
   NewApplicantResponse,
   ApplicantData,
   ApplicantDataResponse,
+  ApplicationStatusResponse,
 } from "./schema";
 import prisma from "@/prisma/db";
 import bcrypt from "bcrypt";
 import { createToken } from "@/lib/auth";
 import { cookies, headers } from "next/headers";
 import { logOperationError } from "@/utils/logger";
+import { redirect } from "next/navigation";
 
 const baseURL = "https://onlinesys.necta.go.tz/results/";
+
+const redirectToAuth = async () => {
+  const headersList = headers();
+  const username = headersList.get("userId");
+
+  if (!username) {
+    cookies().set("token", "");
+    return redirect("/applicant_portal/auth");
+  }
+
+  const applicant = await prisma.applicant.findUnique({
+    where: {
+      username,
+    },
+  });
+
+  if (!applicant) {
+    cookies().set("token", "");
+    return redirect("/applicant_portal/auth");
+  }
+
+  return applicant;
+};
+
+const getProgrammePriorities = async (programmes: string[]) => {
+  const applicantPrograms = await prisma.applicantProgrammes.findMany({
+    where: {
+      programmeCode: {
+        in: programmes,
+      },
+    },
+    select: {
+      id: false, // Exclude the 'id' field
+      applicantUsername: false,
+      programmeCode: true,
+      priority: true,
+    },
+  });
+
+  const programmePriorities = await Promise.all(
+    applicantPrograms.map(async (program) => {
+      const programmeDetails = await prisma.programme.findUnique({
+        where: {
+          code: program.programmeCode,
+        },
+        select: {
+          name: true,
+          level: true,
+        },
+      });
+
+      if (!programmeDetails) {
+        throw new Error(
+          `No ProgrammeDetails found for programmeCode: ${program.programmeCode}`,
+        );
+      }
+
+      // Merge the ApplicantProgram and Programme details
+      return {
+        ...program,
+        programmeDetails,
+      };
+    }),
+  );
+
+  return programmePriorities;
+};
 
 export const getFormIVData = async (
   formIVIndex: string,
@@ -187,26 +256,78 @@ export const newApplicantAccount = async (
 
 export const getApplicantData = async (): Promise<ApplicantDataResponse> => {
   try {
-    const headersList = headers();
-    const username = headersList.get("userId");
+    const applicant = await redirectToAuth();
 
-    if (!username) {
-      return { error: "Error occurred while fetching applicant data." };
-    }
-
-    const applicant = await prisma.applicant.findUnique({
+    const profile = await prisma.applicantProfile.findUnique({
       where: {
-        username,
+        applicantUsername: applicant.username,
       },
     });
 
-    if (!applicant) {
-      return { error: "Not Found!" };
+    if (!profile) {
+      throw new Error(
+        `Unable to locate the profile for the applicant with the username: ${applicant.username}.`,
+      );
     }
 
-    return { data: { username: applicant.username } };
+    const { firstName, middleName, lastName, imageUrl } = profile;
+
+    const notifications = await prisma.applicantNotification.findMany({
+      where: {
+        applicantUsername: applicant.username,
+      },
+    });
+
+    return {
+      data: {
+        username: applicant.username,
+        firstName,
+        middleName,
+        lastName,
+        imageUrl,
+        notifications,
+      },
+    };
   } catch (error) {
     logOperationError(error);
-    return { error: "Error occurred while fetching applicant data." };
+    return {
+      error:
+        "Apologies for the inconvenience. We encountered an issue while retrieving your applicant data. Please reach out to our dedicated support team for further assistance. We appreciate your understanding and patience",
+    };
   }
+};
+
+export const getApplicationStatus =
+  async (): Promise<ApplicationStatusResponse> => {
+    try {
+      const applicant = await redirectToAuth();
+
+      const { applicationType, applicationStatus, programmes } = applicant;
+
+      const programmePriorities = await getProgrammePriorities(programmes);
+
+      return {
+        data: {
+          applicationType,
+          applicationStatus,
+          programmePriorities,
+        },
+      };
+    } catch (error) {
+      logOperationError(error);
+      return {
+        error:
+          "We’re sorry, but an issue arose while retrieving your application details. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
+      };
+    }
+  };
+
+export const getApplicationDetails = async () => {
+  try {
+    const applicant = await redirectToAuth();
+
+    const { applicationType, applicationStatus, programmes } = applicant;
+
+    const programmePriorities = await getProgrammePriorities(programmes);
+  } catch (error) {}
 };

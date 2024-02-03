@@ -1,26 +1,38 @@
 import z from "zod";
 
-export enum ProgrammeLevelName {
-  DIPLOMA = "DIPLOMA",
-  CERTIFICATE = "CERTIFICATE",
-  BACHELOR = "BACHELOR",
-  MASTERS = "MASTERS",
-  PHD = "PHD",
+type EducationLevelName =
+  | "FORM_IV"
+  | "FORM_VI"
+  | "VETA_NVA_III"
+  | "NTA_LEVEL_IV"
+  | "NTA_LEVEL_V"
+  | "DIPLOMA"
+  | "DEGREE"
+  | "MASTERS";
+
+type Origin = "NECTA" | "FOREIGN" | "NECTA1988";
+
+type ProgrammeLevelName =
+  | "DIPLOMA"
+  | "CERTIFICATE"
+  | "BACHELOR"
+  | "MASTERS"
+  | "PHD";
+
+type ApplicationStatusName = "DRAFT" | "ACCEPTED" | "UNDER_REVIEW" | "REJECTED";
+
+interface ApplicantNotification {
+  id: string; // Unique identifier for the notification
+  title: string; // Title of the notification
+  message: string; // The actual notification message
+  read: boolean; // Whether the notification has been read
+  timestamp: Date; // When the notification was created
 }
 
-export enum EducationLevelName {
-  FORM_IV = "FORM_IV",
-  FORM_VI = "FORM_VI",
-  VETA_NVA_III = "VETA_NVA_III",
-  NTA_LEVEL_IV = "NTA_LEVEL_IV",
-  NTA_LEVEL_V = "NTA_LEVEL_V",
-  DIPLOMA = "DIPLOMA",
-  DEGREE = "DEGREE",
-  MASTERS = "MASTERS",
-}
-
-export enum Origin {
-  NECTA = "NECTA",
-  FOREIGN = "FOREIGN",
-  NECTA1988 = "NECTA1988",
-}
+export type {
+  ProgrammeLevelName,
+  Origin,
+  EducationLevelName,
+  ApplicationStatusName,
+  ApplicantNotification,
+};

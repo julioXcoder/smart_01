@@ -2,6 +2,8 @@ import {
   Origin,
   EducationLevelName,
   ProgrammeLevelName,
+  ApplicationStatusName,
+  ApplicantNotification,
 } from "@/types/application";
 import { Response } from "@/types/api";
 
@@ -33,15 +35,49 @@ interface NewApplicant {
 
 interface ApplicantData {
   username: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  imageUrl: string | null;
+
+  notifications: ApplicantNotification[];
+}
+
+interface ProgrammeDetails {
+  name: string;
+  level: ProgrammeLevelName;
+}
+
+interface ApplicantProgram {
+  programmeCode: string;
+  priority: number;
+  programmeDetails: ProgrammeDetails;
+}
+
+interface ApplicantEducationBackground {
+  position: number;
+  level: string;
+  schoolName: string;
+  startYear: string;
+  endYear: string;
+}
+
+interface ApplicationStatus {
+  applicationType: string;
+  applicationStatus: ApplicationStatusName;
+  programmePriorities: ApplicantProgram[];
 }
 
 type NewApplicantResponse = Response<string>;
 
 type ApplicantDataResponse = Response<ApplicantData>;
 
+type ApplicationStatusResponse = Response<ApplicationStatus>;
+
 export type {
   NewApplicant,
   NewApplicantResponse,
   ApplicantData,
   ApplicantDataResponse,
+  ApplicationStatusResponse,
 };

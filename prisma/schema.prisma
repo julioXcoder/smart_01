@@ -68,7 +68,7 @@ model Applicant {
   hashedPassword        String
   role                  RoleName            @default(APPLICANT)
   applicationStatus     ApplicantStatusName @default(DRAFT)
-  programs              String[]            @db.ObjectId
+  programmes            String[]            @db.ObjectId
   educationBackground   String[]            @db.ObjectId
   formIVIndex           String
   controlNumber         Int?
@@ -81,7 +81,16 @@ model Applicant {
 
 //APPLICANT DATA
 // FIXME: ADD University application ID to check the application period
-model ApplicantPrograms {
+model ApplicantNotification {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  applicantUsername String
+  title             String // Title of the notification
+  message           String // The actual notification message
+  read              Boolean // Whether the notification has been read
+  timestamp         DateTime // When the notification was created
+}
+
+model ApplicantProgrammes {
   id                String @id @default(auto()) @map("_id") @db.ObjectId
   applicantUsername String
   programmeCode     String
