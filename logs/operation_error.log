@@ -1,13 +1,190 @@
-2024-Feb-02 02:08:24 [Operation] error: The environment variable JWT_SECRET_KEY is not set.
-2024-Feb-03 22:01:13 [Operation] error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#cookiessetname-value-options
-2024-Feb-03 22:01:16 [Operation] error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#cookiessetname-value-options
-2024-Feb-03 22:01:29 [Operation] error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#cookiessetname-value-options
-2024-Feb-03 22:07:48 [Operation] error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#cookiessetname-value-options
-2024-Feb-03 22:09:01 [Operation] error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#cookiessetname-value-options
-2024-Feb-03 22:10:03 [Operation] error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#cookiessetname-value-options
-2024-Feb-03 22:10:23 [Operation] error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#cookiessetname-value-options
-2024-Feb-03 22:13:28 [Operation] error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#cookiessetname-value-options
-2024-Feb-03 22:17:46 [Operation] error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#cookiessetname-value-options
-2024-Feb-03 22:20:59 [Operation] error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#cookiessetname-value-options
-2024-Feb-03 22:23:03 [Operation] error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#cookiessetname-value-options
-2024-Feb-03 22:32:27 [Operation] error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#cookiessetname-value-options
+2024-Feb-04 18:10:24 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-04 18:10:24 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-04 18:10:24 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-04 18:10:24 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-04 18:19:49 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-04 18:19:49 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-04 18:24:15 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-04 18:24:15 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-04 21:46:02 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:46:02 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:50:36 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:50:36 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:51:55 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:51:55 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:52:40 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:52:40 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:53:14 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:53:14 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:53:20 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:53:20 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:53:33 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:53:33 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:54:12 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:54:12 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:54:14 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:54:14 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:54:20 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:54:20 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:55:09 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:55:09 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:55:12 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:55:12 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:55:47 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:55:47 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:55:53 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:55:53 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:56:43 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`
+2024-Feb-04 21:56:43 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000006, Servers: [ { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: timed out, labels: {} } ] }, labels: {}`

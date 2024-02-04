@@ -22,6 +22,7 @@ import z from "zod";
 import { FormSchema } from "./data";
 import MobileNavigation from "./mobileNavigation";
 import SideNavigation from "./sideNavigation";
+import { ApplicationDetails } from "@/types/application";
 
 import Attachments from "./attachments";
 import Contacts from "./contacts";
@@ -31,9 +32,60 @@ import Payment from "./payment";
 import Priorities from "./priorities";
 import Profile from "./profile";
 
-const EditComponent = () => {
+import { deleteApplicantProgrammePriority } from "@/server/actions/applicant";
+
+interface Props {
+  data: ApplicationDetails;
+}
+
+// const fakeProgrammes: ApplicantProgram[] = [
+//   {
+//     programmeCode: "P1",
+//     priority: 0,
+//     programmeDetails: {
+//       name: "Programme 1",
+//       level: "DIPLOMA",
+//       language: "English",
+//     },
+//   },
+//   {
+//     programmeCode: "P2",
+//     priority: 1,
+//     programmeDetails: {
+//       name: "Programme 2",
+//       level: "DIPLOMA",
+//       language: "English",
+//     },
+//   },
+//   {
+//     programmeCode: "P3",
+//     priority: 2,
+//     programmeDetails: {
+//       name: "Programme 3",
+//       level: "DIPLOMA",
+//       language: "English",
+//     },
+//   },
+// ];
+
+const EditComponent = ({ data }: Props) => {
   const [step, setStep] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
+
+  const [programmePriorities, setProgrammePriorities] = useState(
+    data.programmePriorities,
+  );
+  const [applicantEducationBackground, setApplicantEducationBackground] =
+    useState(data.applicantEducationBackground);
+  const [applicantProfile, setApplicantProfile] = useState(
+    data.applicantProfile,
+  );
+  const [applicantContacts, setApplicantContacts] = useState(
+    data.applicantContacts,
+  );
+  const [applicantEmergencyContacts, setApplicantEmergencyContacts] = useState(
+    data.applicantEmergencyContacts,
+  );
 
   const [profileErrors, setProfileErrors] = useState(0);
   const [contactErrors, setContactErrors] = useState(0);
@@ -45,6 +97,13 @@ const EditComponent = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const sortedProgrammes = data.programmePriorities.sort(
+      (a, b) => a.priority - b.priority,
+    );
+    setProgrammePriorities(sortedProgrammes);
+  }, [data]);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -61,45 +120,113 @@ const EditComponent = () => {
     };
   }, [isSaved]);
 
+  useEffect(() => {
+    console.log("Use Effect", programmePriorities);
+  }, [programmePriorities]);
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      firstName: "",
-      middleName: "",
-      lastName: "",
-      nida: "",
-      applicantEmail: "",
-      applicantPhoneNumber: "",
-      citizenship: "",
-      country: "",
-      emergencyContactCity: "",
-      emergencyContactCountry: "",
-      emergencyContactEmail: "",
-      emergencyContactPhoneNumber: "",
-      emergencyContactPostalCode: "",
-      emergencyContactRegion: "",
-      emergencyContactRelation: "",
-      emergencyContactStreetAddress: "",
-      city: "",
-      gender: "",
-      region: "",
-      postalCode: "",
-      streetAddress: "",
-      emergencyContactFullName: "",
-      applicantAlternativeEmail: "",
-      applicantAlternativePhoneNumber: "",
-      emergencyContactAlternativeEmail: "",
-      emergencyContactAlternativePhoneNumber: "",
-      education: [
-        {
-          level: "",
-          schoolName: "",
-          startYear: "",
-          endYear: "",
-        },
-      ],
+      firstName: applicantProfile.firstName,
+      middleName: applicantProfile.middleName,
+      lastName: applicantProfile.lastName,
+      nida: applicantProfile.nida,
+      applicantEmail: applicantContacts.email || "",
+      applicantPhoneNumber: applicantContacts.phone,
+      citizenship: applicantProfile.nationality,
+      country: applicantContacts.country,
+      emergencyContactCity: applicantEmergencyContacts.city,
+      emergencyContactCountry: applicantEmergencyContacts.country,
+      emergencyContactEmail: applicantEmergencyContacts.email || "",
+      emergencyContactPhoneNumber: applicantEmergencyContacts.phone,
+      emergencyContactPostalCode: applicantEmergencyContacts.postalCode,
+      emergencyContactRegion: applicantEmergencyContacts.region,
+      emergencyContactRelation: applicantEmergencyContacts.relation,
+      emergencyContactStreetAddress: applicantEmergencyContacts.streetAddress,
+      city: applicantContacts.city,
+      gender: applicantProfile.gender,
+      region: applicantContacts.region,
+      postalCode: applicantContacts.postalCode,
+      streetAddress: applicantContacts.streetAddress,
+      emergencyContactFullName: applicantEmergencyContacts.fullName,
+      applicantAlternativeEmail: applicantContacts.alternativeEmail || "",
+      applicantAlternativePhoneNumber:
+        applicantContacts.alternativePhoneNumber || "",
+      emergencyContactAlternativeEmail:
+        applicantEmergencyContacts.alternativeEmail || "",
+      emergencyContactAlternativePhoneNumber:
+        applicantEmergencyContacts.alternativePhoneNumber || "",
+      education: applicantEducationBackground,
     },
   });
+
+  const moveUp = (index: number) => {
+    setProgrammePriorities((prevProgrammes) => {
+      const newProgrammes = [...prevProgrammes];
+      if (index > 0) {
+        [newProgrammes[index - 1], newProgrammes[index]] = [
+          newProgrammes[index],
+          newProgrammes[index - 1],
+        ];
+        newProgrammes[index - 1].priority = index - 1;
+        newProgrammes[index].priority = index;
+      }
+      return newProgrammes;
+    });
+  };
+
+  const moveDown = (index: number) => {
+    setProgrammePriorities((prevProgrammes) => {
+      const newProgrammes = [...prevProgrammes];
+      if (index < newProgrammes.length - 1) {
+        [newProgrammes[index + 1], newProgrammes[index]] = [
+          newProgrammes[index],
+          newProgrammes[index + 1],
+        ];
+        newProgrammes[index + 1].priority = index + 1;
+        newProgrammes[index].priority = index;
+      }
+      return newProgrammes;
+    });
+  };
+
+  // const deleteProgramme = (index: number) => {
+  //   setProgrammePriorities((prevProgrammes) => {
+  //     const newProgrammes = [...prevProgrammes];
+  //     newProgrammes.splice(index, 1);
+  //     // Update the priority of the remaining programmes
+  //     for (let i = index; i < newProgrammes.length; i++) {
+  //       newProgrammes[i].priority = i;
+  //     }
+  //     return newProgrammes;
+  //   });
+  // };
+
+  const deleteProgramme = async (index: number) => {
+    const prevProgrammes = programmePriorities;
+    // Optimistically update the state
+    setProgrammePriorities((prevProgrammes) => {
+      const newProgrammes = [...prevProgrammes];
+      newProgrammes.splice(index, 1);
+      // Update the priority of the remaining programmes
+      for (let i = index; i < newProgrammes.length; i++) {
+        newProgrammes[i].priority = i;
+      }
+      return newProgrammes;
+    });
+
+    // Then perform the server operation
+    const programmeToDelete = programmePriorities[index];
+    const { data, error } =
+      await deleteApplicantProgrammePriority(programmeToDelete);
+
+    if (error) {
+      toast.error(error, { duration: 6000 });
+      setProgrammePriorities(prevProgrammes);
+    } else if (data) {
+      toast.success(data, { duration: 6000 });
+    }
+  };
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     handleSaveAsDraft();
@@ -122,6 +249,12 @@ const EditComponent = () => {
 
     toast.success("Draft saved. Resume anytime.", {
       duration: 6000,
+    });
+
+    const educationArray = form.getValues("education");
+
+    educationArray.forEach((item, index) => {
+      form.setValue(`education.${index}.position`, index);
     });
 
     console.log("data", data);
@@ -231,7 +364,14 @@ const EditComponent = () => {
   const steps: Step[] = [
     {
       label: "Priorities",
-      stepContent: <Priorities />,
+      stepContent: (
+        <Priorities
+          applicantProgrammes={programmePriorities}
+          onMoveUp={moveUp}
+          onMoveDown={moveDown}
+          onDelete={deleteProgramme}
+        />
+      ),
       Icon: FaList,
     },
     {

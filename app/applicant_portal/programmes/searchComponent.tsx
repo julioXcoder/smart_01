@@ -1,16 +1,14 @@
 "use client";
 
 import { useState, ChangeEvent } from "react";
-import {
-  Programme,
-  Campus,
-  EducationLevel,
-} from "@/server/actions/programmes/types";
+import { Programme, Campus } from "@/server/actions/programmes/types";
+import { ProgrammeLevelName } from "@/types/application";
 import ProgrammeCard from "./programmeCard";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import DropdownSelect from "@/components/dropdownSelect";
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
 import { Button } from "@/components/ui/button";
+import toast from "react-hot-toast";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -19,16 +17,30 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
 import { getLevelDisplayText } from "@/utils/programme";
+import { addApplicantProgrammePriority } from "@/server/actions/applicant";
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
+
+const levels: ProgrammeLevelName[] = [
+  "CERTIFICATE",
+  "DIPLOMA",
+  "BACHELOR",
+  "MASTERS",
+  "PHD",
+];
 
 interface Props {
   programmes: Programme[] | null;
 }
 
 const SearchComponent = ({ programmes }: Props) => {
-  const [selectedLevels, setSelectedLevels] = useState<EducationLevel[]>([]);
+  const router = useRouter();
+  const [loading, setIsLoading] = useState(false);
+  const [selectedLevels, setSelectedLevels] = useState<ProgrammeLevelName[]>(
+    [],
+  );
   const [selectedCampuses, setSelectedCampuses] = useState<Campus[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filteredProgrammes, setFilteredProgrammes] = useState<
@@ -45,8 +57,6 @@ const SearchComponent = ({ programmes }: Props) => {
           .values(),
       )
     : [];
-
-  const levels: EducationLevel[] = Object.values(EducationLevel);
 
   const filterProgrammes = () => {
     let filtered = programmes;
@@ -87,8 +97,8 @@ const SearchComponent = ({ programmes }: Props) => {
     filterProgrammes();
   };
 
-  const handleLevelChange = (selectedLevel: EducationLevel) => {
-    let updatedSelectedLevels;
+  const handleLevelChange = (selectedLevel: ProgrammeLevelName) => {
+    let updatedSelectedLevels: ProgrammeLevelName[];
     if (selectedLevels.includes(selectedLevel)) {
       // If the level is already selected, remove it from the array
       updatedSelectedLevels = selectedLevels.filter(
@@ -125,11 +135,25 @@ const SearchComponent = ({ programmes }: Props) => {
     }
   };
 
+  const handleAddApplicantProgramme = async (programmeCode: string) => {
+    setIsLoading(true);
+    const { data: redirect, error } =
+      await addApplicantProgrammePriority(programmeCode);
+
+    if (error) {
+      toast.error(error, { duration: 6000 });
+    } else if (redirect) {
+      router.push(redirect);
+    }
+
+    setIsLoading(false);
+  };
+
   if (programmes) {
     return (
       <>
         {/* HEADER */}
-        <div className="grid gap-3 border-b border-gray-200 py-4 md:flex md:items-center md:justify-between dark:border-gray-700">
+        <div className="grid gap-3 border-b border-gray-200 py-4 dark:border-gray-700 md:flex md:items-center md:justify-between">
           <div>
             <div className="relative">
               <input
@@ -194,7 +218,12 @@ const SearchComponent = ({ programmes }: Props) => {
         {/* HEADER */}
         <div className="mt-5 flex flex-col gap-6">
           {filteredProgrammes?.map((programme, index) => (
-            <ProgrammeCard key={index} programme={programme} />
+            <ProgrammeCard
+              addProgramme={handleAddApplicantProgramme}
+              loading={loading}
+              key={index}
+              programme={programme}
+            />
           ))}
         </div>
       </>

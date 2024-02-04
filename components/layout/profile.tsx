@@ -20,7 +20,13 @@ import { MdEvent, MdLogout } from "react-icons/md";
 import ProfileThemeChanger from "./profileThemeChanger";
 import Link from "next/link";
 
-const Profile = () => {
+interface Props {
+  firstName: string;
+  lastName: string;
+  username: string;
+}
+
+const Profile = ({ firstName, lastName, username }: Props) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -30,7 +36,9 @@ const Profile = () => {
             src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80"
             alt="Maria"
           />
-          <span className="max-w-[7.5rem] truncate font-medium">Maria</span>
+          <span className="max-w-[7.5rem] truncate font-medium">
+            {firstName.trim() ? `${firstName} ${lastName}` : username}
+          </span>
           <BiChevronDown size={20} />
         </Button>
       </DropdownMenuTrigger>
@@ -49,16 +57,16 @@ const Profile = () => {
           </DropdownMenuItem>
           <DropdownMenuItem>
             <Link
-              href="/applicant_portal/applications"
+              href="/applicant_portal/dashboard"
               className="flex w-full items-center justify-between"
             >
               <div className="flex items-center">
                 <BiLayer className="mr-2 h-4 w-4" />
-                <span>My Applications</span>
+                <span>My Application</span>
               </div>
-              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-800 dark:bg-blue-800/30 dark:text-blue-50">
+              {/* <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-800 dark:bg-blue-800/30 dark:text-blue-50">
                 4
-              </div>
+              </div> */}
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>

@@ -81,6 +81,7 @@ const StepperForm = () => {
   const [completedOLevel, setCompletedOLevel] = useState<"yes" | "no" | "">("");
   const [formIVIndex, setFormIVIndex] = useState("");
   const [loading, setIsLoading] = useState(false);
+  const [verifyFormIVIndex, setVerifyFormIVIndex] = useState(false);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -223,7 +224,7 @@ const StepperForm = () => {
           return;
         }
 
-        setIsLoading(true);
+        setVerifyFormIVIndex(true);
         // FIXME: trim form IV index
         // FIXME: get the students form IV data
         const { data, error } = await getFormIVData(formIVIndex.trim());
@@ -231,11 +232,11 @@ const StepperForm = () => {
         // FIXME: handle error
         if (error) {
           setErrorMessage(error);
-          setIsLoading(false);
+          setVerifyFormIVIndex(false);
           return;
         }
 
-        setIsLoading(false);
+        setVerifyFormIVIndex(false);
       }
     }
 
@@ -254,6 +255,7 @@ const StepperForm = () => {
   };
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
+    setErrorMessage("");
     setIsLoading(true);
     if (
       !selectedApplicantOrigin ||
@@ -283,6 +285,7 @@ const StepperForm = () => {
     } else if (redirect) {
       router.push(redirect);
     }
+
     setIsLoading(false);
   };
 
@@ -769,11 +772,20 @@ const StepperForm = () => {
 
       <div className="my-4 flex w-full justify-end">
         {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-        {loading && !errorMessage && (
+        {verifyFormIVIndex && (
           <div className="flex gap-3 text-blue-500">
             <span>
               Please hold on while we verify your Form IV index. We appreciate
               your patience.
+            </span>{" "}
+            <span className="loader inline-flex h-4 w-4 text-black dark:text-white"></span>
+          </div>
+        )}
+        {loading && (
+          <div className="flex gap-3 text-blue-500">
+            <span>
+              Creating your account… Just a moment while we make sure everything
+              is perfect! 🚀
             </span>{" "}
             <span className="loader inline-flex h-4 w-4 text-black dark:text-white"></span>
           </div>

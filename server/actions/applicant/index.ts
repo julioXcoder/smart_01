@@ -7,51 +7,29 @@ import type {
   StudentInfo,
   NewApplicant,
   NewApplicantResponse,
-  ApplicantData,
+  ApplicationDetailsResponse,
   ApplicantDataResponse,
   ApplicationStatusResponse,
+  AddApplicantProgrammeResponse,
+  DeleteApplicantProgrammeResponse,
 } from "./schema";
 import prisma from "@/prisma/db";
 import bcrypt from "bcrypt";
 import { createToken } from "@/lib/auth";
 import { cookies, headers } from "next/headers";
 import { logOperationError } from "@/utils/logger";
-import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { ApplicantProgram } from "@/types/application";
 
 const baseURL = "https://onlinesys.necta.go.tz/results/";
 
-const redirectToAuth = async () => {
-  const headersList = headers();
-  const username = headersList.get("userId");
-
-  if (!username) {
-    cookies().set("token", "");
-    return redirect("/applicant_portal/auth");
-  }
-
-  const applicant = await prisma.applicant.findUnique({
-    where: {
-      username,
-    },
-  });
-
-  if (!applicant) {
-    cookies().set("token", "");
-    return redirect("/applicant_portal/auth");
-  }
-
-  return applicant;
-};
-
-const getProgrammePriorities = async (programmes: string[]) => {
+const getProgrammePriorities = async (username: string) => {
   const applicantPrograms = await prisma.applicantProgrammes.findMany({
     where: {
-      programmeCode: {
-        in: programmes,
-      },
+      applicantUsername: username,
     },
     select: {
-      id: false, // Exclude the 'id' field
+      id: true, // Exclude the 'id' field
       applicantUsername: false,
       programmeCode: true,
       priority: true,
@@ -67,6 +45,7 @@ const getProgrammePriorities = async (programmes: string[]) => {
         select: {
           name: true,
           level: true,
+          language: true,
         },
       });
 
@@ -255,8 +234,24 @@ export const newApplicantAccount = async (
 };
 
 export const getApplicantData = async (): Promise<ApplicantDataResponse> => {
+  const username = headers().get("userId");
   try {
-    const applicant = await redirectToAuth();
+    if (!username) {
+      return { error: "Oops! Access denied. Please try again." };
+    }
+
+    const applicant = await prisma.applicant.findUnique({
+      where: {
+        username,
+      },
+    });
+
+    if (!applicant) {
+      return {
+        error:
+          "Sorry, we couldn't process your request. Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
+      };
+    }
 
     const profile = await prisma.applicantProfile.findUnique({
       where: {
@@ -299,12 +294,30 @@ export const getApplicantData = async (): Promise<ApplicantDataResponse> => {
 
 export const getApplicationStatus =
   async (): Promise<ApplicationStatusResponse> => {
+    const username = headers().get("userId");
     try {
-      const applicant = await redirectToAuth();
+      if (!username) {
+        return { error: "Oops! Access denied. Please try again." };
+      }
 
-      const { applicationType, applicationStatus, programmes } = applicant;
+      const applicant = await prisma.applicant.findUnique({
+        where: {
+          username,
+        },
+      });
 
-      const programmePriorities = await getProgrammePriorities(programmes);
+      if (!applicant) {
+        return {
+          error:
+            "Sorry, we couldn't process your request. Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
+        };
+      }
+
+      const { applicationType, applicationStatus } = applicant;
+
+      const programmePriorities = await getProgrammePriorities(
+        applicant.username,
+      );
 
       return {
         data: {
@@ -317,17 +330,217 @@ export const getApplicationStatus =
       logOperationError(error);
       return {
         error:
+          "We’re sorry, but an issue arose while retrieving your application status. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
+      };
+    }
+  };
+
+export const getApplicationDetails =
+  async (): Promise<ApplicationDetailsResponse> => {
+    const username = headers().get("userId");
+    try {
+      if (!username) {
+        return { error: "Oops! Access denied. Please try again." };
+      }
+
+      const applicant = await prisma.applicant.findUnique({
+        where: {
+          username,
+        },
+      });
+
+      if (!applicant) {
+        return {
+          error:
+            "Sorry, we couldn't process your request. Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
+        };
+      }
+      const { applicationType, applicationStatus, educationBackground } =
+        applicant;
+
+      const programmePriorities = await getProgrammePriorities(
+        applicant.username,
+      );
+
+      const applicantEducationBackground =
+        await prisma.applicantEducationBackground.findMany({
+          where: {
+            id: {
+              in: educationBackground,
+            },
+          },
+        });
+
+      const applicantProfile = await prisma.applicantProfile.findUnique({
+        where: {
+          applicantUsername: applicant.username,
+        },
+      });
+
+      const applicantContacts = await prisma.applicantContacts.findUnique({
+        where: {
+          applicantUsername: applicant.username,
+        },
+      });
+
+      const applicantEmergencyContacts =
+        await prisma.applicantEmergencyContacts.findUnique({
+          where: {
+            applicantUsername: applicant.username,
+          },
+        });
+
+      if (
+        !applicantProfile ||
+        !applicantContacts ||
+        !applicantEmergencyContacts
+      ) {
+        throw new Error(
+          `Unable to locate the applicant details for the applicant with the username: ${applicant.username}.`,
+        );
+      }
+
+      return {
+        data: {
+          programmePriorities,
+          applicantEducationBackground,
+          applicantProfile,
+          applicantContacts,
+          applicantEmergencyContacts,
+        },
+      };
+    } catch (error) {
+      logOperationError(error);
+      return {
+        error:
           "We’re sorry, but an issue arose while retrieving your application details. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
       };
     }
   };
 
-export const getApplicationDetails = async () => {
+export const addApplicantProgrammePriority = async (
+  programmeCode: string,
+): Promise<AddApplicantProgrammeResponse> => {
+  const username = headers().get("userId");
   try {
-    const applicant = await redirectToAuth();
+    if (!username) {
+      return { error: "Oops! Access denied. Please try again." };
+    }
 
-    const { applicationType, applicationStatus, programmes } = applicant;
+    const applicant = await prisma.applicant.findUnique({
+      where: {
+        username,
+      },
+    });
 
-    const programmePriorities = await getProgrammePriorities(programmes);
-  } catch (error) {}
+    if (!applicant) {
+      return {
+        error:
+          "Sorry, we couldn't process your request. Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
+      };
+    }
+
+    const programmePriorities = await getProgrammePriorities(
+      applicant.username,
+    );
+
+    const hasDuplicateProgrammeCode = programmePriorities.some(
+      (programme) => programme.programmeCode === programmeCode,
+    );
+
+    if (hasDuplicateProgrammeCode) {
+      return {
+        error: "Programme already added. Please pick a different one.",
+      };
+    }
+
+    const programmesLength = programmePriorities.length;
+
+    if (programmesLength >= 5) {
+      return {
+        error: "Max programmes reached you cant add anymore programmes.",
+      };
+    }
+
+    // Find the programme by its code
+    const programme = await prisma.programme.findUnique({
+      where: {
+        code: programmeCode,
+      },
+    });
+
+    if (!programme) {
+      return {
+        error: "The programme code you provided does not exist.",
+      };
+    }
+
+    await prisma.applicantProgrammes.create({
+      data: {
+        applicantUsername: applicant.username,
+        programmeCode: programme.code,
+        priority: programmesLength + 1,
+      },
+    });
+
+    revalidatePath("/applicant_portal/edit");
+    return { data: "/applicant_portal/edit" };
+  } catch (error) {
+    logOperationError(error);
+    return {
+      error:
+        "We’re sorry, but an issue arose while adding applicant programme priority.",
+    };
+  }
+};
+
+export const deleteApplicantProgrammePriority = async (
+  priorityProgramme: ApplicantProgram,
+): Promise<DeleteApplicantProgrammeResponse> => {
+  const username = headers().get("userId");
+  try {
+    if (!username) {
+      return { error: "Oops! Access denied. Please try again." };
+    }
+
+    const applicant = await prisma.applicant.findUnique({
+      where: {
+        username,
+      },
+    });
+
+    if (!applicant) {
+      return {
+        error:
+          "Sorry, we couldn't process your request. Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
+      };
+    }
+
+    const applicantPriorityProgramme =
+      await prisma.applicantProgrammes.findUnique({
+        where: {
+          id: priorityProgramme.id,
+          applicantUsername: applicant.username,
+        },
+      });
+
+    if (!applicantPriorityProgramme) {
+      return { error: "Programme not found." };
+    }
+
+    await prisma.applicantProgrammes.delete({
+      where: {
+        id: applicantPriorityProgramme.id,
+      },
+    });
+
+    revalidatePath("/applicant_portal/edit");
+    return { data: "Programme Deleted!" };
+  } catch (error) {
+    logOperationError(error);
+    return {
+      error:
+        "We’re sorry, but an issue arose while deleting applicant programme priority.",
+    };
+  }
 };

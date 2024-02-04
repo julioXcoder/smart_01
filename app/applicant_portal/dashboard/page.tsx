@@ -14,19 +14,84 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { ApplicationStatusName } from "@/types/application";
 import { getApplicationStatus } from "@/server/actions/applicant";
+import {
+  AiOutlineInfoCircle,
+  AiOutlineExclamationCircle,
+  AiOutlineCheckCircle,
+  AiOutlineClockCircle,
+  AiOutlineSearch,
+  AiOutlineCloseCircle,
+} from "react-icons/ai";
+import { ReactNode } from "react";
 
-function getStatusText(applicationStatus: ApplicationStatusName): string {
+function getStatusText(applicationStatus: ApplicationStatusName): {
+  title: string;
+  description: string;
+  color: string;
+  TitleIcon: ReactNode;
+  DescriptionIcon: ReactNode;
+} {
   switch (applicationStatus) {
     case "DRAFT":
-      return "Your application is currently in draft status. To continue with your application process, please click the 'Edit' button below and complete all necessary fields.";
+      return {
+        title: "Your Application is in Draft Mode",
+        description:
+          "Important! - Your application hasn't been submitted yet! Please click on the 'Edit Application' button to complete it.",
+        TitleIcon: (
+          <AiOutlineInfoCircle className="h-12 w-12 shrink-0 text-gray-400" />
+        ),
+        DescriptionIcon: (
+          <AiOutlineExclamationCircle className="mx-2 h-4 w-4 shrink-0" />
+        ),
+        color: "bg-gray-300 dark:bg-gray-400",
+      };
     case "ACCEPTED":
-      return "Congratulations! Your application has been accepted. To proceed with the next steps, please click the 'Continue Application' button below.";
+      return {
+        title: "Congratulations, Your Application is Accepted!",
+        description:
+          "Your application has been accepted! Please click on the 'Continue Application' button to proceed.",
+        TitleIcon: (
+          <AiOutlineCheckCircle className="h-12 w-12 shrink-0 text-green-400" />
+        ),
+        DescriptionIcon: (
+          <AiOutlineInfoCircle className="mx-2 h-4 w-4 shrink-0" />
+        ),
+        color: "bg-green-400",
+      };
     case "UNDER_REVIEW":
-      return "Your application is currently under review. We appreciate your patience as we carefully consider your submission. You will be notified once there is an update.";
+      return {
+        title: "Your Application is Under Review",
+        description:
+          "Your application is currently being reviewed by our team. We appreciate your patience during this process.",
+        TitleIcon: (
+          <AiOutlineSearch className="h-12 w-12 shrink-0 text-blue-400" />
+        ),
+        DescriptionIcon: (
+          <AiOutlineClockCircle className="mx-2 h-4 w-4 shrink-0" />
+        ),
+        color: "bg-blue-400",
+      };
     case "REJECTED":
-      return "We regret to inform you that your application has not been successful this time. We encourage you to apply again in the future when applications reopen.";
+      return {
+        title: "Unfortunately, Your Application Was Not Accepted",
+        description:
+          "We regret to inform you that your application was not accepted. Please review the feedback provided and consider reapplying.",
+        TitleIcon: (
+          <AiOutlineCloseCircle className="h-12 w-12 shrink-0 text-red-400" />
+        ),
+        DescriptionIcon: (
+          <AiOutlineExclamationCircle className="mx-2 h-4 w-4 shrink-0" />
+        ),
+        color: "bg-red-400",
+      };
     default:
-      return "Oops! It seems like we encountered an unexpected status for your application. Please check your application status or contact our support team for further assistance.";
+      return {
+        title: "",
+        description: "",
+        TitleIcon: <></>,
+        DescriptionIcon: <></>,
+        color: "",
+      };
   }
 }
 
@@ -34,6 +99,7 @@ const Page = async () => {
   const { data, error } = await getApplicationStatus();
 
   // FIXME: Build an error card
+
   if (error) {
     <div>{error}</div>;
   }
@@ -45,15 +111,21 @@ const Page = async () => {
           <CardHeader>
             <div className="flex w-full justify-between">
               <div className="flex items-center gap-2">
-                <IoWarning className="h-12 w-12 shrink-0 text-orange-400" />
+                {/* <IoWarning className="h-12 w-12 shrink-0 text-orange-400" /> */}
+                {getStatusText(data.applicationStatus).TitleIcon}
                 <div>
                   <p className="font-semibold text-gray-800 dark:text-gray-200">
-                    {getStatusText(data.applicationStatus)}
+                    {getStatusText(data.applicationStatus).title}
                   </p>
                   <p className="text-xs text-gray-500">Deadline: 31 Aug 2024</p>
                 </div>
               </div>
-              <Badge className="shrink-0" variant={"secondary"}>
+              <Badge
+                className={`shrink-0 ${
+                  getStatusText(data.applicationStatus).color
+                }`}
+                variant={"secondary"}
+              >
                 {data.applicationStatus}
               </Badge>
             </div>
@@ -88,9 +160,9 @@ const Page = async () => {
             )}
           </CardContent>
           <CardDescription className="flex items-center p-1 text-orange-600 dark:text-yellow-300">
-            <LiaHandPointRightSolid className="mx-2 h-4 w-4 shrink-0" />{" "}
-            Important! The application is currently not submitted! Please click
-            on the &apos;Edit application&apos; button to do so.
+            <LiaHandPointRightSolid className="mx-2 h-4 w-4 shrink-0" />
+            {/* {getStatusText(data.applicationStatus).DescriptionIcon} */}
+            {getStatusText(data.applicationStatus).description}
           </CardDescription>
         </Card>
         <Link href="/applicant_portal/edit">

@@ -88,9 +88,10 @@ export async function middleware(request: NextRequest) {
 }
 
 // See "Matching Paths" below to learn more
-export const config = {
-  matcher: ["/student/:path*", "/staff/:path*"],
-};
 // export const config = {
-//   matcher: ["/student/:path*", "/staff/:path*", "/applicant_portal/:path*"],
+//   matcher: ["/student/:path*", "/staff/:path*"],
 // };
+
+export const config = {
+  matcher: ["/student/:path*", "/staff/:path*", "/applicant_portal/:path*"],
+};

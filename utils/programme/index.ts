@@ -1,7 +1,5 @@
-import {
-  EducationLevel,
-  ProgrammeTypes,
-} from "@/server/actions/programmes/types";
+import { ProgrammeTypes } from "@/server/actions/programmes/types";
+import { ProgrammeLevelName } from "@/types/application";
 
 function getProgrammeType(type: ProgrammeTypes): string {
   switch (type) {
@@ -14,34 +12,34 @@ function getProgrammeType(type: ProgrammeTypes): string {
   }
 }
 
-function getEducationLevel(level: EducationLevel): string {
+function getEducationLevel(level: ProgrammeLevelName): string {
   switch (level) {
-    case EducationLevel.DIPLOMA:
+    case "DIPLOMA":
       return "Diploma in";
-    case EducationLevel.CERTIFICATE:
+    case "CERTIFICATE":
       return "Certificate in";
-    case EducationLevel.BACHELOR:
+    case "BACHELOR":
       return "Bachelor's degree in";
-    case EducationLevel.MASTERS:
+    case "MASTERS":
       return "Master's degree in";
-    case EducationLevel.PHD:
+    case "PHD":
       return "PhD in";
     default:
       return "";
   }
 }
 
-function getLevelDisplayText(level: EducationLevel): string {
+function getLevelDisplayText(level: ProgrammeLevelName): string {
   switch (level) {
-    case EducationLevel.DIPLOMA:
+    case "DIPLOMA":
       return "Diploma";
-    case EducationLevel.CERTIFICATE:
+    case "CERTIFICATE":
       return "Certificate";
-    case EducationLevel.BACHELOR:
+    case "BACHELOR":
       return "Bachelor";
-    case EducationLevel.MASTERS:
+    case "MASTERS":
       return "Masters";
-    case EducationLevel.PHD:
+    case "PHD":
       return "PhD";
     default:
       return "";

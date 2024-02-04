@@ -4,6 +4,8 @@ import {
   ProgrammeLevelName,
   ApplicationStatusName,
   ApplicantNotification,
+  ApplicationDetails,
+  ApplicationStatus,
 } from "@/types/application";
 import { Response } from "@/types/api";
 
@@ -43,36 +45,17 @@ interface ApplicantData {
   notifications: ApplicantNotification[];
 }
 
-interface ProgrammeDetails {
-  name: string;
-  level: ProgrammeLevelName;
-}
-
-interface ApplicantProgram {
-  programmeCode: string;
-  priority: number;
-  programmeDetails: ProgrammeDetails;
-}
-
-interface ApplicantEducationBackground {
-  position: number;
-  level: string;
-  schoolName: string;
-  startYear: string;
-  endYear: string;
-}
-
-interface ApplicationStatus {
-  applicationType: string;
-  applicationStatus: ApplicationStatusName;
-  programmePriorities: ApplicantProgram[];
-}
-
 type NewApplicantResponse = Response<string>;
+
+type AddApplicantProgrammeResponse = Response<string>;
+
+type DeleteApplicantProgrammeResponse = Response<string>;
 
 type ApplicantDataResponse = Response<ApplicantData>;
 
 type ApplicationStatusResponse = Response<ApplicationStatus>;
+
+type ApplicationDetailsResponse = Response<ApplicationDetails>;
 
 export type {
   NewApplicant,
@@ -80,4 +63,7 @@ export type {
   ApplicantData,
   ApplicantDataResponse,
   ApplicationStatusResponse,
+  ApplicationDetailsResponse,
+  AddApplicantProgrammeResponse,
+  DeleteApplicantProgrammeResponse,
 };

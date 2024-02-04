@@ -63,6 +63,7 @@ const Education = ({ form }: Props) => {
 
   const handleAddItem = () => {
     append({
+      position: fields.length,
       level: "",
       schoolName: "",
       startYear: "",

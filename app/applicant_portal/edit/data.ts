@@ -448,6 +448,7 @@ const educationLevel: SelectableOption[] = [
 ];
 
 const EducationSchema = z.object({
+  position: z.number(),
   level: z.string().min(1, { message: "Level of education is required" }),
   schoolName: z
     .string()

@@ -15,7 +15,9 @@ const layout = async ({ children }: { children: ReactNode }) => {
       <div>
         <Appbar
           notifications={data.notifications}
-          name={`${data.firstName} ${data.lastName}`}
+          firstName={data.firstName}
+          lastName={data.lastName}
+          username={data.username}
         />
         <div className="mx-auto my-14 max-w-[85rem] p-4 sm:p-6">{children}</div>
         {/* <StickyFooter /> */}

@@ -6,47 +6,47 @@ import {
 } from "@/types/application";
 
 const applicationTypes: { label: string; value: ProgrammeLevelName }[] = [
-  { label: "Certificate", value: ProgrammeLevelName.CERTIFICATE },
-  { label: "Diploma", value: ProgrammeLevelName.DIPLOMA },
-  { label: "Postgraduate Diploma", value: ProgrammeLevelName.BACHELOR },
-  { label: "Masters", value: ProgrammeLevelName.MASTERS },
-  { label: "phD", value: ProgrammeLevelName.PHD },
+  { label: "Certificate", value: "CERTIFICATE" },
+  { label: "Diploma", value: "DIPLOMA" },
+  { label: "Postgraduate Diploma", value: "BACHELOR" },
+  { label: "Masters", value: "MASTERS" },
+  { label: "phD", value: "PHD" },
 ];
 
 const applicantOrigins: { label: string; value: Origin }[] = [
-  { label: "Tanzania - NECTA", value: Origin.NECTA },
-  { label: "NON NECTA - Foreign", value: Origin.FOREIGN },
-  { label: "Tanzania NECTA before 1988", value: Origin.NECTA1988 },
+  { label: "Tanzania - NECTA", value: "NECTA" },
+  { label: "NON NECTA - Foreign", value: "FOREIGN" },
+  { label: "Tanzania NECTA before 1988", value: "NECTA1988" },
 ];
 
 const certificateEducationLevels: {
   label: string;
   value: EducationLevelName;
 }[] = [
-  { label: "Form IV", value: EducationLevelName.FORM_IV },
-  { label: "Veta NVA III", value: EducationLevelName.VETA_NVA_III },
+  { label: "Form IV", value: "FORM_IV" },
+  { label: "Veta NVA III", value: "VETA_NVA_III" },
 ];
 
 const diplomaEducationLevels: { label: string; value: EducationLevelName }[] = [
-  { label: "Form IV", value: EducationLevelName.FORM_IV },
-  { label: "Veta NVA III", value: EducationLevelName.VETA_NVA_III },
-  { label: "NTA Level 4", value: EducationLevelName.NTA_LEVEL_IV },
-  { label: "Form VI", value: EducationLevelName.FORM_VI },
-  { label: "NTA Level 5", value: EducationLevelName.NTA_LEVEL_V },
+  { label: "Form IV", value: "FORM_IV" },
+  { label: "Veta NVA III", value: "VETA_NVA_III" },
+  { label: "NTA Level 4", value: "NTA_LEVEL_IV" },
+  { label: "Form VI", value: "FORM_VI" },
+  { label: "NTA Level 5", value: "NTA_LEVEL_V" },
 ];
 
 const postgraduateDiplomaEducationLevels: {
   label: string;
   value: EducationLevelName;
-}[] = [{ label: "Degree", value: EducationLevelName.DEGREE }];
+}[] = [{ label: "Degree", value: "DEGREE" }];
 
 const mastersEducationLevels: { label: string; value: EducationLevelName }[] = [
-  { label: "Degree", value: EducationLevelName.DEGREE },
-  { label: "Postgraduate Diploma", value: EducationLevelName.DIPLOMA },
+  { label: "Degree", value: "DEGREE" },
+  { label: "Postgraduate Diploma", value: "DIPLOMA" },
 ];
 
 const phdEducationLevels: { label: string; value: EducationLevelName }[] = [
-  { label: "Masters", value: EducationLevelName.MASTERS },
+  { label: "Masters", value: "MASTERS" },
 ];
 
 const indexFormat = z.string().regex(/^[SP]\d{4}\/\d{4}\/\d{4}$/);
@@ -69,4 +69,14 @@ const FormSchema = z
     path: ["confirmPassword"],
   });
 
-  export {applicationTypes,applicantOrigins,certificateEducationLevels,diplomaEducationLevels,postgraduateDiplomaEducationLevels,mastersEducationLevels,phdEducationLevels,indexFormat,FormSchema}
+export {
+  applicationTypes,
+  applicantOrigins,
+  certificateEducationLevels,
+  diplomaEducationLevels,
+  postgraduateDiplomaEducationLevels,
+  mastersEducationLevels,
+  phdEducationLevels,
+  indexFormat,
+  FormSchema,
+};

@@ -4,14 +4,16 @@ import mustLogo from "@/public/logo/must.svg";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { Programme } from "@/server/actions/programmes/types";
 import { getEducationLevel, getProgrammeType } from "@/utils/programme";
-// import { MdBook  } from "react-icons/fa6";
+
 import { MdEventNote, MdBook } from "react-icons/md";
 
 interface Props {
   programme: Programme;
+  addProgramme: (programmeCode: string) => void;
+  loading: boolean;
 }
 
-const ProgrammeCard = ({ programme }: Props) => {
+const ProgrammeCard = ({ programme, addProgramme, loading }: Props) => {
   return (
     <div className="group grid grid-cols-12 gap-2 overflow-hidden rounded-lg border bg-white p-4 shadow-md transition hover:shadow-lg dark:border-gray-700 dark:bg-slate-900 dark:shadow-slate-700/[.7]">
       {/* column 1 */}
@@ -30,10 +32,10 @@ const ProgrammeCard = ({ programme }: Props) => {
             {programme.campus.name}
           </p>
 
-          <p className="hidden text-xs capitalize text-gray-500 md:block dark:text-gray-300">
+          <p className="hidden text-xs capitalize text-gray-500 dark:text-gray-300 md:block">
             {programme.campus.country}, {programme.campus.location}
           </p>
-          <p className="hidden text-xs capitalize text-gray-500 md:block dark:text-gray-300">
+          <p className="hidden text-xs capitalize text-gray-500 dark:text-gray-300 md:block">
             Department of {programme.department.name}
           </p>
         </div>
@@ -101,7 +103,13 @@ const ProgrammeCard = ({ programme }: Props) => {
                   <InfoCircledIcon className="mr-2" />
                   More Information
                 </Button>
-                <Button className="mt-2 w-full">Apply Now!</Button>
+                <Button
+                  onClick={() => addProgramme(programme.code)}
+                  disabled={loading}
+                  className="mt-2 w-full"
+                >
+                  Apply Now!
+                </Button>
               </div>
             </div>
           </div>

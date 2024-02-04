@@ -1,10 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useState } from "react";
+import { GiWhiteBook } from "react-icons/gi";
 import { FaUniversity } from "react-icons/fa";
 import { FiArrowDown, FiArrowUp, FiTrash2 } from "react-icons/fi";
-import { IoWarning } from "react-icons/io5";
+import { IoWarning, IoChatbubblesSharp } from "react-icons/io5";
+import { ApplicantProgram } from "@/types/application";
 
 import {
   AlertDialog,
@@ -17,37 +18,44 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { IoSearch } from "react-icons/io5";
 
-const Priorities = () => {
-  const [items, setItems] = useState<string[]>([
-    "Diploma In Computer Science",
-    "Bachelor's Degree In Mechanical Engineering With Industrial Safety AndOccupational Health",
-    "Master's Degree In Technical Education in Civil Engineering",
-  ]);
+interface Props {
+  applicantProgrammes: ApplicantProgram[];
+  onMoveUp: (index: number) => void;
+  onMoveDown: (index: number) => void;
+  onDelete: (index: number) => void;
+}
 
-  const handleMoveUp = (index: number) => {
-    if (index === 0) return;
-    const newItems = [...items];
-    const temp = newItems[index];
-    newItems[index] = newItems[index - 1];
-    newItems[index - 1] = temp;
-    setItems(newItems);
-  };
+const Priorities = ({
+  applicantProgrammes,
+  onMoveUp,
+  onMoveDown,
+  onDelete,
+}: Props) => {
+  // const handleMoveUp = (index: number) => {
+  //   if (index === 0) return;
+  //   const newItems = [...items];
+  //   const temp = newItems[index];
+  //   newItems[index] = newItems[index - 1];
+  //   newItems[index - 1] = temp;
+  //   setItems(newItems);
+  // };
 
-  const handleMoveDown = (index: number) => {
-    if (index === items.length - 1) return;
-    const newItems = [...items];
-    const temp = newItems[index];
-    newItems[index] = newItems[index + 1];
-    newItems[index + 1] = temp;
-    setItems(newItems);
-  };
+  // const handleMoveDown = (index: number) => {
+  //   if (index === items.length - 1) return;
+  //   const newItems = [...items];
+  //   const temp = newItems[index];
+  //   newItems[index] = newItems[index + 1];
+  //   newItems[index + 1] = temp;
+  //   setItems(newItems);
+  // };
 
-  const handleDelete = (index: number) => {
-    const newItems = [...items];
-    newItems.splice(index, 1);
-    setItems(newItems);
-  };
+  // const handleDelete = (index: number) => {
+  //   const newItems = [...items];
+  //   newItems.splice(index, 1);
+  //   setItems(newItems);
+  // };
 
   return (
     <div>
@@ -60,80 +68,104 @@ const Priorities = () => {
         wisely!
       </p>
 
-      {items.map((item, index) => (
-        // max-w-xl
-        <Card key={index} className="my-3 w-full">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <Badge className="shrink-0"># {index + 1}</Badge>
+      {applicantProgrammes.length === 0 ? (
+        <div className="my-20 flex w-full items-center justify-center">
+          <div className="flex flex-col gap-3">
+            <p>
+              You currently have no programmes. Click the &quot;search
+              programmes&quot; button below to add them.
+            </p>
+          </div>
+        </div>
+      ) : (
+        applicantProgrammes.map((item, index) => (
+          // max-w-xl
+          <Card key={index} className="my-3 w-full">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <Badge className="shrink-0"># {index + 1}</Badge>
 
-              <div className="flex items-center space-x-2">
-                <Button
-                  onClick={() => handleMoveUp(index)}
-                  variant="outline"
-                  size="icon"
-                  className="text-blue-500 hover:text-blue-700"
-                >
-                  <FiArrowUp className="h-4 w-4" />
-                </Button>
-                <Button
-                  onClick={() => handleMoveDown(index)}
-                  variant="outline"
-                  size="icon"
-                  className="text-blue-500 hover:text-blue-700"
-                >
-                  <FiArrowDown className="h-4 w-4" />
-                </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="text-red-500 hover:bg-red-600 hover:text-white "
-                    >
-                      <FiTrash2 className="h-4 w-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        Confirm Priority Removal
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to remove{" "}
-                        <span className="text-orange-500 underline underline-offset-2">
-                          {item}
-                        </span>{" "}
-                        from your priorities?
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>No, Keep It</AlertDialogCancel>
-                      <AlertDialogAction
-                        className="bg-red-500 hover:bg-red-700"
-                        onClick={() => handleDelete(index)}
+                <div className="flex items-center space-x-2">
+                  <Button
+                    onClick={() => onMoveUp(index)}
+                    variant="outline"
+                    size="icon"
+                    className="text-blue-500 hover:text-blue-700"
+                  >
+                    <FiArrowUp className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    onClick={() => onMoveDown(index)}
+                    variant="outline"
+                    size="icon"
+                    className="text-blue-500 hover:text-blue-700"
+                  >
+                    <FiArrowDown className="h-4 w-4" />
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="text-red-500 hover:bg-red-600 hover:text-white "
                       >
-                        Yes, Remove
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                        <FiTrash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Confirm Priority Removal
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to remove{" "}
+                          <span className="text-orange-500 underline underline-offset-2">
+                            {item.programmeDetails.name}
+                          </span>{" "}
+                          from your priorities?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>No, Keep It</AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-red-500 hover:bg-red-700"
+                          onClick={() => onDelete(index)}
+                        >
+                          Yes, Remove
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               </div>
-            </div>
-            <CardTitle>{item}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex">
-              <FaUniversity className="mr-2 mt-0.5 h-4 w-4 shrink-0" /> MBEYA
-              UNIVERSITY OF SCIENCE AND TECHNOLOGY
-            </div>
-            <div className="flex">
-              <IoWarning className="mr-2 mt-0.5 h-5 w-5 shrink-0 text-orange-400" />
-              Deadline: 31 Aug 2024
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+              <CardTitle>{item.programmeDetails.name}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex">
+                <FaUniversity className="mr-2 mt-0.5 h-4 w-4 shrink-0" /> MBEYA
+                UNIVERSITY OF SCIENCE AND TECHNOLOGY
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex">
+                  <GiWhiteBook className="mr-2 mt-0.5 h-4 w-4 shrink-0" />
+                  {item.programmeDetails.level}
+                </div>
+                <div className="flex">
+                  <IoChatbubblesSharp className="mr-2 mt-0.5 h-4 w-4 shrink-0" />
+                  {item.programmeDetails.language}
+                </div>
+              </div>
+              <div className="flex">
+                <IoWarning className="mr-2 mt-0.5 h-5 w-5 shrink-0 text-orange-400" />
+                Deadline: 31 Aug 2024
+              </div>
+            </CardContent>
+          </Card>
+        ))
+      )}
+      <Button className="bg-green-500 hover:bg-green-600">
+        <IoSearch className="mr-2 h-4 w-4 shrink-0" /> search programmes
+      </Button>
     </div>
   );
 };

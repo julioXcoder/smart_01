@@ -68,7 +68,6 @@ model Applicant {
   hashedPassword        String
   role                  RoleName            @default(APPLICANT)
   applicationStatus     ApplicantStatusName @default(DRAFT)
-  programmes            String[]            @db.ObjectId
   educationBackground   String[]            @db.ObjectId
   formIVIndex           String
   controlNumber         Int?
@@ -187,7 +186,7 @@ model Programme {
   tuitionFee          Float
   applicationFee      Float
   qualification       String
-  applicationDeadline String
+  applicationDeadline String //FIXME: remove
   availability        Boolean            @default(true)
 }
 

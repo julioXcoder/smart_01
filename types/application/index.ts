@@ -29,10 +29,87 @@ interface ApplicantNotification {
   timestamp: Date; // When the notification was created
 }
 
+interface ProgrammeDetails {
+  name: string;
+  language: string;
+  level: ProgrammeLevelName;
+}
+
+interface ApplicantProgram {
+  id: string;
+  programmeCode: string;
+  priority: number;
+  programmeDetails: ProgrammeDetails;
+}
+
+interface ApplicantEducationBackground {
+  position: number;
+  level: string;
+  schoolName: string;
+  startYear: string;
+  endYear: string;
+}
+
+interface ApplicantProfile {
+  applicantUsername: string;
+  nida: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  nationality: string;
+  gender: string;
+  imageUrl: string | null;
+}
+
+interface ApplicantContacts {
+  applicantUsername: string;
+  phone: string;
+  email: string | null;
+  alternativeEmail: string | null;
+  alternativePhoneNumber: string | null;
+  streetAddress: string;
+  city: string;
+  region: string;
+  postalCode: string;
+  country: string;
+}
+
+interface ApplicantEmergencyContacts {
+  applicantUsername: string;
+  fullName: string;
+  phone: string;
+  email: string | null;
+  alternativeEmail: string | null;
+  alternativePhoneNumber: string | null;
+  streetAddress: string;
+  city: string;
+  region: string;
+  postalCode: string;
+  country: string;
+  relation: string;
+}
+
+interface ApplicationStatus {
+  applicationType: string;
+  applicationStatus: ApplicationStatusName;
+  programmePriorities: ApplicantProgram[];
+}
+
+interface ApplicationDetails {
+  applicantEducationBackground: ApplicantEducationBackground[];
+  programmePriorities: ApplicantProgram[];
+  applicantProfile: ApplicantProfile;
+  applicantContacts: ApplicantContacts;
+  applicantEmergencyContacts: ApplicantEmergencyContacts;
+}
+
 export type {
   ProgrammeLevelName,
   Origin,
   EducationLevelName,
   ApplicationStatusName,
   ApplicantNotification,
+  ApplicationDetails,
+  ApplicationStatus,
+  ApplicantProgram,
 };

@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 interface Props {
-  value?: number;
+  value: number;
 }
 
 const Notifications = ({ value }: Props) => {
@@ -22,7 +22,7 @@ const Notifications = ({ value }: Props) => {
         <Button variant="outline" size="icon" className="relative">
           <FaBell className="h-4 w-4" />
 
-          {value && (
+          {value > 1 && (
             <span className="absolute end-0 top-0 inline-flex -translate-y-1/2 translate-x-1/2 transform items-center rounded-full bg-red-500 px-1.5 py-0.5 text-xs font-medium text-white">
               {value >= 9 ? "9+" : value}
             </span>

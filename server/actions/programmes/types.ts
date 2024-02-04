@@ -1,10 +1,4 @@
-export enum EducationLevel {
-  DIPLOMA = "DIPLOMA",
-  CERTIFICATE = "CERTIFICATE",
-  BACHELOR = "BACHELOR",
-  MASTERS = "MASTERS",
-  PHD = "PHD",
-}
+import { ProgrammeLevelName } from "@/types/application";
 
 export enum ProgrammeTypes {
   FULL_TIME = "FULL_TIME",
@@ -34,7 +28,7 @@ type Department = {
 type Programme = {
   code: string;
   name: string;
-  level: EducationLevel;
+  level: ProgrammeLevelName;
   duration: number;
   type: ProgrammeTypes;
   language: string;
