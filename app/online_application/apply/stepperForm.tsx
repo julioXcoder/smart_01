@@ -782,12 +782,12 @@ const StepperForm = () => {
           </div>
         )}
         {loading && (
-          <div className="flex gap-3 text-blue-500">
+          <div className="flex gap-5 text-blue-500">
+            <span className="loader inline-flex h-4 w-4 text-black dark:text-white"></span>
             <span>
               Creating your account… Just a moment while we make sure everything
               is perfect! 🚀
             </span>{" "}
-            <span className="loader inline-flex h-4 w-4 text-black dark:text-white"></span>
           </div>
         )}
       </div>

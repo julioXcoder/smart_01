@@ -90,10 +90,10 @@ const ProgrammeCard = ({ programme, addProgramme, loading }: Props) => {
                   Application deadline
                 </p>
                 {/* FIXME: Add valid deadline */}
-                <p className="text-sm text-gray-500 dark:text-gray-300">
+                <div className="text-sm text-gray-500 dark:text-gray-300">
                   31 Aug 2024,23:59:59
                   <div>East Africa Time (EAT)</div>
-                </p>
+                </div>
                 <p className="text-sm text-gray-500 dark:text-gray-300">
                   Application fee: {programme.applicationFee}
                 </p>

@@ -5,7 +5,7 @@ import { Form } from "@/components/ui/form";
 import { Step } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import toast from "react-hot-toast";
 import {
   FaAddressBook,
@@ -22,7 +22,8 @@ import z from "zod";
 import { FormSchema } from "./data";
 import MobileNavigation from "./mobileNavigation";
 import SideNavigation from "./sideNavigation";
-import { ApplicationDetails } from "@/types/application";
+import { isEqual } from "lodash";
+import { ApplicantProgram, ApplicationDetails } from "@/types/application";
 
 import Attachments from "./attachments";
 import Contacts from "./contacts";
@@ -70,7 +71,7 @@ interface Props {
 
 const EditComponent = ({ data }: Props) => {
   const [step, setStep] = useState(0);
-  const [isSaved, setIsSaved] = useState(false);
+  const [isSaved, setIsSaved] = useState(true);
 
   const [programmePriorities, setProgrammePriorities] = useState(
     data.programmePriorities,
@@ -106,6 +107,29 @@ const EditComponent = ({ data }: Props) => {
   }, [data]);
 
   useEffect(() => {
+    const initialState = {
+      programmePriorities: data.programmePriorities,
+      applicantEducationBackground: data.applicantEducationBackground,
+    };
+
+    const currentState = {
+      programmePriorities,
+      applicantEducationBackground,
+    };
+
+    if (isEqual(initialState, currentState)) {
+      setIsSaved(true);
+    } else {
+      setIsSaved(false);
+    }
+  }, [
+    programmePriorities,
+    applicantEducationBackground,
+    data.programmePriorities,
+    data.applicantEducationBackground,
+  ]);
+
+  useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (!isSaved) {
         // Add this condition
@@ -119,10 +143,6 @@ const EditComponent = ({ data }: Props) => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [isSaved]);
-
-  useEffect(() => {
-    console.log("Use Effect", programmePriorities);
-  }, [programmePriorities]);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -160,6 +180,79 @@ const EditComponent = ({ data }: Props) => {
     },
   });
 
+  const currentFormValues = useWatch({ control: form.control });
+
+  useEffect(() => {
+    const initialState = {
+      firstName: applicantProfile.firstName,
+      middleName: applicantProfile.middleName,
+      lastName: applicantProfile.lastName,
+      nida: applicantProfile.nida,
+      applicantEmail: applicantContacts.email || "",
+      applicantPhoneNumber: applicantContacts.phone,
+      citizenship: applicantProfile.nationality,
+      country: applicantContacts.country,
+      emergencyContactCity: applicantEmergencyContacts.city,
+      emergencyContactCountry: applicantEmergencyContacts.country,
+      emergencyContactEmail: applicantEmergencyContacts.email || "",
+      emergencyContactPhoneNumber: applicantEmergencyContacts.phone,
+      emergencyContactPostalCode: applicantEmergencyContacts.postalCode,
+      emergencyContactRegion: applicantEmergencyContacts.region,
+      emergencyContactRelation: applicantEmergencyContacts.relation,
+      emergencyContactStreetAddress: applicantEmergencyContacts.streetAddress,
+      city: applicantContacts.city,
+      gender: applicantProfile.gender,
+      region: applicantContacts.region,
+      postalCode: applicantContacts.postalCode,
+      streetAddress: applicantContacts.streetAddress,
+      emergencyContactFullName: applicantEmergencyContacts.fullName,
+      applicantAlternativeEmail: applicantContacts.alternativeEmail || "",
+      applicantAlternativePhoneNumber:
+        applicantContacts.alternativePhoneNumber || "",
+      emergencyContactAlternativeEmail:
+        applicantEmergencyContacts.alternativeEmail || "",
+      emergencyContactAlternativePhoneNumber:
+        applicantEmergencyContacts.alternativePhoneNumber || "",
+      education: applicantEducationBackground,
+    };
+
+    if (isEqual(initialState, currentFormValues)) {
+      setIsSaved(true);
+    } else {
+      setIsSaved(false);
+    }
+  }, [
+    applicantContacts.alternativeEmail,
+    applicantContacts.alternativePhoneNumber,
+    applicantContacts.city,
+    applicantContacts.country,
+    applicantContacts.email,
+    applicantContacts.phone,
+    applicantContacts.postalCode,
+    applicantContacts.region,
+    applicantContacts.streetAddress,
+    applicantEducationBackground,
+    applicantEmergencyContacts.alternativeEmail,
+    applicantEmergencyContacts.alternativePhoneNumber,
+    applicantEmergencyContacts.city,
+    applicantEmergencyContacts.country,
+    applicantEmergencyContacts.email,
+    applicantEmergencyContacts.fullName,
+    applicantEmergencyContacts.phone,
+    applicantEmergencyContacts.postalCode,
+    applicantEmergencyContacts.region,
+    applicantEmergencyContacts.relation,
+    applicantEmergencyContacts.streetAddress,
+    applicantProfile.firstName,
+    applicantProfile.gender,
+    applicantProfile.lastName,
+    applicantProfile.middleName,
+    applicantProfile.nationality,
+    applicantProfile.nida,
+    currentFormValues,
+    form,
+  ]);
+
   const moveUp = (index: number) => {
     setProgrammePriorities((prevProgrammes) => {
       const newProgrammes = [...prevProgrammes];
@@ -171,7 +264,16 @@ const EditComponent = ({ data }: Props) => {
         newProgrammes[index - 1].priority = index - 1;
         newProgrammes[index].priority = index;
       }
-      return newProgrammes;
+
+      const sortedProgrammes = newProgrammes.sort(
+        (a, b) => a.priority - b.priority,
+      );
+
+      for (let i = 0; i < sortedProgrammes.length; i++) {
+        sortedProgrammes[i].priority = i + 1;
+      }
+
+      return sortedProgrammes;
     });
   };
 
@@ -186,21 +288,18 @@ const EditComponent = ({ data }: Props) => {
         newProgrammes[index + 1].priority = index + 1;
         newProgrammes[index].priority = index;
       }
-      return newProgrammes;
+
+      const sortedProgrammes = newProgrammes.sort(
+        (a, b) => a.priority - b.priority,
+      );
+
+      for (let i = 0; i < sortedProgrammes.length; i++) {
+        sortedProgrammes[i].priority = i + 1;
+      }
+
+      return sortedProgrammes;
     });
   };
-
-  // const deleteProgramme = (index: number) => {
-  //   setProgrammePriorities((prevProgrammes) => {
-  //     const newProgrammes = [...prevProgrammes];
-  //     newProgrammes.splice(index, 1);
-  //     // Update the priority of the remaining programmes
-  //     for (let i = index; i < newProgrammes.length; i++) {
-  //       newProgrammes[i].priority = i;
-  //     }
-  //     return newProgrammes;
-  //   });
-  // };
 
   const deleteProgramme = async (index: number) => {
     const prevProgrammes = programmePriorities;
@@ -217,6 +316,9 @@ const EditComponent = ({ data }: Props) => {
 
     // Then perform the server operation
     const programmeToDelete = programmePriorities[index];
+
+    const t = reorderPriorities();
+
     const { data, error } =
       await deleteApplicantProgrammePriority(programmeToDelete);
 
@@ -226,6 +328,36 @@ const EditComponent = ({ data }: Props) => {
     } else if (data) {
       toast.success(data, { duration: 6000 });
     }
+  };
+
+  const reorderPriorities = () => {
+    setProgrammePriorities((prevProgrammes) => {
+      // Sort the programmes by priority
+      const sortedProgrammes = [...prevProgrammes].sort(
+        (a, b) => a.priority - b.priority,
+      );
+
+      // Reassign the priority starting from 1
+      for (let i = 0; i < sortedProgrammes.length; i++) {
+        sortedProgrammes[i].priority = i + 1;
+      }
+
+      return sortedProgrammes;
+    });
+  };
+
+  const reorderPrioritiez = () => {
+    const prevProgrammes = [...programmePriorities];
+
+    const sortedProgrammes = [...prevProgrammes].sort(
+      (a, b) => a.priority - b.priority,
+    );
+
+    for (let i = 0; i < sortedProgrammes.length; i++) {
+      sortedProgrammes[i].priority = i + 1;
+    }
+
+    return sortedProgrammes;
   };
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -257,6 +389,7 @@ const EditComponent = ({ data }: Props) => {
       form.setValue(`education.${index}.position`, index);
     });
 
+    setIsSaved(true);
     console.log("data", data);
     console.log("Education Errors", form.formState.errors.education);
   };
@@ -438,6 +571,7 @@ const EditComponent = ({ data }: Props) => {
 
   return (
     <div>
+      <div>is Saved: {JSON.stringify(isSaved)}</div>
       <div className="flex w-full items-center justify-center">
         <div>
           <MobileNavigation

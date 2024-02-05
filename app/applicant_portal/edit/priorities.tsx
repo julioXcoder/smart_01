@@ -6,6 +6,8 @@ import { FaUniversity } from "react-icons/fa";
 import { FiArrowDown, FiArrowUp, FiTrash2 } from "react-icons/fi";
 import { IoWarning, IoChatbubblesSharp } from "react-icons/io5";
 import { ApplicantProgram } from "@/types/application";
+import { getEducationLevel, getProgrammeType } from "@/utils/programme";
+import Link from "next/link";
 
 import {
   AlertDialog,
@@ -87,6 +89,7 @@ const Priorities = ({
 
                 <div className="flex items-center space-x-2">
                   <Button
+                    disabled={index === 0}
                     onClick={() => onMoveUp(index)}
                     variant="outline"
                     size="icon"
@@ -95,6 +98,7 @@ const Priorities = ({
                     <FiArrowUp className="h-4 w-4" />
                   </Button>
                   <Button
+                    disabled={index === applicantProgrammes.length - 1}
                     onClick={() => onMoveDown(index)}
                     variant="outline"
                     size="icon"
@@ -138,7 +142,10 @@ const Priorities = ({
                   </AlertDialog>
                 </div>
               </div>
-              <CardTitle>{item.programmeDetails.name}</CardTitle>
+              <CardTitle>
+                {getEducationLevel(item.programmeDetails.level)}{" "}
+                {item.programmeDetails.name}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex">
@@ -163,9 +170,21 @@ const Priorities = ({
           </Card>
         ))
       )}
-      <Button className="bg-green-500 hover:bg-green-600">
-        <IoSearch className="mr-2 h-4 w-4 shrink-0" /> search programmes
-      </Button>
+      <div className="my-6 flex w-full items-center justify-center">
+        <Link href={"/applicant_portal/programmes"}>
+          <Button className="bg-green-500 hover:bg-green-600">
+            <IoSearch className="mr-2 h-4 w-4 shrink-0" /> search{" "}
+            <span
+              className={`mx-1 ${
+                applicantProgrammes.length === 0 && "mx-0 hidden"
+              }`}
+            >
+              more
+            </span>{" "}
+            programmes
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 };
