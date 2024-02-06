@@ -12,11 +12,14 @@ import type {
   ApplicationStatusResponse,
   AddApplicantProgrammeResponse,
   DeleteApplicantProgrammeResponse,
+  ApplicantFormData,
+  SaveApplicationDataResponse,
 } from "./schema";
 import prisma from "@/prisma/db";
 import bcrypt from "bcrypt";
 import { createToken } from "@/lib/auth";
 import { cookies, headers } from "next/headers";
+
 import { logOperationError } from "@/utils/logger";
 import { revalidatePath } from "next/cache";
 import { ApplicantProgram } from "@/types/application";
@@ -543,4 +546,137 @@ export const deleteApplicantProgrammePriority = async (
         "We’re sorry, but an issue arose while deleting applicant programme priority.",
     };
   }
+};
+
+export const saveApplicationData = async (
+  applicantFormData: ApplicantFormData,
+) => {
+  const username = headers().get("userId");
+
+  if (!username) {
+    throw new Error("Applicant details now found!");
+  }
+
+  const applicant = await prisma.applicant.findUnique({
+    where: {
+      username,
+    },
+  });
+
+  if (!applicant) {
+    throw new Error("Applicant details now found!");
+  }
+
+  const {
+    firstName,
+    middleName,
+    lastName,
+    nida,
+    applicantEmail,
+    applicantPhoneNumber,
+    citizenship,
+    country,
+    emergencyContactCity,
+    emergencyContactCountry,
+    emergencyContactEmail,
+    emergencyContactPhoneNumber,
+    emergencyContactPostalCode,
+    emergencyContactRegion,
+    emergencyContactRelation,
+    emergencyContactStreetAddress,
+    city,
+    gender,
+    region,
+    postalCode,
+    streetAddress,
+    emergencyContactFullName,
+    applicantAlternativeEmail,
+    applicantAlternativePhoneNumber,
+    emergencyContactAlternativeEmail,
+    emergencyContactAlternativePhoneNumber,
+    education,
+  } = applicantFormData.formData;
+
+  const applicantProfile = await prisma.applicantProfile.findUnique({
+    where: {
+      applicantUsername: applicant.username,
+    },
+  });
+
+  const applicantContacts = await prisma.applicantContacts.findUnique({
+    where: {
+      applicantUsername: applicant.username,
+    },
+  });
+
+  const applicantEmergencyContacts =
+    await prisma.applicantEmergencyContacts.findUnique({
+      where: {
+        applicantUsername: applicant.username,
+      },
+    });
+
+  if (!applicantProfile || !applicantEmergencyContacts || !applicantContacts) {
+    throw new Error("Applicant details now found!");
+  }
+
+  await prisma.applicantProfile.update({
+    where: {
+      applicantUsername: applicant.username,
+    },
+    data: {
+      nida,
+      firstName,
+      middleName,
+      lastName,
+      nationality: citizenship,
+      gender,
+    },
+  });
+
+  await prisma.applicantContacts.update({
+    where: {
+      applicantUsername: applicant.username,
+    },
+    data: {
+      phone: applicantPhoneNumber,
+      email: applicantEmail,
+      alternativeEmail: applicantAlternativeEmail,
+      alternativePhoneNumber: applicantAlternativePhoneNumber,
+      streetAddress,
+      city,
+      region,
+      postalCode,
+      country,
+    },
+  });
+
+  await prisma.applicantEmergencyContacts.update({
+    where: {
+      applicantUsername: applicant.username,
+    },
+    data: {
+      fullName: emergencyContactFullName,
+      phone: emergencyContactPhoneNumber,
+      email: emergencyContactEmail,
+      alternativeEmail: emergencyContactAlternativeEmail,
+      alternativePhoneNumber: emergencyContactAlternativePhoneNumber,
+      streetAddress: emergencyContactStreetAddress,
+      city: emergencyContactCity,
+      region: emergencyContactRegion,
+      postalCode: emergencyContactPostalCode,
+      country: emergencyContactCountry,
+      relation: emergencyContactRelation,
+    },
+  });
+
+  revalidatePath("/applicant_portal/edit");
+  //   try{
+
+  //   return { data: "Draft saved. Resume anytime." };
+  // } catch (error) {
+  //   return {
+  //     error: "Oops! There was an error saving your draft.",
+  //   };
+  // }
 };

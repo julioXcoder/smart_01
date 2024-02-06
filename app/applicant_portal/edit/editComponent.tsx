@@ -4,7 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Step } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  useMemo,
+} from "react";
 import { useForm, useWatch } from "react-hook-form";
 import toast from "react-hot-toast";
 import {
@@ -24,6 +31,7 @@ import MobileNavigation from "./mobileNavigation";
 import SideNavigation from "./sideNavigation";
 import { isEqual } from "lodash";
 import { ApplicantProgram, ApplicationDetails } from "@/types/application";
+import { ApplicantFormData } from "@/server/actions/applicant/schema";
 
 import Attachments from "./attachments";
 import Contacts from "./contacts";
@@ -33,41 +41,14 @@ import Payment from "./payment";
 import Priorities from "./priorities";
 import Profile from "./profile";
 
-import { deleteApplicantProgrammePriority } from "@/server/actions/applicant";
+import {
+  deleteApplicantProgrammePriority,
+  saveApplicationData,
+} from "@/server/actions/applicant";
 
 interface Props {
   data: ApplicationDetails;
 }
-
-// const fakeProgrammes: ApplicantProgram[] = [
-//   {
-//     programmeCode: "P1",
-//     priority: 0,
-//     programmeDetails: {
-//       name: "Programme 1",
-//       level: "DIPLOMA",
-//       language: "English",
-//     },
-//   },
-//   {
-//     programmeCode: "P2",
-//     priority: 1,
-//     programmeDetails: {
-//       name: "Programme 2",
-//       level: "DIPLOMA",
-//       language: "English",
-//     },
-//   },
-//   {
-//     programmeCode: "P3",
-//     priority: 2,
-//     programmeDetails: {
-//       name: "Programme 3",
-//       level: "DIPLOMA",
-//       language: "English",
-//     },
-//   },
-// ];
 
 const EditComponent = ({ data }: Props) => {
   const [step, setStep] = useState(0);
@@ -76,6 +57,10 @@ const EditComponent = ({ data }: Props) => {
   const [programmePriorities, setProgrammePriorities] = useState(
     data.programmePriorities,
   );
+
+  const [programmePrioritiesErrorMessage, setProgrammePrioritiesErrorMessage] =
+    useState("");
+
   const [applicantEducationBackground, setApplicantEducationBackground] =
     useState(data.applicantEducationBackground);
   const [applicantProfile, setApplicantProfile] = useState(
@@ -176,7 +161,17 @@ const EditComponent = ({ data }: Props) => {
         applicantEmergencyContacts.alternativeEmail || "",
       emergencyContactAlternativePhoneNumber:
         applicantEmergencyContacts.alternativePhoneNumber || "",
-      education: applicantEducationBackground,
+      education: applicantEducationBackground.length
+        ? applicantEducationBackground
+        : [
+            {
+              position: 0,
+              level: "",
+              schoolName: "",
+              startYear: "",
+              endYear: "",
+            },
+          ],
     },
   });
 
@@ -213,7 +208,17 @@ const EditComponent = ({ data }: Props) => {
         applicantEmergencyContacts.alternativeEmail || "",
       emergencyContactAlternativePhoneNumber:
         applicantEmergencyContacts.alternativePhoneNumber || "",
-      education: applicantEducationBackground,
+      education: applicantEducationBackground.length
+        ? applicantEducationBackground
+        : [
+            {
+              position: 0,
+              level: "",
+              schoolName: "",
+              startYear: "",
+              endYear: "",
+            },
+          ],
     };
 
     if (isEqual(initialState, currentFormValues)) {
@@ -253,100 +258,206 @@ const EditComponent = ({ data }: Props) => {
     form,
   ]);
 
-  const moveUp = (index: number) => {
-    setProgrammePriorities((prevProgrammes) => {
-      const newProgrammes = [...prevProgrammes];
-      if (index > 0) {
-        [newProgrammes[index - 1], newProgrammes[index]] = [
-          newProgrammes[index],
-          newProgrammes[index - 1],
-        ];
-        newProgrammes[index - 1].priority = index - 1;
-        newProgrammes[index].priority = index;
+  const moveUp = useCallback(
+    (index: number) => {
+      setProgrammePriorities((prevProgrammes) => {
+        const newProgrammes = [...prevProgrammes];
+        if (index > 0) {
+          [newProgrammes[index - 1], newProgrammes[index]] = [
+            newProgrammes[index],
+            newProgrammes[index - 1],
+          ];
+          newProgrammes[index - 1].priority = index - 1;
+          newProgrammes[index].priority = index;
+        }
+
+        const sortedProgrammes = newProgrammes.sort(
+          (a, b) => a.priority - b.priority,
+        );
+
+        for (let i = 0; i < sortedProgrammes.length; i++) {
+          sortedProgrammes[i].priority = i + 1;
+        }
+
+        return sortedProgrammes;
+      });
+    },
+    [setProgrammePriorities],
+  );
+
+  const moveDown = useCallback(
+    (index: number) => {
+      setProgrammePriorities((prevProgrammes) => {
+        const newProgrammes = [...prevProgrammes];
+        if (index < newProgrammes.length - 1) {
+          [newProgrammes[index + 1], newProgrammes[index]] = [
+            newProgrammes[index],
+            newProgrammes[index + 1],
+          ];
+          newProgrammes[index + 1].priority = index + 1;
+          newProgrammes[index].priority = index;
+        }
+
+        const sortedProgrammes = newProgrammes.sort(
+          (a, b) => a.priority - b.priority,
+        );
+
+        for (let i = 0; i < sortedProgrammes.length; i++) {
+          sortedProgrammes[i].priority = i + 1;
+        }
+
+        return sortedProgrammes;
+      });
+    },
+    [setProgrammePriorities],
+  );
+
+  const deleteProgramme = useCallback(
+    async (index: number) => {
+      const prevProgrammes = programmePriorities;
+      // Optimistically update the state
+      setProgrammePriorities((prevProgrammes) => {
+        const newProgrammes = [...prevProgrammes];
+        newProgrammes.splice(index, 1);
+        // Update the priority of the remaining programmes
+        for (let i = index; i < newProgrammes.length; i++) {
+          newProgrammes[i].priority = i;
+        }
+        return newProgrammes;
+      });
+
+      // Then perform the server operation
+      const programmeToDelete = programmePriorities[index];
+
+      const { data, error } =
+        await deleteApplicantProgrammePriority(programmeToDelete);
+
+      if (error) {
+        toast.error(error, { duration: 6000 });
+        setProgrammePriorities(prevProgrammes);
+      } else if (data) {
+        toast.success(data, { duration: 6000 });
       }
+    },
+    [programmePriorities],
+  );
 
-      const sortedProgrammes = newProgrammes.sort(
-        (a, b) => a.priority - b.priority,
-      );
+  const handleImageChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      // Get the first file from the input
+      const file = event.target.files ? event.target.files[0] : null;
+      // Update the image state variable
+      setImage(file);
+      // Create a temporary URL for the file
+      const url = file ? URL.createObjectURL(file) : null;
+      // Update the preview state variable
+      setImagePreview(url);
 
-      for (let i = 0; i < sortedProgrammes.length; i++) {
-        sortedProgrammes[i].priority = i + 1;
-      }
+      console.log("Call server 💻");
 
-      return sortedProgrammes;
-    });
-  };
+      event.target.value = "";
+    },
+    [],
+  );
 
-  const moveDown = (index: number) => {
-    setProgrammePriorities((prevProgrammes) => {
-      const newProgrammes = [...prevProgrammes];
-      if (index < newProgrammes.length - 1) {
-        [newProgrammes[index + 1], newProgrammes[index]] = [
-          newProgrammes[index],
-          newProgrammes[index + 1],
-        ];
-        newProgrammes[index + 1].priority = index + 1;
-        newProgrammes[index].priority = index;
-      }
+  const handleFileRemove = useCallback(() => {
+    setImage(null);
+    setImagePreview(null);
+  }, []);
 
-      const sortedProgrammes = newProgrammes.sort(
-        (a, b) => a.priority - b.priority,
-      );
+  const steps: Step[] = useMemo(
+    () => [
+      {
+        label: "Priorities",
+        stepContent: (
+          <Priorities
+            applicantProgrammes={programmePriorities}
+            onMoveUp={moveUp}
+            onMoveDown={moveDown}
+            onDelete={deleteProgramme}
+          />
+        ),
+        Icon: FaList,
+        errors: programmePrioritiesErrorMessage !== "" ? 1 : 0,
+      },
+      {
+        label: "Profile",
+        stepContent: (
+          <Profile
+            image={image}
+            imagePreview={imagePreview}
+            onImageDelete={handleFileRemove}
+            onImageUpdate={handleImageChange}
+            form={form}
+          />
+        ),
+        errors: profileErrors,
+        Icon: FaUser,
+      },
+      {
+        label: "Contacts",
+        stepContent: <Contacts form={form} />,
+        errors: contactErrors,
+        Icon: FaAddressBook,
+      },
+      {
+        label: "Emergency",
+        stepContent: <EmergencyContact form={form} />,
+        errors: emergencyContactErrors,
+        Icon: FaExclamation,
+      },
+      {
+        label: "Education",
+        stepContent: <Education form={form} />,
+        errors: educationErrors,
+        Icon: FaBook,
+      },
+      {
+        label: "Attachments",
+        stepContent: <Attachments />,
+        Icon: FaPaperclip,
+      },
+      {
+        label: "Payments",
+        stepContent: <Payment />,
+        Icon: FaCreditCard,
+      },
+    ],
+    [
+      programmePriorities,
+      moveUp,
+      moveDown,
+      deleteProgramme,
+      programmePrioritiesErrorMessage,
+      image,
+      imagePreview,
+      handleFileRemove,
+      handleImageChange,
+      form,
+      profileErrors,
+      contactErrors,
+      emergencyContactErrors,
+      educationErrors,
+    ],
+  );
 
-      for (let i = 0; i < sortedProgrammes.length; i++) {
-        sortedProgrammes[i].priority = i + 1;
-      }
-
-      return sortedProgrammes;
-    });
-  };
-
-  const deleteProgramme = async (index: number) => {
-    const prevProgrammes = programmePriorities;
-    // Optimistically update the state
-    setProgrammePriorities((prevProgrammes) => {
-      const newProgrammes = [...prevProgrammes];
-      newProgrammes.splice(index, 1);
-      // Update the priority of the remaining programmes
-      for (let i = index; i < newProgrammes.length; i++) {
-        newProgrammes[i].priority = i;
-      }
-      return newProgrammes;
-    });
-
-    // Then perform the server operation
-    const programmeToDelete = programmePriorities[index];
-
-    const t = reorderPriorities();
-
-    const { data, error } =
-      await deleteApplicantProgrammePriority(programmeToDelete);
-
-    if (error) {
-      toast.error(error, { duration: 6000 });
-      setProgrammePriorities(prevProgrammes);
-    } else if (data) {
-      toast.success(data, { duration: 6000 });
+  const handleGoToNextStep = useCallback(() => {
+    if (step < steps.length - 1) {
+      setStep(step + 1);
     }
-  };
+  }, [step, steps]);
+
+  const handleGoToPreviousStep = useCallback(() => {
+    if (step > 0) {
+      setStep(step - 1);
+    }
+  }, [step]);
+
+  const handleGoToStep = useCallback((stepIndex: number) => {
+    setStep(stepIndex);
+  }, []);
 
   const reorderPriorities = () => {
-    setProgrammePriorities((prevProgrammes) => {
-      // Sort the programmes by priority
-      const sortedProgrammes = [...prevProgrammes].sort(
-        (a, b) => a.priority - b.priority,
-      );
-
-      // Reassign the priority starting from 1
-      for (let i = 0; i < sortedProgrammes.length; i++) {
-        sortedProgrammes[i].priority = i + 1;
-      }
-
-      return sortedProgrammes;
-    });
-  };
-
-  const reorderPrioritiez = () => {
     const prevProgrammes = [...programmePriorities];
 
     const sortedProgrammes = [...prevProgrammes].sort(
@@ -371,17 +482,9 @@ const EditComponent = ({ data }: Props) => {
     );
   }
 
-  const handleSaveAsDraft = () => {
+  const handleSaveAsDraft = async () => {
     const data = form.getValues();
-    form.clearErrors();
-    setProfileErrors(0);
-    setContactErrors(0);
-    setEmergencyContactErrors(0);
-    setEducationErrors(0);
-
-    toast.success("Draft saved. Resume anytime.", {
-      duration: 6000,
-    });
+    clearAllErrors();
 
     const educationArray = form.getValues("education");
 
@@ -389,20 +492,36 @@ const EditComponent = ({ data }: Props) => {
       form.setValue(`education.${index}.position`, index);
     });
 
-    setIsSaved(true);
-    console.log("data", data);
-    console.log("Education Errors", form.formState.errors.education);
+    const applicantPriorities = reorderPriorities();
+
+    const applicantFormData: ApplicantFormData = {
+      formData: data,
+      applicantProgrammes: applicantPriorities,
+    };
+
+    // const { data: response, error } =
+    //   await saveApplicationData(applicantFormData);
+
+    toast.promise(saveApplicationData(applicantFormData), {
+      loading: "Saving...",
+      success: <b>Draft saved. Resume anytime.</b>,
+      error: <b>Oops! There was an error saving your draft.</b>,
+    });
+
+    // if(error){
+
+    // } else if(response){
+
+    //   setIsSaved(true);
+    // }
   };
 
   const handleSubmitApplication = () => {
     const data = form.getValues();
 
-    const validation = FormSchema.safeParse(data);
+    clearAllErrors();
 
-    setProfileErrors(0);
-    setContactErrors(0);
-    setEmergencyContactErrors(0);
-    setEducationErrors(0);
+    const validation = FormSchema.safeParse(data);
 
     if (!validation.success) {
       toast.error(
@@ -470,101 +589,27 @@ const EditComponent = ({ data }: Props) => {
       setEmergencyContactErrors(emergencyContactFieldErrors);
       setEducationErrors(educationErrors);
     }
+    if (programmePriorities.length < 3) {
+      toast.error("Oops! Please select at least three programmes.", {
+        duration: 6000,
+      });
+
+      setProgrammePrioritiesErrorMessage(
+        "We need at least three programmes to understand your preferences better. Could you please select more? Thanks!",
+      );
+      return;
+    }
 
     form.handleSubmit(onSubmit)();
   };
 
-  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
-    // Get the first file from the input
-    const file = event.target.files ? event.target.files[0] : null;
-    // Update the image state variable
-    setImage(file);
-    // Create a temporary URL for the file
-    const url = file ? URL.createObjectURL(file) : null;
-    // Update the preview state variable
-    setImagePreview(url);
-
-    console.log("Call server 💻");
-
-    event.target.value = "";
-  };
-
-  const handleFileRemove = () => {
-    setImage(null);
-    setImagePreview(null);
-  };
-
-  const steps: Step[] = [
-    {
-      label: "Priorities",
-      stepContent: (
-        <Priorities
-          applicantProgrammes={programmePriorities}
-          onMoveUp={moveUp}
-          onMoveDown={moveDown}
-          onDelete={deleteProgramme}
-        />
-      ),
-      Icon: FaList,
-    },
-    {
-      label: "Profile",
-      stepContent: (
-        <Profile
-          image={image}
-          imagePreview={imagePreview}
-          onImageDelete={handleFileRemove}
-          onImageUpdate={handleImageChange}
-          form={form}
-        />
-      ),
-      errors: profileErrors,
-      Icon: FaUser,
-    },
-    {
-      label: "Contacts",
-      stepContent: <Contacts form={form} />,
-      errors: contactErrors,
-      Icon: FaAddressBook,
-    },
-    {
-      label: "Emergency",
-      stepContent: <EmergencyContact form={form} />,
-      errors: emergencyContactErrors,
-      Icon: FaExclamation,
-    },
-    {
-      label: "Education",
-      stepContent: <Education form={form} />,
-      errors: educationErrors,
-      Icon: FaBook,
-    },
-    {
-      label: "Attachments",
-      stepContent: <Attachments />,
-      Icon: FaPaperclip,
-    },
-    {
-      label: "Payments",
-      stepContent: <Payment />,
-      Icon: FaCreditCard,
-    },
-  ];
-
-  const handleGoToNextStep = () => {
-    if (step < steps.length - 1) {
-      setStep(step + 1);
-    }
-  };
-
-  const handleGoToPreviousStep = () => {
-    if (step > 0) {
-      setStep(step - 1);
-    }
-  };
-
-  const handleGoToStep = (stepIndex: number) => {
-    setStep(stepIndex);
+  const clearAllErrors = () => {
+    form.clearErrors();
+    setProfileErrors(0);
+    setContactErrors(0);
+    setEmergencyContactErrors(0);
+    setEducationErrors(0);
+    setProgrammePrioritiesErrorMessage("");
   };
 
   const currentStep = steps[step];

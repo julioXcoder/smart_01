@@ -37,11 +37,25 @@ interface Props {
   form: UseFormReturn<z.infer<typeof FormSchema>>;
 }
 
+const maxItems = 4;
+
 const Education = ({ form }: Props) => {
   const { fields, append, move, remove } = useFieldArray({
     control: form.control,
     name: "education",
   });
+
+  const handleAddItem = () => {
+    if (fields.length < maxItems) {
+      append({
+        position: fields.length,
+        level: "",
+        schoolName: "",
+        startYear: "",
+        endYear: "",
+      });
+    }
+  };
 
   const handleMoveUp = (index: number) => {
     if (index > 0) {
@@ -61,16 +75,6 @@ const Education = ({ form }: Props) => {
     }
   };
 
-  const handleAddItem = () => {
-    append({
-      position: fields.length,
-      level: "",
-      schoolName: "",
-      startYear: "",
-      endYear: "",
-    });
-  };
-
   return (
     <>
       <h1 className="block text-2xl font-bold text-gray-800 dark:text-white">
@@ -87,6 +91,7 @@ const Education = ({ form }: Props) => {
               <Badge className="shrink-0"># {index + 1}</Badge>
               <div className="flex items-center space-x-2">
                 <Button
+                  disabled={index === 0}
                   onClick={() => handleMoveUp(index)}
                   variant="outline"
                   size="icon"
@@ -95,6 +100,7 @@ const Education = ({ form }: Props) => {
                   <FiArrowUp className="h-4 w-4" />
                 </Button>
                 <Button
+                  disabled={index === fields.length - 1}
                   onClick={() => handleMoveDown(index)}
                   variant="outline"
                   size="icon"
@@ -242,6 +248,7 @@ const Education = ({ form }: Props) => {
 
       <div className="my-5 flex w-full items-center justify-center">
         <Button
+          disabled={fields.length >= maxItems}
           className="flex items-center gap-2"
           variant={"outline"}
           onClick={handleAddItem}

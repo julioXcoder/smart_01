@@ -2,11 +2,13 @@ import {
   Origin,
   EducationLevelName,
   ProgrammeLevelName,
-  ApplicationStatusName,
+  ApplicantProgram,
   ApplicantNotification,
   ApplicationDetails,
   ApplicationStatus,
 } from "@/types/application";
+import z from "zod";
+import { FormSchema } from "@/app/applicant_portal/edit/data";
 import { Response } from "@/types/api";
 
 export interface StudentInfo {
@@ -45,9 +47,16 @@ interface ApplicantData {
   notifications: ApplicantNotification[];
 }
 
+interface ApplicantFormData {
+  formData: z.infer<typeof FormSchema>;
+  applicantProgrammes: ApplicantProgram[];
+}
+
 type NewApplicantResponse = Response<string>;
 
 type AddApplicantProgrammeResponse = Response<string>;
+
+type SaveApplicationDataResponse = Response<string>;
 
 type DeleteApplicantProgrammeResponse = Response<string>;
 
@@ -59,11 +68,13 @@ type ApplicationDetailsResponse = Response<ApplicationDetails>;
 
 export type {
   NewApplicant,
-  NewApplicantResponse,
   ApplicantData,
+  ApplicantFormData,
+  NewApplicantResponse,
   ApplicantDataResponse,
   ApplicationStatusResponse,
   ApplicationDetailsResponse,
+  SaveApplicationDataResponse,
   AddApplicantProgrammeResponse,
   DeleteApplicantProgrammeResponse,
 };
