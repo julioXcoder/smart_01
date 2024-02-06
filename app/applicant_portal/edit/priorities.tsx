@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GiWhiteBook } from "react-icons/gi";
 import { FaUniversity } from "react-icons/fa";
 import { FiArrowDown, FiArrowUp, FiTrash2 } from "react-icons/fi";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { IoWarning, IoChatbubblesSharp } from "react-icons/io5";
 import { ApplicantProgram } from "@/types/application";
 import { getEducationLevel, getProgrammeType } from "@/utils/programme";
@@ -27,6 +28,7 @@ interface Props {
   onMoveUp: (index: number) => void;
   onMoveDown: (index: number) => void;
   onDelete: (index: number) => void;
+  programmePrioritiesErrorMessage: string;
 }
 
 const Priorities = ({
@@ -34,6 +36,7 @@ const Priorities = ({
   onMoveUp,
   onMoveDown,
   onDelete,
+  programmePrioritiesErrorMessage,
 }: Props) => {
   // const handleMoveUp = (index: number) => {
   //   if (index === 0) return;
@@ -170,7 +173,13 @@ const Priorities = ({
           </Card>
         ))
       )}
-      <div className="my-6 flex w-full items-center justify-center">
+      <div className="my-6 flex w-full flex-col items-center justify-center gap-y-4">
+        {programmePrioritiesErrorMessage && (
+          <div className="flex items-center gap-2 text-sm text-red-500">
+            <ExclamationTriangleIcon className="mt-0.5 h-4 w-4 shrink-0" />
+            {programmePrioritiesErrorMessage}
+          </div>
+        )}
         <Link href={"/applicant_portal/programmes"}>
           <Button className="bg-green-500 hover:bg-green-600">
             <IoSearch className="mr-2 h-4 w-4 shrink-0" /> search{" "}

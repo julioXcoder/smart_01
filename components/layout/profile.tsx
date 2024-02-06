@@ -113,10 +113,15 @@ const Profile = ({ firstName, lastName, username }: Props) => {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
-            <div className="flex w-full items-center hover:text-red-500">
-              <MdLogout className="mr-2 h-4 w-4 " />
-              <span>Log Out</span>
-            </div>
+            <Link
+              href="/api/logout/applicant"
+              className="flex w-full items-center"
+            >
+              <div className="flex w-full items-center hover:text-red-500">
+                <MdLogout className="mr-2 h-4 w-4 " />
+                <span>Log Out</span>
+              </div>
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

@@ -26,7 +26,7 @@ import {
 } from "react-icons/fa6";
 import { MdOutlineAccessTime } from "react-icons/md";
 import z from "zod";
-import { FormSchema } from "./data";
+import { FormSchema, ImageSchema } from "./data";
 import MobileNavigation from "./mobileNavigation";
 import SideNavigation from "./sideNavigation";
 import { isEqual } from "lodash";
@@ -79,8 +79,10 @@ const EditComponent = ({ data }: Props) => {
   const [educationErrors, setEducationErrors] = useState(0);
 
   const [image, setImage] = useState<File | null>(null);
-  const [error, setError] = useState<String>("");
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageErrorMessage, setImageErrorMessage] = useState("");
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    data.applicantProfile.imageUrl,
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setIsLoading] = useState(false);
 
@@ -94,12 +96,12 @@ const EditComponent = ({ data }: Props) => {
   useEffect(() => {
     const initialState = {
       programmePriorities: data.programmePriorities,
-      applicantEducationBackground: data.applicantEducationBackground,
+      imagePreview: data.applicantProfile.imageUrl,
     };
 
     const currentState = {
       programmePriorities,
-      applicantEducationBackground,
+      imagePreview,
     };
 
     if (isEqual(initialState, currentState)) {
@@ -112,6 +114,8 @@ const EditComponent = ({ data }: Props) => {
     applicantEducationBackground,
     data.programmePriorities,
     data.applicantEducationBackground,
+    data.applicantProfile.imageUrl,
+    imagePreview,
   ]);
 
   useEffect(() => {
@@ -346,14 +350,25 @@ const EditComponent = ({ data }: Props) => {
     (event: ChangeEvent<HTMLInputElement>) => {
       // Get the first file from the input
       const file = event.target.files ? event.target.files[0] : null;
-      // Update the image state variable
-      setImage(file);
-      // Create a temporary URL for the file
-      const url = file ? URL.createObjectURL(file) : null;
-      // Update the preview state variable
-      setImagePreview(url);
 
-      console.log("Call server 💻");
+      if (file) {
+        const imageValidation = ImageSchema.safeParse({ image: file });
+
+        if (!imageValidation.success) {
+          toast.error(imageValidation.error.errors[0].message, {
+            duration: 6000,
+          });
+
+          return;
+        }
+
+        // Update the image state variable
+        setImage(file);
+        // Create a temporary URL for the file
+        const url = file ? URL.createObjectURL(file) : null;
+        // Update the preview state variable
+        setImagePreview(url);
+      }
 
       event.target.value = "";
     },
@@ -373,6 +388,7 @@ const EditComponent = ({ data }: Props) => {
           <Priorities
             applicantProgrammes={programmePriorities}
             onMoveUp={moveUp}
+            programmePrioritiesErrorMessage={programmePrioritiesErrorMessage}
             onMoveDown={moveDown}
             onDelete={deleteProgramme}
           />
@@ -387,6 +403,7 @@ const EditComponent = ({ data }: Props) => {
             image={image}
             imagePreview={imagePreview}
             onImageDelete={handleFileRemove}
+            imageErrorMessage={imageErrorMessage}
             onImageUpdate={handleImageChange}
             form={form}
           />
@@ -432,6 +449,7 @@ const EditComponent = ({ data }: Props) => {
       image,
       imagePreview,
       handleFileRemove,
+      imageErrorMessage,
       handleImageChange,
       form,
       profileErrors,
@@ -520,6 +538,7 @@ const EditComponent = ({ data }: Props) => {
     const data = form.getValues();
 
     clearAllErrors();
+    let totalProfileErrors = 0;
 
     const validation = FormSchema.safeParse(data);
 
@@ -584,6 +603,8 @@ const EditComponent = ({ data }: Props) => {
       const educationErrors =
         validation.error.formErrors.fieldErrors.education?.length || 0;
 
+      totalProfileErrors += profileFieldErrors;
+
       setProfileErrors(profileFieldErrors);
       setContactErrors(contactFieldErrors);
       setEmergencyContactErrors(emergencyContactFieldErrors);
@@ -597,6 +618,17 @@ const EditComponent = ({ data }: Props) => {
       setProgrammePrioritiesErrorMessage(
         "We need at least three programmes to understand your preferences better. Could you please select more? Thanks!",
       );
+    }
+
+    // Check if the image is not provided
+    if (!image) {
+      setImageErrorMessage("Image is required.");
+      totalProfileErrors += 1;
+      setProfileErrors(totalProfileErrors);
+    }
+
+    // If either condition is not met, return early
+    if (programmePriorities.length < 3 || !image) {
       return;
     }
 
@@ -610,6 +642,7 @@ const EditComponent = ({ data }: Props) => {
     setEmergencyContactErrors(0);
     setEducationErrors(0);
     setProgrammePrioritiesErrorMessage("");
+    setImageErrorMessage("");
   };
 
   const currentStep = steps[step];

@@ -60,6 +60,8 @@ type SaveApplicationDataResponse = Response<string>;
 
 type DeleteApplicantProgrammeResponse = Response<string>;
 
+type AuthorizeApplicantResponse = Response<string>;
+
 type ApplicantDataResponse = Response<ApplicantData>;
 
 type ApplicationStatusResponse = Response<ApplicationStatus>;
@@ -74,6 +76,7 @@ export type {
   ApplicantDataResponse,
   ApplicationStatusResponse,
   ApplicationDetailsResponse,
+  AuthorizeApplicantResponse,
   SaveApplicationDataResponse,
   AddApplicantProgrammeResponse,
   DeleteApplicantProgrammeResponse,

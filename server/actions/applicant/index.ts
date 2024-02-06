@@ -6,6 +6,7 @@ import type {
   GetFormIVDataResponse,
   StudentInfo,
   NewApplicant,
+  AuthorizeApplicantResponse,
   NewApplicantResponse,
   ApplicationDetailsResponse,
   ApplicantDataResponse,
@@ -679,4 +680,40 @@ export const saveApplicationData = async (
   //     error: "Oops! There was an error saving your draft.",
   //   };
   // }
+};
+
+export const authorizeApplicant = async ({
+  username,
+  password,
+}: {
+  username: string;
+  password: string;
+}): Promise<AuthorizeApplicantResponse> => {
+  try {
+    const applicant = await prisma.applicant.findUnique({
+      where: {
+        username,
+      },
+    });
+
+    if (!applicant) return { error: "Invalid username or password" };
+
+    const match = await bcrypt.compare(password, applicant.hashedPassword);
+
+    if (!match) return { error: "Invalid username or password" };
+
+    const data = { id: applicant.username, role: applicant.role };
+
+    const token = await createToken(data);
+
+    cookies().set("token", token);
+
+    return { data: "/applicant_portal/dashboard" };
+  } catch (error) {
+    logOperationError(error);
+    return {
+      error:
+        "We’re sorry, but an issue arose while signing in. Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
+    };
+  }
 };

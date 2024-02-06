@@ -565,10 +565,28 @@ const FormSchema = z.object({
   education: z.array(EducationSchema),
 });
 
+const ImageSchema = z.object({
+  image: z
+    .any()
+    .optional()
+    .nullable()
+    .refine((file) => file && file.size <= 100 * 1024, {
+      message: "Image should be less than 100KB",
+    }),
+});
+
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: currentYear - 1970 + 1 }, (_, i) => {
   const year = i + 1970;
   return { value: year.toString(), label: year.toString() };
 });
 
-export { countries, genders, nationalities, years, educationLevel, FormSchema };
+export {
+  countries,
+  genders,
+  nationalities,
+  years,
+  educationLevel,
+  FormSchema,
+  ImageSchema,
+};

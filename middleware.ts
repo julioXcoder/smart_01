@@ -30,13 +30,13 @@ const roleConfig: {
 const pathToAuthUrl: {
   [key: string]: string;
 } = {
-  "/staff": "/staff/auth",
-  "/student": "/student/auth",
-  "/applicant_portal": "/applicant_portal/auth",
+  "/staff": "/auth/staff",
+  "/student": "/auth/student",
+  "/applicant_portal": "/auth/applicant",
   // Add more paths and their auth URLs here
 };
 
-const authPaths = ["/student/auth", "/staff/auth", "/applicant_portal/auth"];
+const authPaths = ["/auth/staff", "/auth/student", "/auth/applicant"];
 
 export async function middleware(request: NextRequest) {
   let token = request.cookies.get("token")?.value;
@@ -87,11 +87,11 @@ export async function middleware(request: NextRequest) {
   }
 }
 
-// See "Matching Paths" below to learn more
-// export const config = {
-//   matcher: ["/student/:path*", "/staff/:path*"],
-// };
-
 export const config = {
-  matcher: ["/student/:path*", "/staff/:path*", "/applicant_portal/:path*"],
+  matcher: [
+    "/student/:path*",
+    "/staff/:path*",
+    "/applicant_portal/:path*",
+    "/auth/:path*",
+  ],
 };

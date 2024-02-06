@@ -32,6 +32,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { ChangeEvent, useRef } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { AiOutlineCloudUpload } from "react-icons/ai";
@@ -46,6 +47,7 @@ interface Props {
   onImageDelete: () => void;
   imagePreview: string | null;
   image: File | null;
+  imageErrorMessage: string;
   // onUploadInitiate: () => void;
 }
 
@@ -55,6 +57,7 @@ const Profile = ({
   onImageDelete,
   imagePreview,
   image,
+  imageErrorMessage,
 }: Props) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -294,6 +297,12 @@ const Profile = ({
                   className="h-6 w-6 shrink-0 cursor-pointer text-red-600"
                 />
               </span>
+            )}
+            {imageErrorMessage && (
+              <div className="flex items-center gap-2 text-sm text-red-500">
+                <ExclamationTriangleIcon className="mt-0.5 h-4 w-4 shrink-0" />
+                {imageErrorMessage}
+              </div>
             )}
           </div>
         </div>
