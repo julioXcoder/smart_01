@@ -117,6 +117,13 @@ model ApplicantProfile {
   imageUrl          String?
 }
 
+model ApplicantImageData {
+  imageUrl String @id @map("_id")
+  key      String
+  name     String
+  size     Int
+}
+
 model ApplicantContacts {
   applicantUsername      String  @id @map("_id")
   phone                  String  @default("")

@@ -57,11 +57,11 @@ const Page = () => {
 
     if (error) {
       setErrorMessage(error);
+      setIsLoading(false);
+      return;
     } else if (redirect) {
       router.push(redirect);
     }
-
-    setIsLoading(false);
   }
 
   return (

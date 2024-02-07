@@ -10,10 +10,17 @@ interface Props {
   firstName: string;
   lastName: string;
   username: string;
+  imageUrl: string | null;
   notifications: ApplicantNotification[];
 }
 
-const Appbar = ({ firstName, lastName, username, notifications }: Props) => {
+const Appbar = ({
+  firstName,
+  lastName,
+  username,
+  imageUrl,
+  notifications,
+}: Props) => {
   const [show, setShow] = useState(true);
   const [scrollPos, setScrollPos] = useState(0);
 
@@ -52,6 +59,7 @@ const Appbar = ({ firstName, lastName, username, notifications }: Props) => {
                   firstName={firstName}
                   lastName={lastName}
                   username={username}
+                  imageUrl={imageUrl}
                 />
               </div>
             </div>

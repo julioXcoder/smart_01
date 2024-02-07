@@ -19,23 +19,30 @@ import { LuUser } from "react-icons/lu";
 import { MdEvent, MdLogout } from "react-icons/md";
 import ProfileThemeChanger from "./profileThemeChanger";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Props {
   firstName: string;
   lastName: string;
   username: string;
+  imageUrl: string | null;
 }
 
-const Profile = ({ firstName, lastName, username }: Props) => {
+const Profile = ({ firstName, lastName, username, imageUrl }: Props) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button className="inline-flex items-center justify-center gap-2 rounded-full bg-white py-1 pl-1 pr-2 align-middle text-sm font-medium text-gray-700 shadow-sm ring-gray-300 transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 dark:border-gray-900 dark:bg-slate-950 dark:text-gray-100 dark:ring-gray-700 dark:hover:bg-gray-800 dark:hover:text-white">
-          <img
-            className="h-auto w-8 rounded-full"
-            src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80"
-            alt="Maria"
-          />
+          <div className="relative h-8 w-8">
+            <Image
+              alt="Applicant Image"
+              fill
+              priority
+              quality={100}
+              className="inline-block rounded-full object-cover"
+              src={imageUrl ? imageUrl : ""}
+            />
+          </div>
           <span className="max-w-[7.5rem] truncate font-medium">
             {firstName.trim() ? `${firstName} ${lastName}` : username}
           </span>

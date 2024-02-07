@@ -95,10 +95,18 @@ interface ApplicationStatus {
   programmePriorities: ApplicantProgram[];
 }
 
+export type ApplicantImageData = {
+  imageUrl: string;
+  key: string;
+  name: string;
+  size: number;
+} | null;
+
 interface ApplicationDetails {
   applicantEducationBackground: ApplicantEducationBackground[];
   programmePriorities: ApplicantProgram[];
   applicantProfile: ApplicantProfile;
+  applicantImageData: ApplicantImageData;
   applicantContacts: ApplicantContacts;
   applicantEmergencyContacts: ApplicantEmergencyContacts;
 }

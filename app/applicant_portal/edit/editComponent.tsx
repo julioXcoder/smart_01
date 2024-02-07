@@ -32,6 +32,7 @@ import SideNavigation from "./sideNavigation";
 import { isEqual } from "lodash";
 import { ApplicantProgram, ApplicationDetails } from "@/types/application";
 import { ApplicantFormData } from "@/server/actions/applicant/schema";
+import { UploadFileResponse } from "@/types/uploadthing";
 
 import Attachments from "./attachments";
 import Contacts from "./contacts";
@@ -44,6 +45,7 @@ import Profile from "./profile";
 import {
   deleteApplicantProgrammePriority,
   saveApplicationData,
+  addApplicantImageData,
 } from "@/server/actions/applicant";
 
 interface Props {
@@ -85,6 +87,7 @@ const EditComponent = ({ data }: Props) => {
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setIsLoading] = useState(false);
+  const [uploadingImage, setIsUploadingImage] = useState(false);
 
   useEffect(() => {
     const sortedProgrammes = data.programmePriorities.sort(
@@ -347,8 +350,10 @@ const EditComponent = ({ data }: Props) => {
   );
 
   const handleImageChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
+    async (event: ChangeEvent<HTMLInputElement>) => {
       // Get the first file from the input
+      const formData = new FormData();
+
       const file = event.target.files ? event.target.files[0] : null;
 
       if (file) {
@@ -368,17 +373,70 @@ const EditComponent = ({ data }: Props) => {
         const url = file ? URL.createObjectURL(file) : null;
         // Update the preview state variable
         setImagePreview(url);
+        setIsUploadingImage(true);
+        if (data.applicantImageData) {
+          // FIXME: update image pass imageUrl and image file
+          formData.append("imageUrl", data.applicantImageData.imageUrl);
+          formData.append("imageFile", file);
+        } else {
+          // FIXME: Add the new image
+          formData.append("imageFile", file);
+          const responsePromise = fetch("/api/applicant/image", {
+            method: "POST",
+            body: formData,
+          });
+
+          toast.promise(responsePromise, {
+            loading: "Uploading image...",
+            success: <b>Image uploaded successfully!</b>,
+            error: <b>Could not upload the image.</b>,
+          });
+
+          const response = await responsePromise;
+
+          if (!response.ok) {
+            setImagePreview(null);
+            event.target.value = "";
+            setIsUploadingImage(false);
+            return;
+          }
+
+          const uploadedImage: UploadFileResponse = await response.json();
+          const { data: imageData, error } = uploadedImage;
+
+          if (imageData) {
+            toast.promise(addApplicantImageData(imageData), {
+              loading: "saving image...",
+              success: <b>Image added</b>,
+              error: <b>Oops failed to add image</b>,
+            });
+            setIsUploadingImage(false);
+          } else if (error) {
+            toast.error("Image upload failed!", { duration: 6000 });
+            setImagePreview(null);
+            event.target.value = "";
+            setIsUploadingImage(false);
+            return;
+          }
+        }
       }
 
       event.target.value = "";
     },
-    [],
+    [data.applicantImageData],
   );
 
   const handleFileRemove = useCallback(() => {
+    const formData = new FormData();
+    const prevImagePreView = imagePreview;
     setImage(null);
     setImagePreview(null);
-  }, []);
+
+    if (data.applicantImageData) {
+      // FIXME: update image pass imageUrl and image file
+      formData.append("imageUrl", data.applicantImageData.imageUrl);
+    }
+  }, [data.applicantImageData, imagePreview]);
 
   const steps: Step[] = useMemo(
     () => [
@@ -400,11 +458,12 @@ const EditComponent = ({ data }: Props) => {
         label: "Profile",
         stepContent: (
           <Profile
-            image={image}
+            applicantImageData={data.applicantImageData}
             imagePreview={imagePreview}
             onImageDelete={handleFileRemove}
             imageErrorMessage={imageErrorMessage}
             onImageUpdate={handleImageChange}
+            uploadingImage={uploadingImage}
             form={form}
           />
         ),
@@ -443,14 +502,15 @@ const EditComponent = ({ data }: Props) => {
     [
       programmePriorities,
       moveUp,
+      programmePrioritiesErrorMessage,
       moveDown,
       deleteProgramme,
-      programmePrioritiesErrorMessage,
-      image,
+      data.applicantImageData,
       imagePreview,
       handleFileRemove,
       imageErrorMessage,
       handleImageChange,
+      uploadingImage,
       form,
       profileErrors,
       contactErrors,
@@ -490,7 +550,7 @@ const EditComponent = ({ data }: Props) => {
   };
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    handleSaveAsDraft();
+    handleSaveAsDraft({});
 
     toast.success(
       "Your application is successfully submitted and under review. Stay tuned!",
@@ -500,8 +560,16 @@ const EditComponent = ({ data }: Props) => {
     );
   }
 
-  const handleSaveAsDraft = async () => {
-    const data = form.getValues();
+  const handleSaveAsDraft = async ({
+    successText = "Draft saved. Resume anytime.",
+    errorText = "Oops! There was an error saving your draft.",
+    loadingText = "Saving...",
+  }: {
+    successText?: string;
+    errorText?: string;
+    loadingText?: string;
+  }) => {
+    const formData = form.getValues();
     clearAllErrors();
 
     const educationArray = form.getValues("education");
@@ -513,7 +581,7 @@ const EditComponent = ({ data }: Props) => {
     const applicantPriorities = reorderPriorities();
 
     const applicantFormData: ApplicantFormData = {
-      formData: data,
+      formData,
       applicantProgrammes: applicantPriorities,
     };
 
@@ -521,9 +589,9 @@ const EditComponent = ({ data }: Props) => {
     //   await saveApplicationData(applicantFormData);
 
     toast.promise(saveApplicationData(applicantFormData), {
-      loading: "Saving...",
-      success: <b>Draft saved. Resume anytime.</b>,
-      error: <b>Oops! There was an error saving your draft.</b>,
+      loading: `${loadingText}`,
+      success: <b>{successText}</b>,
+      error: <b>{errorText}</b>,
     });
 
     // if(error){
@@ -690,7 +758,7 @@ const EditComponent = ({ data }: Props) => {
             <Button
               className="mt-2 w-full"
               variant="secondary"
-              onClick={handleSaveAsDraft}
+              onClick={() => handleSaveAsDraft({})}
             >
               <span className="flex items-center gap-2">
                 <MdOutlineAccessTime className="h-4 w-4 shrink-0" />

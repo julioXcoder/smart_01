@@ -40,15 +40,16 @@ import { BiCheck, BiChevronDown } from "react-icons/bi";
 import { IoMdTrash } from "react-icons/io";
 import z from "zod";
 import { FormSchema, genders, nationalities } from "./data";
+import { ApplicantImageData } from "@/types/application";
 
 interface Props {
   form: UseFormReturn<z.infer<typeof FormSchema>>;
   onImageUpdate: (event: ChangeEvent<HTMLInputElement>) => void;
   onImageDelete: () => void;
   imagePreview: string | null;
-  image: File | null;
   imageErrorMessage: string;
-  // onUploadInitiate: () => void;
+  applicantImageData: ApplicantImageData;
+  uploadingImage: boolean;
 }
 
 const Profile = ({
@@ -56,8 +57,9 @@ const Profile = ({
   onImageUpdate,
   onImageDelete,
   imagePreview,
-  image,
   imageErrorMessage,
+  applicantImageData,
+  uploadingImage,
 }: Props) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -273,38 +275,43 @@ const Profile = ({
           />
 
           {imagePreview ? (
-            <Image
-              alt="Applicant Image"
-              width={100}
-              height={100}
-              className="inline-block h-48 w-36 rounded-lg object-cover"
-              src={imagePreview}
-            />
+            <div className="relative h-48 w-36">
+              <Image
+                alt="Applicant Image"
+                fill
+                priority
+                quality={100}
+                className="inline-block rounded-lg object-cover"
+                src={imagePreview}
+              />
+            </div>
           ) : (
             <div className="dark:hover:bg-bray-800 flex h-48 w-36 flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-600"></div>
           )}
 
-          <div className="flex flex-col gap-2">
-            <Button variant={"secondary"} onClick={handleButtonClick}>
-              <AiOutlineCloudUpload className="mr-2 h-4 w-4 shrink-0" />
-              {image ? "Change" : "Upload"} image
-            </Button>
-            {image && (
-              <span className="text-small flex items-center gap-x-2">
-                {image.name}{" "}
-                <IoMdTrash
-                  onClick={onImageDelete}
-                  className="h-6 w-6 shrink-0 cursor-pointer text-red-600"
-                />
-              </span>
-            )}
-            {imageErrorMessage && (
-              <div className="flex items-center gap-2 text-sm text-red-500">
-                <ExclamationTriangleIcon className="mt-0.5 h-4 w-4 shrink-0" />
-                {imageErrorMessage}
-              </div>
-            )}
-          </div>
+          {!uploadingImage && (
+            <div className="flex flex-col gap-2">
+              <Button variant={"secondary"} onClick={handleButtonClick}>
+                <AiOutlineCloudUpload className="mr-2 h-4 w-4 shrink-0" />
+                {applicantImageData ? "Change" : "Upload"} image
+              </Button>
+              {applicantImageData && (
+                <span className="text-small flex items-center gap-x-2">
+                  {applicantImageData.name}{" "}
+                  <IoMdTrash
+                    onClick={onImageDelete}
+                    className="h-6 w-6 shrink-0 cursor-pointer text-red-600"
+                  />
+                </span>
+              )}
+              {imageErrorMessage && (
+                <div className="flex items-center gap-2 text-sm text-red-500">
+                  <ExclamationTriangleIcon className="mt-0.5 h-4 w-4 shrink-0" />
+                  {imageErrorMessage}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </>

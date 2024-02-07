@@ -23,7 +23,7 @@ import { cookies, headers } from "next/headers";
 
 import { logOperationError } from "@/utils/logger";
 import { revalidatePath } from "next/cache";
-import { ApplicantProgram } from "@/types/application";
+import { ApplicantProgram, ApplicantImageData } from "@/types/application";
 
 const baseURL = "https://onlinesys.necta.go.tz/results/";
 
@@ -404,11 +404,22 @@ export const getApplicationDetails =
         );
       }
 
+      let applicantImageData: ApplicantImageData = null;
+
+      if (applicantProfile.imageUrl) {
+        applicantImageData = await prisma.applicantImageData.findUnique({
+          where: {
+            imageUrl: applicantProfile.imageUrl,
+          },
+        });
+      }
+
       return {
         data: {
           programmePriorities,
           applicantEducationBackground,
           applicantProfile,
+          applicantImageData,
           applicantContacts,
           applicantEmergencyContacts,
         },
@@ -598,29 +609,6 @@ export const saveApplicationData = async (
     education,
   } = applicantFormData.formData;
 
-  const applicantProfile = await prisma.applicantProfile.findUnique({
-    where: {
-      applicantUsername: applicant.username,
-    },
-  });
-
-  const applicantContacts = await prisma.applicantContacts.findUnique({
-    where: {
-      applicantUsername: applicant.username,
-    },
-  });
-
-  const applicantEmergencyContacts =
-    await prisma.applicantEmergencyContacts.findUnique({
-      where: {
-        applicantUsername: applicant.username,
-      },
-    });
-
-  if (!applicantProfile || !applicantEmergencyContacts || !applicantContacts) {
-    throw new Error("Applicant details now found!");
-  }
-
   await prisma.applicantProfile.update({
     where: {
       applicantUsername: applicant.username,
@@ -716,4 +704,47 @@ export const authorizeApplicant = async ({
         "We’re sorry, but an issue arose while signing in. Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
     };
   }
+};
+
+export const addApplicantImageData = async (applicantImageData: {
+  key: string;
+  url: string;
+  name: string;
+  size: number;
+}) => {
+  const username = headers().get("userId");
+
+  if (!username) {
+    throw new Error("Applicant details now found!");
+  }
+
+  const applicant = await prisma.applicant.findUnique({
+    where: {
+      username,
+    },
+  });
+
+  if (!applicant) {
+    throw new Error("Applicant details now found!");
+  }
+
+  await prisma.applicantProfile.update({
+    where: {
+      applicantUsername: applicant.username,
+    },
+    data: {
+      imageUrl: applicantImageData.url,
+    },
+  });
+
+  await prisma.applicantImageData.create({
+    data: {
+      imageUrl: applicantImageData.url,
+      key: applicantImageData.key,
+      name: applicantImageData.name,
+      size: applicantImageData.size,
+    },
+  });
+
+  revalidatePath("/applicant_portal/edit");
 };
