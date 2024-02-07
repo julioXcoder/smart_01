@@ -209,6 +209,12 @@ export const newApplicantAccount = async (
       },
     });
 
+    await prisma.applicantImageData.create({
+      data: {
+        applicantUsername: newApplicant.username,
+      },
+    });
+
     await prisma.applicantContacts.create({
       data: {
         applicantUsername: newApplicant.username,
@@ -263,13 +269,19 @@ export const getApplicantData = async (): Promise<ApplicantDataResponse> => {
       },
     });
 
-    if (!profile) {
+    const applicantImageData = await prisma.applicantImageData.findUnique({
+      where: {
+        applicantUsername: applicant.username,
+      },
+    });
+
+    if (!profile || !applicantImageData) {
       throw new Error(
-        `Unable to locate the profile for the applicant with the username: ${applicant.username}.`,
+        `Unable to locate the profile or image data for the applicant with the username: ${applicant.username}.`,
       );
     }
 
-    const { firstName, middleName, lastName, imageUrl } = profile;
+    const { firstName, middleName, lastName } = profile;
 
     const notifications = await prisma.applicantNotification.findMany({
       where: {
@@ -283,7 +295,7 @@ export const getApplicantData = async (): Promise<ApplicantDataResponse> => {
         firstName,
         middleName,
         lastName,
-        imageUrl,
+        imageUrl: applicantImageData.imageUrl,
         notifications,
       },
     };
@@ -359,8 +371,7 @@ export const getApplicationDetails =
             "Sorry, we couldn't process your request. Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
         };
       }
-      const { applicationType, applicationStatus, educationBackground } =
-        applicant;
+      const { educationBackground } = applicant;
 
       const programmePriorities = await getProgrammePriorities(
         applicant.username,
@@ -394,24 +405,21 @@ export const getApplicationDetails =
           },
         });
 
+      const applicantImageData = await prisma.applicantImageData.findUnique({
+        where: {
+          applicantUsername: applicant.username,
+        },
+      });
+
       if (
         !applicantProfile ||
         !applicantContacts ||
-        !applicantEmergencyContacts
+        !applicantEmergencyContacts ||
+        !applicantImageData
       ) {
         throw new Error(
           `Unable to locate the applicant details for the applicant with the username: ${applicant.username}.`,
         );
-      }
-
-      let applicantImageData: ApplicantImageData = null;
-
-      if (applicantProfile.imageUrl) {
-        applicantImageData = await prisma.applicantImageData.findUnique({
-          where: {
-            imageUrl: applicantProfile.imageUrl,
-          },
-        });
       }
 
       return {
@@ -728,16 +736,10 @@ export const addApplicantImageData = async (applicantImageData: {
     throw new Error("Applicant details now found!");
   }
 
-  await prisma.applicantProfile.update({
+  await prisma.applicantImageData.update({
     where: {
       applicantUsername: applicant.username,
     },
-    data: {
-      imageUrl: applicantImageData.url,
-    },
-  });
-
-  await prisma.applicantImageData.create({
     data: {
       imageUrl: applicantImageData.url,
       key: applicantImageData.key,

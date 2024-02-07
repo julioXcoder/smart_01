@@ -58,7 +58,6 @@ interface ApplicantProfile {
   lastName: string;
   nationality: string;
   gender: string;
-  imageUrl: string | null;
 }
 
 interface ApplicantContacts {
@@ -95,12 +94,12 @@ interface ApplicationStatus {
   programmePriorities: ApplicantProgram[];
 }
 
-export type ApplicantImageData = {
+interface ApplicantImageData {
   imageUrl: string;
   key: string;
   name: string;
   size: number;
-} | null;
+}
 
 interface ApplicationDetails {
   applicantEducationBackground: ApplicantEducationBackground[];
@@ -120,4 +119,5 @@ export type {
   ApplicationDetails,
   ApplicationStatus,
   ApplicantProgram,
+  ApplicantImageData,
 };

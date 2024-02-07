@@ -107,21 +107,21 @@ model ApplicantEducationBackground {
 }
 
 model ApplicantProfile {
-  applicantUsername String  @id @map("_id")
-  nida              String  @default("")
-  firstName         String  @default("")
-  middleName        String  @default("")
-  lastName          String  @default("")
-  nationality       String  @default("")
-  gender            String  @default("")
-  imageUrl          String?
+  applicantUsername String @id @map("_id")
+  nida              String @default("")
+  firstName         String @default("")
+  middleName        String @default("")
+  lastName          String @default("")
+  nationality       String @default("")
+  gender            String @default("")
 }
 
 model ApplicantImageData {
-  imageUrl String @id @map("_id")
-  key      String
-  name     String
-  size     Int
+  applicantUsername String @id @map("_id")
+  imageUrl          String @default("")
+  key               String @default("")
+  name              String @default("")
+  size              Int    @default(0)
 }
 
 model ApplicantContacts {

@@ -30,7 +30,11 @@ import { FormSchema, ImageSchema } from "./data";
 import MobileNavigation from "./mobileNavigation";
 import SideNavigation from "./sideNavigation";
 import { isEqual } from "lodash";
-import { ApplicantProgram, ApplicationDetails } from "@/types/application";
+import {
+  ApplicantImageData,
+  ApplicantProgram,
+  ApplicationDetails,
+} from "@/types/application";
 import { ApplicantFormData } from "@/server/actions/applicant/schema";
 import { UploadFileResponse } from "@/types/uploadthing";
 
@@ -83,7 +87,7 @@ const EditComponent = ({ data }: Props) => {
   const [image, setImage] = useState<File | null>(null);
   const [imageErrorMessage, setImageErrorMessage] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(
-    data.applicantProfile.imageUrl,
+    data.applicantImageData.imageUrl,
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setIsLoading] = useState(false);
@@ -99,12 +103,10 @@ const EditComponent = ({ data }: Props) => {
   useEffect(() => {
     const initialState = {
       programmePriorities: data.programmePriorities,
-      imagePreview: data.applicantProfile.imageUrl,
     };
 
     const currentState = {
       programmePriorities,
-      imagePreview,
     };
 
     if (isEqual(initialState, currentState)) {
@@ -117,7 +119,6 @@ const EditComponent = ({ data }: Props) => {
     applicantEducationBackground,
     data.programmePriorities,
     data.applicantEducationBackground,
-    data.applicantProfile.imageUrl,
     imagePreview,
   ]);
 
@@ -349,11 +350,58 @@ const EditComponent = ({ data }: Props) => {
     [programmePriorities],
   );
 
+  const handleImageUpload = async (
+    file: File,
+    method: string,
+    imageData?: any,
+  ) => {
+    const formData = new FormData();
+    formData.append("imageFile", file);
+
+    if (imageData) {
+      for (let key in imageData) {
+        if (Object.prototype.hasOwnProperty.call(imageData, key)) {
+          const element = imageData[key as keyof typeof imageData];
+          formData.append(key, String(element));
+        }
+      }
+    }
+
+    const responsePromise = fetch("/api/applicant/image", {
+      method,
+      body: formData,
+    });
+
+    toast.promise(responsePromise, {
+      loading: `${method === "PUT" ? "Updating" : "Uploading"} image...`,
+      success: <b>Image processed successfully!</b>,
+      error: <b>Could not process the image.</b>,
+    });
+
+    const response = await responsePromise;
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const uploadedImage: UploadFileResponse = await response.json();
+    const { data: imageDataResponse, error } = uploadedImage;
+
+    if (imageDataResponse) {
+      toast.promise(addApplicantImageData(imageDataResponse), {
+        loading: "Saving image...",
+        success: <b>Image saved.</b>,
+        error: <b>Oops failed to save image</b>,
+      });
+      return true;
+    } else if (error) {
+      toast.error("Image upload failed!", { duration: 6000 });
+      return false;
+    }
+  };
+
   const handleImageChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
-      // Get the first file from the input
-      const formData = new FormData();
-
       const file = event.target.files ? event.target.files[0] : null;
 
       if (file) {
@@ -363,80 +411,156 @@ const EditComponent = ({ data }: Props) => {
           toast.error(imageValidation.error.errors[0].message, {
             duration: 6000,
           });
-
           return;
         }
 
-        // Update the image state variable
         setImage(file);
-        // Create a temporary URL for the file
-        const url = file ? URL.createObjectURL(file) : null;
-        // Update the preview state variable
+        const url = URL.createObjectURL(file);
         setImagePreview(url);
         setIsUploadingImage(true);
-        if (data.applicantImageData) {
-          // FIXME: update image pass imageUrl and image file
-          formData.append("imageUrl", data.applicantImageData.imageUrl);
-          formData.append("imageFile", file);
+
+        let success;
+        if (data.applicantImageData.key) {
+          success = await handleImageUpload(
+            file,
+            "PUT",
+            data.applicantImageData,
+          );
         } else {
-          // FIXME: Add the new image
-          formData.append("imageFile", file);
-          const responsePromise = fetch("/api/applicant/image", {
-            method: "POST",
-            body: formData,
-          });
+          success = await handleImageUpload(file, "POST");
+        }
 
-          toast.promise(responsePromise, {
-            loading: "Uploading image...",
-            success: <b>Image uploaded successfully!</b>,
-            error: <b>Could not upload the image.</b>,
-          });
-
-          const response = await responsePromise;
-
-          if (!response.ok) {
-            setImagePreview(null);
-            event.target.value = "";
-            setIsUploadingImage(false);
-            return;
-          }
-
-          const uploadedImage: UploadFileResponse = await response.json();
-          const { data: imageData, error } = uploadedImage;
-
-          if (imageData) {
-            toast.promise(addApplicantImageData(imageData), {
-              loading: "saving image...",
-              success: <b>Image added</b>,
-              error: <b>Oops failed to add image</b>,
-            });
-            setIsUploadingImage(false);
-          } else if (error) {
-            toast.error("Image upload failed!", { duration: 6000 });
-            setImagePreview(null);
-            event.target.value = "";
-            setIsUploadingImage(false);
-            return;
-          }
+        if (!success) {
+          setImagePreview(null);
         }
       }
 
       event.target.value = "";
+      setIsUploadingImage(false);
     },
     [data.applicantImageData],
   );
 
-  const handleFileRemove = useCallback(() => {
+  // const handleFileRemove = useCallback(async () => {
+  //   const formData = new FormData();
+  //   const prevImagePreView = imagePreview;
+  //   setIsUploadingImage(true);
+  //   setImage(null);
+  //   setImagePreview(null);
+
+  //   if (data.applicantImageData) {
+  //     // FIXME: update image pass imageUrl and image file
+
+  //     for (let key in data.applicantImageData) {
+  //       if (
+  //         Object.prototype.hasOwnProperty.call(data.applicantImageData, key)
+  //       ) {
+  //         const element =
+  //           data.applicantImageData[
+  //             key as keyof typeof data.applicantImageData
+  //           ];
+  //         formData.append(key, String(element));
+  //       }
+  //     }
+
+  //     const responsePromise = fetch("/api/applicant/image", {
+  //       method: "DELETE",
+  //       body: formData,
+  //     });
+
+  //     toast.promise(responsePromise, {
+  //       loading: "removing image...",
+  //       success: <b>Image processed successfully!</b>,
+  //       error: <b>Could not process the image.</b>,
+  //     });
+
+  //     const response = await responsePromise;
+
+  //     if (!response.ok) {
+  //       setImagePreview(prevImagePreView);
+  //       setIsUploadingImage(false)
+  //       return
+  //     }
+
+  //     const success:boolean= await response.json();
+
+  //     if (success) {
+  //       toast.promise(deleteApplicantImageData(), {
+  //         loading: "Removing image...",
+  //         success: <b>Image removed.</b>,
+  //         error: <b>Oops failed to remove image</b>,
+  //       });
+  //       return true;
+  //     } else {
+  //       toast.error("Image remove failed!", { duration: 6000 });
+  //       setImagePreview(prevImagePreView);
+  //       setIsUploadingImage(false)
+  //       return
+  //     }
+  //   }
+
+  //   setIsUploadingImage(false);
+  // }, [data, imagePreview]);
+
+  // Helper function to handle image removal
+  const handleImageRemoval = async (imageData: ApplicantImageData) => {
     const formData = new FormData();
+
+    for (let key in imageData) {
+      if (Object.prototype.hasOwnProperty.call(imageData, key)) {
+        const element = imageData[key as keyof typeof imageData];
+        formData.append(key, String(element));
+      }
+    }
+
+    const responsePromise = fetch("/api/applicant/image", {
+      method: "DELETE",
+      body: formData,
+    });
+
+    toast.promise(responsePromise, {
+      loading: "Removing image...",
+      success: <b>Image removed successfully!</b>,
+      error: <b>Could not remove the image.</b>,
+    });
+
+    const response = await responsePromise;
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const success: boolean = await response.json();
+
+    if (success) {
+      toast.promise(deleteApplicantImageData(), {
+        loading: "Removing image...",
+        success: <b>Image removed.</b>,
+        error: <b>Oops failed to remove image</b>,
+      });
+      return true;
+    } else {
+      toast.error("Image removal failed!", { duration: 6000 });
+      return false;
+    }
+  };
+
+  const handleFileRemove = useCallback(async () => {
     const prevImagePreView = imagePreview;
+    setIsUploadingImage(true);
     setImage(null);
     setImagePreview(null);
 
     if (data.applicantImageData) {
-      // FIXME: update image pass imageUrl and image file
-      formData.append("imageUrl", data.applicantImageData.imageUrl);
+      const success = await handleImageRemoval(data.applicantImageData);
+
+      if (!success) {
+        setImagePreview(prevImagePreView);
+      }
     }
-  }, [data.applicantImageData, imagePreview]);
+
+    setIsUploadingImage(false);
+  }, [data, imagePreview]);
 
   const steps: Step[] = useMemo(
     () => [

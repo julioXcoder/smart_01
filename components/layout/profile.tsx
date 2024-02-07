@@ -16,6 +16,7 @@ import { BiChevronDown, BiLayer } from "react-icons/bi";
 import { FaHeadset, FaQuestionCircle } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 import { LuUser } from "react-icons/lu";
+import avatarImage from "@/public/avatar.svg";
 import { MdEvent, MdLogout } from "react-icons/md";
 import ProfileThemeChanger from "./profileThemeChanger";
 import Link from "next/link";
@@ -40,7 +41,7 @@ const Profile = ({ firstName, lastName, username, imageUrl }: Props) => {
               priority
               quality={100}
               className="inline-block rounded-full object-cover"
-              src={imageUrl ? imageUrl : ""}
+              src={imageUrl ? imageUrl : avatarImage}
             />
           </div>
           <span className="max-w-[7.5rem] truncate font-medium">

@@ -269,7 +269,7 @@ const Profile = ({
             type="file"
             id="image"
             name="image"
-            accept="image/jpeg, image/jpg, image/gif"
+            accept="image/jpeg, image/jpg, image/gif ,image/png, image/webp"
             onChange={onImageUpdate}
             className="hidden"
           />
@@ -293,9 +293,9 @@ const Profile = ({
             <div className="flex flex-col gap-2">
               <Button variant={"secondary"} onClick={handleButtonClick}>
                 <AiOutlineCloudUpload className="mr-2 h-4 w-4 shrink-0" />
-                {applicantImageData ? "Change" : "Upload"} image
+                {applicantImageData.imageUrl ? "Change" : "Upload"} image
               </Button>
-              {applicantImageData && (
+              {applicantImageData.name && (
                 <span className="text-small flex items-center gap-x-2">
                   {applicantImageData.name}{" "}
                   <IoMdTrash
