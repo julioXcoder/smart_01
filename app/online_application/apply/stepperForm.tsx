@@ -242,8 +242,6 @@ const StepperForm = () => {
 
     if (currentStep < pages.length - 1) {
       setCurrentStep(currentStep + 1);
-    } else {
-      console.log(formIVIndex);
     }
   };
 

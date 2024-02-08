@@ -68,9 +68,7 @@ model Applicant {
   hashedPassword        String
   role                  RoleName            @default(APPLICANT)
   applicationStatus     ApplicantStatusName @default(DRAFT)
-  educationBackground   String[]            @db.ObjectId
   formIVIndex           String
-  controlNumber         Int?
   applicationType       ProgrammeLevelName
   origin                ORIGIN
   highestEducationLevel EducationLevelName
@@ -100,10 +98,10 @@ model ApplicantEducationBackground {
   id                String @id @default(auto()) @map("_id") @db.ObjectId
   applicantUsername String
   position          Int
-  level             String
-  schoolName        String
-  startYear         String
-  endYear           String
+  level             String @default("")
+  schoolName        String @default("")
+  startYear         String @default("")
+  endYear           String @default("")
 }
 
 model ApplicantProfile {

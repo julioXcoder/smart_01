@@ -43,6 +43,7 @@ interface ApplicantProgram {
 }
 
 interface ApplicantEducationBackground {
+  _id: string;
   position: number;
   level: string;
   schoolName: string;

@@ -52,15 +52,7 @@ interface ApplicantFormData {
   applicantProgrammes: ApplicantProgram[];
 }
 
-type NewApplicantResponse = Response<string>;
-
-type AddApplicantProgrammeResponse = Response<string>;
-
-type SaveApplicationDataResponse = Response<string>;
-
-type DeleteApplicantProgrammeResponse = Response<string>;
-
-type AuthorizeApplicantResponse = Response<string>;
+type GenericResponse = Response<string>;
 
 type ApplicantDataResponse = Response<ApplicantData>;
 
@@ -71,13 +63,9 @@ type ApplicationDetailsResponse = Response<ApplicationDetails>;
 export type {
   NewApplicant,
   ApplicantData,
+  GenericResponse,
   ApplicantFormData,
-  NewApplicantResponse,
   ApplicantDataResponse,
   ApplicationStatusResponse,
   ApplicationDetailsResponse,
-  AuthorizeApplicantResponse,
-  SaveApplicationDataResponse,
-  AddApplicantProgrammeResponse,
-  DeleteApplicantProgrammeResponse,
 };

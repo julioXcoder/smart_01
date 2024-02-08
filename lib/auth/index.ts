@@ -19,7 +19,7 @@ async function createToken(payload: JWTPayload) {
       .setIssuedAt()
       .setIssuer("urn:example:issuer")
       .setAudience("urn:example:audience")
-      .setExpirationTime("24h")
+      .setExpirationTime("12 hrs")
       .sign(new TextEncoder().encode(getJwtSecretKey()));
     return token;
   } catch (err) {

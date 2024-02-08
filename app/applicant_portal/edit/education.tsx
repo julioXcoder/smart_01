@@ -28,10 +28,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UseFormReturn, useFieldArray } from "react-hook-form";
+import toast from "react-hot-toast";
 import { FiArrowDown, FiArrowUp, FiTrash2 } from "react-icons/fi";
 import { MdAdd } from "react-icons/md";
 import z from "zod";
 import { FormSchema, educationLevel, years } from "./data";
+import {
+  addApplicantEducationBackground,
+  deleteApplicantEducationBackground,
+} from "@/server/actions/applicant";
+import { useState } from "react";
 
 interface Props {
   form: UseFormReturn<z.infer<typeof FormSchema>>;
@@ -44,16 +50,27 @@ const Education = ({ form }: Props) => {
     control: form.control,
     name: "education",
   });
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleAddItem = () => {
+  const handleAddItem = async () => {
     if (fields.length < maxItems) {
       append({
+        _id: fields.length.toString(),
         position: fields.length,
         level: "",
         schoolName: "",
         startYear: "",
         endYear: "",
       });
+
+      setIsLoading(true);
+      const { error } = await addApplicantEducationBackground(fields.length);
+      setIsLoading(false);
+
+      if (error) {
+        toast.error(error, { duration: 6000 });
+        remove(fields.length);
+      }
     }
   };
 
@@ -69,9 +86,20 @@ const Education = ({ form }: Props) => {
     }
   };
 
-  const handleDelete = (index: number) => {
+  const handleDelete = async (index: number) => {
     if (fields.length > 1) {
       remove(index);
+    }
+
+    const removeItemId = fields[index]._id;
+
+    setIsLoading(true);
+    const { error } = await deleteApplicantEducationBackground(removeItemId);
+    setIsLoading(false);
+
+    if (error) {
+      toast.error(error, { duration: 6000 });
+      remove(fields.length);
     }
   };
 
@@ -85,7 +113,7 @@ const Education = ({ form }: Props) => {
         journey is important to us.
       </p>
       {fields.map((item, index) => (
-        <Card key={item.id} className="my-3 w-full">
+        <Card key={item._id} className="my-3 w-full">
           <CardHeader>
             <div className="flex items-center justify-between">
               <Badge className="shrink-0"># {index + 1}</Badge>
@@ -112,6 +140,7 @@ const Education = ({ form }: Props) => {
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
+                        disabled={isLoading}
                         variant="outline"
                         size="icon"
                         className="text-red-500 hover:bg-red-600 hover:text-white "
@@ -248,7 +277,7 @@ const Education = ({ form }: Props) => {
 
       <div className="my-5 flex w-full items-center justify-center">
         <Button
-          disabled={fields.length >= maxItems}
+          disabled={fields.length >= maxItems || isLoading}
           className="flex items-center gap-2"
           variant={"outline"}
           onClick={handleAddItem}

@@ -6,15 +6,11 @@ import type {
   GetFormIVDataResponse,
   StudentInfo,
   NewApplicant,
-  AuthorizeApplicantResponse,
-  NewApplicantResponse,
   ApplicationDetailsResponse,
   ApplicantDataResponse,
   ApplicationStatusResponse,
-  AddApplicantProgrammeResponse,
-  DeleteApplicantProgrammeResponse,
   ApplicantFormData,
-  SaveApplicationDataResponse,
+  GenericResponse,
 } from "./schema";
 import prisma from "@/prisma/db";
 import bcrypt from "bcrypt";
@@ -37,6 +33,9 @@ const getProgrammePriorities = async (username: string) => {
       applicantUsername: false,
       programmeCode: true,
       priority: true,
+    },
+    orderBy: {
+      priority: "asc",
     },
   });
 
@@ -162,7 +161,7 @@ export const getFormIVData = async (
 
 export const newApplicantAccount = async (
   newApplicantData: NewApplicant,
-): Promise<NewApplicantResponse> => {
+): Promise<GenericResponse> => {
   try {
     const {
       username,
@@ -224,6 +223,13 @@ export const newApplicantAccount = async (
     await prisma.applicantEmergencyContacts.create({
       data: {
         applicantUsername: newApplicant.username,
+      },
+    });
+
+    await prisma.applicantEducationBackground.create({
+      data: {
+        applicantUsername: newApplicant.username,
+        position: 0,
       },
     });
 
@@ -371,20 +377,25 @@ export const getApplicationDetails =
             "Sorry, we couldn't process your request. Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
         };
       }
-      const { educationBackground } = applicant;
 
       const programmePriorities = await getProgrammePriorities(
         applicant.username,
       );
 
-      const applicantEducationBackground =
+      const educationBackgrounds =
         await prisma.applicantEducationBackground.findMany({
           where: {
-            id: {
-              in: educationBackground,
-            },
+            applicantUsername: applicant.username,
+          },
+          orderBy: {
+            position: "asc",
           },
         });
+
+      const applicantEducationBackground = educationBackgrounds.map((item) => {
+        const { id, ...rest } = item;
+        return { _id: id, ...rest };
+      });
 
       const applicantProfile = await prisma.applicantProfile.findUnique({
         where: {
@@ -443,7 +454,7 @@ export const getApplicationDetails =
 
 export const addApplicantProgrammePriority = async (
   programmeCode: string,
-): Promise<AddApplicantProgrammeResponse> => {
+): Promise<GenericResponse> => {
   const username = headers().get("userId");
   try {
     if (!username) {
@@ -519,7 +530,7 @@ export const addApplicantProgrammePriority = async (
 
 export const deleteApplicantProgrammePriority = async (
   priorityProgramme: ApplicantProgram,
-): Promise<DeleteApplicantProgrammeResponse> => {
+): Promise<GenericResponse> => {
   const username = headers().get("userId");
   try {
     if (!username) {
@@ -564,6 +575,103 @@ export const deleteApplicantProgrammePriority = async (
     return {
       error:
         "We’re sorry, but an issue arose while deleting applicant programme priority.",
+    };
+  }
+};
+
+export const addApplicantEducationBackground = async (
+  position: number,
+): Promise<GenericResponse> => {
+  const username = headers().get("userId");
+  try {
+    if (position > 5) {
+      return { error: "You've reached the maximum limit." };
+    }
+
+    if (position < 0) {
+      return { error: "The provided position is invalid." };
+    }
+
+    if (!username) {
+      return { error: "Oops! Access denied. Please try again." };
+    }
+
+    const applicant = await prisma.applicant.findUnique({
+      where: {
+        username,
+      },
+    });
+
+    if (!applicant) {
+      return {
+        error:
+          "Sorry, we couldn't process your request. Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
+      };
+    }
+
+    await prisma.applicantEducationBackground.create({
+      data: {
+        applicantUsername: applicant.username,
+        position,
+      },
+    });
+
+    revalidatePath("/applicant_portal/edit");
+    return { data: "Added!" };
+  } catch (error) {
+    logOperationError(error);
+    return {
+      error:
+        "We’re sorry, but an issue arose while adding applicant education background.",
+    };
+  }
+};
+
+export const deleteApplicantEducationBackground = async (
+  itemId: string,
+): Promise<GenericResponse> => {
+  const username = headers().get("userId");
+  try {
+    if (!username) {
+      return { error: "Oops! Access denied. Please try again." };
+    }
+
+    const applicant = await prisma.applicant.findUnique({
+      where: {
+        username,
+      },
+    });
+
+    if (!applicant) {
+      return {
+        error:
+          "Sorry, we couldn't process your request. Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
+      };
+    }
+
+    const deleteItem = await prisma.applicantEducationBackground.findUnique({
+      where: {
+        id: itemId,
+      },
+    });
+
+    if (!deleteItem) {
+      return { error: "Item not found." };
+    }
+
+    await prisma.applicantEducationBackground.delete({
+      where: {
+        id: deleteItem.id,
+      },
+    });
+
+    revalidatePath("/applicant_portal/edit");
+    return { data: "Removed!" };
+  } catch (error) {
+    logOperationError(error);
+    return {
+      error:
+        "We’re sorry, but an issue arose while deleting applicant education background.",
     };
   }
 };
@@ -667,6 +775,29 @@ export const saveApplicationData = async (
     },
   });
 
+  for (const educationBackground of education) {
+    await prisma.applicantEducationBackground.update({
+      where: { id: educationBackground._id },
+      data: {
+        position: educationBackground.position,
+        level: educationBackground.level,
+        schoolName: educationBackground.schoolName,
+        startYear: educationBackground.startYear,
+        endYear: educationBackground.endYear,
+      },
+    });
+  }
+
+  for (const programme of applicantFormData.applicantProgrammes) {
+    await prisma.applicantProgrammes.update({
+      where: { id: programme.id },
+      data: {
+        priority: programme.priority,
+        programmeCode: programme.programmeCode,
+      },
+    });
+  }
+
   revalidatePath("/applicant_portal/edit");
   //   try{
 
@@ -684,7 +815,7 @@ export const authorizeApplicant = async ({
 }: {
   username: string;
   password: string;
-}): Promise<AuthorizeApplicantResponse> => {
+}): Promise<GenericResponse> => {
   try {
     const applicant = await prisma.applicant.findUnique({
       where: {
@@ -745,6 +876,38 @@ export const addApplicantImageData = async (applicantImageData: {
       key: applicantImageData.key,
       name: applicantImageData.name,
       size: applicantImageData.size,
+    },
+  });
+
+  revalidatePath("/applicant_portal/edit");
+};
+
+export const deleteApplicantImageData = async () => {
+  const username = headers().get("userId");
+
+  if (!username) {
+    throw new Error("Applicant details now found!");
+  }
+
+  const applicant = await prisma.applicant.findUnique({
+    where: {
+      username,
+    },
+  });
+
+  if (!applicant) {
+    throw new Error("Applicant details now found!");
+  }
+
+  await prisma.applicantImageData.update({
+    where: {
+      applicantUsername: applicant.username,
+    },
+    data: {
+      imageUrl: "",
+      key: "",
+      name: "",
+      size: 0,
     },
   });
 

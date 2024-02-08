@@ -62,6 +62,10 @@ const Priorities = ({
   //   setItems(newItems);
   // };
 
+  // const sortedProgrammes = applicantProgrammes.sort(
+  //   (a, b) => a.priority - b.priority,
+  // );
+
   return (
     <div>
       <h1 className="block text-2xl font-bold text-gray-800 dark:text-white">

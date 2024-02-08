@@ -50,6 +50,7 @@ import {
   deleteApplicantProgrammePriority,
   saveApplicationData,
   addApplicantImageData,
+  deleteApplicantImageData,
 } from "@/server/actions/applicant";
 
 interface Props {
@@ -93,12 +94,21 @@ const EditComponent = ({ data }: Props) => {
   const [loading, setIsLoading] = useState(false);
   const [uploadingImage, setIsUploadingImage] = useState(false);
 
-  useEffect(() => {
-    const sortedProgrammes = data.programmePriorities.sort(
-      (a, b) => a.priority - b.priority,
-    );
-    setProgrammePriorities(sortedProgrammes);
-  }, [data]);
+  // useEffect(() => {
+  //   const initialState = {
+  //     programmePriorities: data.programmePriorities,
+  //   };
+
+  //   const currentState = {
+  //     programmePriorities,
+  //   };
+
+  //   if (isEqual(initialState, currentState)) {
+  //     setIsSaved(true);
+  //   } else {
+  //     setIsSaved(false);
+  //   }
+  // }, [data]);
 
   useEffect(() => {
     const initialState = {
@@ -114,13 +124,7 @@ const EditComponent = ({ data }: Props) => {
     } else {
       setIsSaved(false);
     }
-  }, [
-    programmePriorities,
-    applicantEducationBackground,
-    data.programmePriorities,
-    data.applicantEducationBackground,
-    imagePreview,
-  ]);
+  }, [programmePriorities, data.programmePriorities]);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -169,17 +173,7 @@ const EditComponent = ({ data }: Props) => {
         applicantEmergencyContacts.alternativeEmail || "",
       emergencyContactAlternativePhoneNumber:
         applicantEmergencyContacts.alternativePhoneNumber || "",
-      education: applicantEducationBackground.length
-        ? applicantEducationBackground
-        : [
-            {
-              position: 0,
-              level: "",
-              schoolName: "",
-              startYear: "",
-              endYear: "",
-            },
-          ],
+      education: applicantEducationBackground,
     },
   });
 
@@ -216,17 +210,7 @@ const EditComponent = ({ data }: Props) => {
         applicantEmergencyContacts.alternativeEmail || "",
       emergencyContactAlternativePhoneNumber:
         applicantEmergencyContacts.alternativePhoneNumber || "",
-      education: applicantEducationBackground.length
-        ? applicantEducationBackground
-        : [
-            {
-              position: 0,
-              level: "",
-              schoolName: "",
-              startYear: "",
-              endYear: "",
-            },
-          ],
+      education: applicantEducationBackground,
     };
 
     if (isEqual(initialState, currentFormValues)) {
@@ -441,67 +425,6 @@ const EditComponent = ({ data }: Props) => {
     [data.applicantImageData],
   );
 
-  // const handleFileRemove = useCallback(async () => {
-  //   const formData = new FormData();
-  //   const prevImagePreView = imagePreview;
-  //   setIsUploadingImage(true);
-  //   setImage(null);
-  //   setImagePreview(null);
-
-  //   if (data.applicantImageData) {
-  //     // FIXME: update image pass imageUrl and image file
-
-  //     for (let key in data.applicantImageData) {
-  //       if (
-  //         Object.prototype.hasOwnProperty.call(data.applicantImageData, key)
-  //       ) {
-  //         const element =
-  //           data.applicantImageData[
-  //             key as keyof typeof data.applicantImageData
-  //           ];
-  //         formData.append(key, String(element));
-  //       }
-  //     }
-
-  //     const responsePromise = fetch("/api/applicant/image", {
-  //       method: "DELETE",
-  //       body: formData,
-  //     });
-
-  //     toast.promise(responsePromise, {
-  //       loading: "removing image...",
-  //       success: <b>Image processed successfully!</b>,
-  //       error: <b>Could not process the image.</b>,
-  //     });
-
-  //     const response = await responsePromise;
-
-  //     if (!response.ok) {
-  //       setImagePreview(prevImagePreView);
-  //       setIsUploadingImage(false)
-  //       return
-  //     }
-
-  //     const success:boolean= await response.json();
-
-  //     if (success) {
-  //       toast.promise(deleteApplicantImageData(), {
-  //         loading: "Removing image...",
-  //         success: <b>Image removed.</b>,
-  //         error: <b>Oops failed to remove image</b>,
-  //       });
-  //       return true;
-  //     } else {
-  //       toast.error("Image remove failed!", { duration: 6000 });
-  //       setImagePreview(prevImagePreView);
-  //       setIsUploadingImage(false)
-  //       return
-  //     }
-  //   }
-
-  //   setIsUploadingImage(false);
-  // }, [data, imagePreview]);
-
   // Helper function to handle image removal
   const handleImageRemoval = async (imageData: ApplicantImageData) => {
     const formData = new FormData();
@@ -696,34 +619,24 @@ const EditComponent = ({ data }: Props) => {
     const formData = form.getValues();
     clearAllErrors();
 
-    const educationArray = form.getValues("education");
+    const applicantPriorities = reorderPriorities();
+
+    const educationArray = formData.education;
 
     educationArray.forEach((item, index) => {
       form.setValue(`education.${index}.position`, index);
     });
-
-    const applicantPriorities = reorderPriorities();
 
     const applicantFormData: ApplicantFormData = {
       formData,
       applicantProgrammes: applicantPriorities,
     };
 
-    // const { data: response, error } =
-    //   await saveApplicationData(applicantFormData);
-
     toast.promise(saveApplicationData(applicantFormData), {
       loading: `${loadingText}`,
       success: <b>{successText}</b>,
       error: <b>{errorText}</b>,
     });
-
-    // if(error){
-
-    // } else if(response){
-
-    //   setIsSaved(true);
-    // }
   };
 
   const handleSubmitApplication = () => {
@@ -841,7 +754,6 @@ const EditComponent = ({ data }: Props) => {
 
   return (
     <div>
-      <div>is Saved: {JSON.stringify(isSaved)}</div>
       <div className="flex w-full items-center justify-center">
         <div>
           <MobileNavigation

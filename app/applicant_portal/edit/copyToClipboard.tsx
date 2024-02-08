@@ -7,10 +7,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import toast from "react-hot-toast";
 
 const CopyToClipboard = () => {
   const [controlNumber, setControlNumber] = useState(
-    "213142343242342342342342342"
+    "213142343242342342342342342",
   );
   const [copySuccess, setCopySuccess] = useState(false);
 
@@ -20,7 +21,7 @@ const CopyToClipboard = () => {
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 600);
     } catch (err) {
-      console.error("Failed to copy text: ", err);
+      toast.error("Failed to copy text: ", { duration: 4000 });
     }
   };
 
@@ -29,19 +30,19 @@ const CopyToClipboard = () => {
       <Tooltip>
         <TooltipTrigger asChild>
           <div
-            className="relative cursor-pointer py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-mono rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+            className="relative inline-flex cursor-pointer items-center justify-center gap-x-2 rounded-lg border border-gray-200 bg-white px-4 py-3 font-mono text-sm text-gray-800 shadow-sm hover:bg-gray-50 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
             onClick={handleCopy}
           >
             {controlNumber}
             <span className="border-s ps-3.5 dark:border-gray-700">
               {copySuccess ? (
-                <CheckIcon className="w-4 h-4" />
+                <CheckIcon className="h-4 w-4" />
               ) : (
-                <ClipboardIcon className="w-4 h-4 group-hover:rotate-6 text-blue-600" />
+                <ClipboardIcon className="h-4 w-4 text-blue-600 group-hover:rotate-6" />
               )}
             </span>
             {copySuccess && (
-              <div className="absolute top-14 left-2 ml-2 p-1 bg-green-500 text-white text-xs rounded">
+              <div className="absolute left-2 top-14 ml-2 rounded bg-green-500 p-1 text-xs text-white">
                 Copied!
               </div>
             )}
