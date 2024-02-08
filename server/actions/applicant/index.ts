@@ -303,6 +303,7 @@ export const getApplicantData = async (): Promise<ApplicantDataResponse> => {
         lastName,
         imageUrl: applicantImageData.imageUrl,
         notifications,
+        applicationStatus: applicant.applicationStatus,
       },
     };
   } catch (error) {

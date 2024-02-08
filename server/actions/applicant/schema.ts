@@ -6,6 +6,7 @@ import {
   ApplicantNotification,
   ApplicationDetails,
   ApplicationStatus,
+  ApplicationStatusName,
 } from "@/types/application";
 import z from "zod";
 import { FormSchema } from "@/app/applicant_portal/edit/data";
@@ -43,7 +44,7 @@ interface ApplicantData {
   middleName: string;
   lastName: string;
   imageUrl: string | null;
-
+  applicationStatus: ApplicationStatusName;
   notifications: ApplicantNotification[];
 }
 

@@ -387,6 +387,7 @@ const EditComponent = ({ data }: Props) => {
   const handleImageChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files ? event.target.files[0] : null;
+      setImageErrorMessage("");
 
       if (file) {
         const imageValidation = ImageSchema.safeParse({ image: file });
@@ -473,6 +474,7 @@ const EditComponent = ({ data }: Props) => {
     setIsUploadingImage(true);
     setImage(null);
     setImagePreview(null);
+    setImageErrorMessage("");
 
     if (data.applicantImageData) {
       const success = await handleImageRemoval(data.applicantImageData);
@@ -640,12 +642,12 @@ const EditComponent = ({ data }: Props) => {
   };
 
   const handleSubmitApplication = () => {
-    const data = form.getValues();
+    const applicationFormValues = form.getValues();
 
     clearAllErrors();
     let totalProfileErrors = 0;
 
-    const validation = FormSchema.safeParse(data);
+    const validation = FormSchema.safeParse(applicationFormValues);
 
     if (!validation.success) {
       toast.error(
@@ -726,7 +728,7 @@ const EditComponent = ({ data }: Props) => {
     }
 
     // Check if the image is not provided
-    if (!image) {
+    if (!data.applicantImageData.imageUrl) {
       setImageErrorMessage("Image is required.");
       totalProfileErrors += 1;
       setProfileErrors(totalProfileErrors);

@@ -117,6 +117,10 @@ const Page = async () => {
                   <p className="font-semibold text-gray-800 dark:text-gray-200">
                     {getStatusText(data.applicationStatus).title}
                   </p>
+                  <p className="text-sm text-gray-500">
+                    {data.applicationType}
+                  </p>
+
                   <p className="text-xs text-gray-500">Deadline: 31 Aug 2024</p>
                 </div>
               </div>

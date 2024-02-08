@@ -97,28 +97,28 @@ const SearchComponent = ({ programmes }: Props) => {
     filterProgrammes();
   };
 
-  const handleLevelChange = (selectedLevel: ProgrammeLevelName) => {
-    let updatedSelectedLevels: ProgrammeLevelName[];
-    if (selectedLevels.includes(selectedLevel)) {
-      // If the level is already selected, remove it from the array
-      updatedSelectedLevels = selectedLevels.filter(
-        (level) => level !== selectedLevel,
-      );
-    } else {
-      // If the level is not selected, add it to the array
-      updatedSelectedLevels = [...selectedLevels, selectedLevel];
-    }
-    setSelectedLevels(updatedSelectedLevels);
-    if (updatedSelectedLevels.length > 0) {
-      setFilteredProgrammes(
-        programmes?.filter((programme) =>
-          updatedSelectedLevels.includes(programme.level),
-        ) || null,
-      );
-    } else {
-      setFilteredProgrammes(programmes);
-    }
-  };
+  // const handleLevelChange = (selectedLevel: ProgrammeLevelName) => {
+  //   let updatedSelectedLevels: ProgrammeLevelName[];
+  //   if (selectedLevels.includes(selectedLevel)) {
+  //     // If the level is already selected, remove it from the array
+  //     updatedSelectedLevels = selectedLevels.filter(
+  //       (level) => level !== selectedLevel,
+  //     );
+  //   } else {
+  //     // If the level is not selected, add it to the array
+  //     updatedSelectedLevels = [...selectedLevels, selectedLevel];
+  //   }
+  //   setSelectedLevels(updatedSelectedLevels);
+  //   if (updatedSelectedLevels.length > 0) {
+  //     setFilteredProgrammes(
+  //       programmes?.filter((programme) =>
+  //         updatedSelectedLevels.includes(programme.level),
+  //       ) || null,
+  //     );
+  //   } else {
+  //     setFilteredProgrammes(programmes);
+  //   }
+  // };
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
@@ -192,7 +192,7 @@ const SearchComponent = ({ programmes }: Props) => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-              <div>
+              {/* <div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline">Select Levels</Button>
@@ -211,7 +211,7 @@ const SearchComponent = ({ programmes }: Props) => {
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
