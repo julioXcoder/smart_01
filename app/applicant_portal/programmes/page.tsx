@@ -1,5 +1,5 @@
 import React from "react";
-import { getAllProgrammes } from "@/server/actions/programmes";
+import { getApplicantProgrammes } from "@/server/actions/applicant";
 import SearchComponent from "./searchComponent";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
@@ -8,15 +8,17 @@ import mustLogo from "@/public/logo/must.svg";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 
 const Page = async () => {
-  const { data, error } = await getAllProgrammes();
+  const { data, error } = await getApplicantProgrammes();
 
   if (error) return <div className="mt-20">{error}</div>;
 
-  return (
-    <div className="mx-auto max-w-6xl py-6 sm:px-4 lg:px-8 lg:py-10">
-      <SearchComponent programmes={data} />
-    </div>
-  );
+  if (data) {
+    return (
+      <div className="mx-auto max-w-6xl py-6 sm:px-4 lg:px-8 lg:py-10">
+        <SearchComponent programmes={data} />
+      </div>
+    );
+  }
 };
 
 export default Page;

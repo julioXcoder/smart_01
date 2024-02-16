@@ -10,6 +10,7 @@ import {
 } from "@/types/application";
 import z from "zod";
 import { FormSchema } from "@/app/applicant_portal/edit/data";
+import { Programme } from "@/types/university";
 import { Response } from "@/types/api";
 
 export interface StudentInfo {
@@ -57,6 +58,8 @@ type GenericResponse = Response<string>;
 
 type ApplicantDataResponse = Response<ApplicantData>;
 
+type ApplicantProgrammesResponse = Response<Programme[]>;
+
 type ApplicationStatusResponse = Response<ApplicationStatus>;
 
 type ApplicationDetailsResponse = Response<ApplicationDetails>;
@@ -69,4 +72,5 @@ export type {
   ApplicantDataResponse,
   ApplicationStatusResponse,
   ApplicationDetailsResponse,
+  ApplicantProgrammesResponse,
 };

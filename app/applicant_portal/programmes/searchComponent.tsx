@@ -5,7 +5,7 @@ import { Programme, Campus } from "@/server/actions/programmes/types";
 import { ProgrammeLevelName } from "@/types/application";
 import ProgrammeCard from "./programmeCard";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
-import DropdownSelect from "@/components/dropdownSelect";
+import { MdArrowBack } from "react-icons/md";
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 import { getLevelDisplayText } from "@/utils/programme";
+import Link from "next/link";
 import { addApplicantProgrammePriority } from "@/server/actions/applicant";
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
@@ -82,20 +83,20 @@ const SearchComponent = ({ programmes }: Props) => {
     setFilteredProgrammes(filtered);
   };
 
-  const handleCampusChange = (selectedCampus: Campus) => {
-    let updatedSelectedCampuses;
-    if (selectedCampuses.find((campus) => campus.id === selectedCampus.id)) {
-      // If the campus is already selected, remove it from the array
-      updatedSelectedCampuses = selectedCampuses.filter(
-        (campus) => campus.id !== selectedCampus.id,
-      );
-    } else {
-      // If the campus is not selected, add it to the array
-      updatedSelectedCampuses = [...selectedCampuses, selectedCampus];
-    }
-    setSelectedCampuses(updatedSelectedCampuses);
-    filterProgrammes();
-  };
+  // const handleCampusChange = (selectedCampus: Campus) => {
+  //   let updatedSelectedCampuses;
+  //   if (selectedCampuses.find((campus) => campus.id === selectedCampus.id)) {
+  //     // If the campus is already selected, remove it from the array
+  //     updatedSelectedCampuses = selectedCampuses.filter(
+  //       (campus) => campus.id !== selectedCampus.id,
+  //     );
+  //   } else {
+  //     // If the campus is not selected, add it to the array
+  //     updatedSelectedCampuses = [...selectedCampuses, selectedCampus];
+  //   }
+  //   setSelectedCampuses(updatedSelectedCampuses);
+  //   filterProgrammes();
+  // };
 
   // const handleLevelChange = (selectedLevel: ProgrammeLevelName) => {
   //   let updatedSelectedLevels: ProgrammeLevelName[];
@@ -170,7 +171,7 @@ const SearchComponent = ({ programmes }: Props) => {
           </div>
           <div>
             <div className="inline-flex gap-x-2">
-              <div>
+              {/* <div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline">Select Campus</Button>
@@ -191,27 +192,13 @@ const SearchComponent = ({ programmes }: Props) => {
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
-              </div>
-              {/* <div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline">Select Levels</Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56">
-                    <DropdownMenuLabel>Education Levels</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    {levels.map((level) => (
-                      <DropdownMenuCheckboxItem
-                        key={level}
-                        checked={selectedLevels.includes(level)}
-                        onCheckedChange={() => handleLevelChange(level)}
-                      >
-                        {getLevelDisplayText(level)}
-                      </DropdownMenuCheckboxItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
               </div> */}
+              <Link href="/applicant_portal/edit">
+                <Button variant={"outline"}>
+                  <MdArrowBack className="mr-1 h-4 w-4 shrink-0" />
+                  Return to Edit
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

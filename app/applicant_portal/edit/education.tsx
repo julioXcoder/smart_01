@@ -52,24 +52,68 @@ const Education = ({ form }: Props) => {
   });
   const [isLoading, setIsLoading] = useState(false);
 
+  // const handleAddItem = async () => {
+  //   if (fields.length < maxItems) {
+  //     const newItem = {
+  //       _id: fields.length.toString(), // temporary id
+  //       position: fields.length,
+  //       level: "",
+  //       schoolName: "",
+  //       startYear: "",
+  //       endYear: "",
+  //     };
+  //     append(newItem);
+
+  //     setIsLoading(true);
+  //     const { data, error } = await addApplicantEducationBackground(
+  //       fields.length,
+  //     );
+  //     setIsLoading(false);
+
+  //     if (error) {
+  //       remove(fields.length);
+  //       toast.error(error, { duration: 6000 });
+  //     }
+
+  //     if (data) {
+  //       const index = fields.findIndex(
+  //         (item) => item._id === fields.length.toString(),
+  //       );
+  //       console.log("index is", index);
+
+  //       const educationValue = form.getValues(`education.${index}` as any);
+
+  //       if (index !== -1) {
+  //         form.setValue(`education[${index}]` as any, {
+  //           ...newItem,
+  //           _id: data,
+  //         });
+  //       }
+  //     }
+  //   }
+  // };
+
   const handleAddItem = async () => {
     if (fields.length < maxItems) {
-      append({
-        _id: fields.length.toString(),
-        position: fields.length,
-        level: "",
-        schoolName: "",
-        startYear: "",
-        endYear: "",
-      });
-
       setIsLoading(true);
-      const { error } = await addApplicantEducationBackground(fields.length);
+      const { data, error } = await addApplicantEducationBackground(
+        fields.length,
+      );
       setIsLoading(false);
 
       if (error) {
         toast.error(error, { duration: 6000 });
-        remove(fields.length);
+      }
+
+      if (data) {
+        append({
+          _id: data,
+          position: fields.length,
+          level: "",
+          schoolName: "",
+          startYear: "",
+          endYear: "",
+        });
       }
     }
   };

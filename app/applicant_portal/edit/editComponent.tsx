@@ -37,6 +37,17 @@ import {
 } from "@/types/application";
 import { ApplicantFormData } from "@/server/actions/applicant/schema";
 import { UploadFileResponse } from "@/types/uploadthing";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 import Attachments from "./attachments";
 import Contacts from "./contacts";
@@ -599,7 +610,7 @@ const EditComponent = ({ data }: Props) => {
   };
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    handleSaveAsDraft({});
+    handleSaveAsDraft({ successText: "Saved" });
 
     toast.success(
       "Your application is successfully submitted and under review. Stay tuned!",
@@ -735,7 +746,7 @@ const EditComponent = ({ data }: Props) => {
     }
 
     // If either condition is not met, return early
-    if (programmePriorities.length < 3 || !image) {
+    if (programmePriorities.length < 3 || !data.applicantImageData.imageUrl) {
       return;
     }
 
@@ -803,12 +814,34 @@ const EditComponent = ({ data }: Props) => {
                 Save as Draft
               </span>
             </Button>
-            <Button className="mt-2 w-full" onClick={handleSubmitApplication}>
-              <span className="flex items-center gap-2">
-                <FaPaperPlane className="h-4 w-4 shrink-0" />
-                Submit Application
-              </span>
-            </Button>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button className="mt-2 w-full">
+                  <span className="flex items-center gap-2">
+                    <FaPaperPlane className="h-4 w-4 shrink-0" />
+                    Submit Application
+                  </span>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    Application Submission Confirmation
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Please review your information carefully before submitting.
+                    Are you sure all the information is correct?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Review Again</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleSubmitApplication}>
+                    Confirm and Submit
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </Form>
         </div>
       </div>

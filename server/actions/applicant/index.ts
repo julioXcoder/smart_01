@@ -9,6 +9,7 @@ import type {
   ApplicationDetailsResponse,
   ApplicantDataResponse,
   ApplicationStatusResponse,
+  ApplicantProgrammesResponse,
   ApplicantFormData,
   GenericResponse,
 } from "./schema";
@@ -16,6 +17,7 @@ import prisma from "@/prisma/db";
 import bcrypt from "bcrypt";
 import { createToken } from "@/lib/auth";
 import { cookies, headers } from "next/headers";
+import { Programme } from "@/types/university";
 
 import { logOperationError } from "@/utils/logger";
 import { revalidatePath } from "next/cache";
@@ -610,15 +612,14 @@ export const addApplicantEducationBackground = async (
       };
     }
 
-    await prisma.applicantEducationBackground.create({
+    const newEducation = await prisma.applicantEducationBackground.create({
       data: {
         applicantUsername: applicant.username,
         position,
       },
     });
 
-    revalidatePath("/applicant_portal/edit");
-    return { data: "Added!" };
+    return { data: newEducation.id };
   } catch (error) {
     logOperationError(error);
     return {
@@ -914,3 +915,76 @@ export const deleteApplicantImageData = async () => {
 
   revalidatePath("/applicant_portal/edit");
 };
+
+export const getApplicantProgrammes =
+  async (): Promise<ApplicantProgrammesResponse> => {
+    const username = headers().get("userId");
+    try {
+      if (!username) {
+        throw new Error("Applicant details now found!");
+      }
+
+      const applicant = await prisma.applicant.findUnique({
+        where: {
+          username,
+        },
+      });
+
+      if (!applicant) {
+        throw new Error("Applicant details now found!");
+      }
+
+      const programmes = await prisma.programme.findMany({
+        where: {
+          level: applicant.applicationType,
+        },
+      });
+      const result = await Promise.all(
+        programmes.map(async (programme) => {
+          const department = await prisma.department.findUnique({
+            where: { id: programme.departmentId },
+          });
+
+          if (!department) {
+            return null;
+          }
+
+          const college = await prisma.college.findUnique({
+            where: { id: department.collegeId },
+          });
+
+          if (!college) {
+            return null;
+          }
+
+          const campus = await prisma.campus.findUnique({
+            where: { id: college.campusId },
+          });
+
+          if (!campus) {
+            return null;
+          }
+
+          return {
+            ...programme,
+            department: department,
+            college: college,
+            campus: campus,
+          };
+        }),
+      );
+
+      // Filter out the null values
+      const validProgrammes = result.filter(
+        (programme) => programme !== null,
+      ) as Programme[];
+
+      return { data: validProgrammes };
+    } catch (error) {
+      logOperationError(error);
+      return {
+        error:
+          "We’re sorry, but an issue arose while getting applicant programmes.",
+      };
+    }
+  };

@@ -7,3 +7,18 @@
 2024-Feb-08 00:42:39 [Operation] error: Unable to locate the profile or image data for the applicant with the username: julioxcoder@gmail.com.
 2024-Feb-08 00:42:40 [Operation] error: Unable to locate the applicant details for the applicant with the username: julioxcoder@gmail.com.
 2024-Feb-08 13:33:00 [Operation] error: modifiedApplicantEducationBackground is not defined
+2024-Feb-16 22:35:36 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Error in connector: Error creating a database connection. (Kind: An error occurred during DNS resolution: proto error: io error: A socket operation was attempted to an unreachable network. (os error 10051), labels: {})
+2024-Feb-16 23:40:42 [Operation] error: 
+Invalid `prisma.applicantEducationBackground.findUnique()` invocation:
+
+
+Inconsistent column data: Malformed ObjectID: provided hex string representation must be exactly 12 bytes, instead got: "1", length 1.
+2024-Feb-17 00:02:06 [Operation] error: 
+Invalid `prisma.applicantEducationBackground.findUnique()` invocation:
+
+
+Inconsistent column data: Malformed ObjectID: provided hex string representation must be exactly 12 bytes, instead got: "1", length 1.

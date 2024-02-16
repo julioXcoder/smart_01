@@ -38,12 +38,12 @@ export const getAllProgrammes = async (): Promise<ProgrammeResponse> => {
           college: college,
           campus: campus,
         };
-      })
+      }),
     );
 
     // Filter out the null values
     const validProgrammes = result.filter(
-      (programme) => programme !== null
+      (programme) => programme !== null,
     ) as Programme[];
 
     return { data: validProgrammes, error: null };
