@@ -1,4 +1,9 @@
-import { ProgrammeLevelName } from "@/types/application";
+type ProgrammeLevelName =
+  | "DIPLOMA"
+  | "CERTIFICATE"
+  | "BACHELOR"
+  | "MASTERS"
+  | "PHD";
 
 export enum ProgrammeTypes {
   FULL_TIME = "FULL_TIME",
@@ -42,4 +47,4 @@ type Programme = {
   campus: Campus;
 };
 
-export type { Programme, Campus };
+export type { Programme, Campus, ProgrammeLevelName };

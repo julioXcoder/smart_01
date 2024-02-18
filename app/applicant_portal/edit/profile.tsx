@@ -279,7 +279,6 @@ const Profile = ({
               <Image
                 alt="Applicant Image"
                 fill
-                priority
                 quality={100}
                 className="inline-block rounded-lg object-cover"
                 src={imagePreview}

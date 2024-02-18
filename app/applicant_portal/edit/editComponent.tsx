@@ -87,6 +87,9 @@ const EditComponent = ({ data }: Props) => {
   const [applicantContacts, setApplicantContacts] = useState(
     data.applicantContacts,
   );
+  const [applicantHighestEducation, setApplicantHighestEducation] = useState(
+    data.applicantHighestEducation,
+  );
   const [applicantEmergencyContacts, setApplicantEmergencyContacts] = useState(
     data.applicantEmergencyContacts,
   );
@@ -550,7 +553,9 @@ const EditComponent = ({ data }: Props) => {
       },
       {
         label: "Attachments",
-        stepContent: <Attachments />,
+        stepContent: (
+          <Attachments applicantHighestEducation={applicantHighestEducation} />
+        ),
         Icon: FaPaperclip,
       },
       {
@@ -576,6 +581,7 @@ const EditComponent = ({ data }: Props) => {
       contactErrors,
       emergencyContactErrors,
       educationErrors,
+      applicantHighestEducation,
     ],
   );
 

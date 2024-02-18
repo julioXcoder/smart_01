@@ -1,5 +1,7 @@
 import z from "zod";
 
+import { ProgrammeLevelName } from "../university";
+
 type EducationLevelName =
   | "FORM_IV"
   | "FORM_VI"
@@ -11,13 +13,6 @@ type EducationLevelName =
   | "MASTERS";
 
 type Origin = "NECTA" | "FOREIGN" | "NECTA1988";
-
-type ProgrammeLevelName =
-  | "DIPLOMA"
-  | "CERTIFICATE"
-  | "BACHELOR"
-  | "MASTERS"
-  | "PHD";
 
 type ApplicationStatusName = "DRAFT" | "ACCEPTED" | "UNDER_REVIEW" | "REJECTED";
 
@@ -109,6 +104,7 @@ interface ApplicationDetails {
   applicantImageData: ApplicantImageData;
   applicantContacts: ApplicantContacts;
   applicantEmergencyContacts: ApplicantEmergencyContacts;
+  applicantHighestEducation: EducationLevelName;
 }
 
 export type {

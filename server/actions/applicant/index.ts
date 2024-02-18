@@ -444,6 +444,7 @@ export const getApplicationDetails =
           applicantImageData,
           applicantContacts,
           applicantEmergencyContacts,
+          applicantHighestEducation: applicant.highestEducationLevel,
         },
       };
     } catch (error) {
