@@ -122,6 +122,25 @@ model ApplicantImageData {
   size              Int    @default(0)
 }
 
+model ApplicantEducationFileData {
+  applicantUsername String @id @map("_id")
+  url               String @default("")
+  key               String @default("")
+  type              String @default("")
+  name              String @default("")
+  size              Int    @default(0)
+}
+
+model ApplicantAdditionalFileData {
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
+  applicantUsername String
+  url               String
+  type              String
+  key               String
+  name              String
+  size              Int
+}
+
 model ApplicantContacts {
   applicantUsername      String  @id @map("_id")
   phone                  String  @default("")

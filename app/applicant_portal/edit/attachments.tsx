@@ -9,9 +9,20 @@ import { Button } from "@/components/ui/button";
 import pdf_icon from "@/public/pdf2.svg";
 import { IoMdTrash, IoIosAddCircle } from "react-icons/io";
 import { formatBytes } from "@/utils";
+import {
+  ApplicantEducationFileData,
+  ApplicantAdditionalFileData,
+} from "@/types/application";
 
 interface Props {
   applicantHighestEducation: EducationLevelName;
+  applicantEducationFileData: ApplicantEducationFileData;
+  applicantAdditionalFileData: ApplicantAdditionalFileData[];
+  onFileUpdate: (event: ChangeEvent<HTMLInputElement>) => void;
+  onAdditionalFileUpdate: (event: ChangeEvent<HTMLInputElement>) => void;
+  onFileRemove: () => void;
+  onAdditionalFileRemove: (file: ApplicantAdditionalFileData) => void;
+  uploadingFile: boolean;
 }
 
 function getEducationLevelDisplayText(level: EducationLevelName): string {
@@ -37,48 +48,55 @@ function getEducationLevelDisplayText(level: EducationLevelName): string {
   }
 }
 
-const renderFilePreview = (educationFile: File | null) => {
-  if (educationFile) {
-    const fileType = educationFile.type;
-    if (fileType === "application/pdf") {
-      // Render PDF viewer
-      return (
-        <div className="relative h-28 w-20">
-          <Image
-            fill
-            quality={100}
-            className="inline-block rounded-lg object-cover"
-            src={pdf_icon}
-            alt="Education Document"
-          />
-        </div>
-      );
-    } else if (fileType.startsWith("image/")) {
-      // Render image viewer
-      return (
-        <div className="relative h-28 w-20">
-          <Image
-            fill
-            quality={100}
-            className="inline-block rounded-lg object-cover"
-            src={URL.createObjectURL(educationFile)}
-            alt="Education Document"
-          />
-        </div>
-      );
-    } else {
-      // Handle other file types or error state
-      return <p>Unsupported file type: {fileType}</p>;
-    }
+const renderFilePreview = (
+  educationFileType: string,
+  educationFileUrl: string,
+) => {
+  if (educationFileType === "application/pdf") {
+    // Render PDF viewer
+    return (
+      <div className="relative h-28 w-20">
+        <Image
+          fill
+          quality={100}
+          className="inline-block rounded-lg object-cover"
+          src={pdf_icon}
+          alt="Education Document"
+        />
+      </div>
+    );
+  } else if (educationFileType.startsWith("image/")) {
+    // Render image viewer
+    return (
+      <div className="relative h-28 w-20">
+        <Image
+          fill
+          quality={100}
+          className="inline-block rounded-lg object-cover"
+          src={educationFileUrl}
+          alt="Education Document"
+        />
+      </div>
+    );
   }
+
   return null;
 };
 
-const Attachments = ({ applicantHighestEducation }: Props) => {
+const Attachments = ({
+  applicantHighestEducation,
+  applicantEducationFileData,
+  applicantAdditionalFileData,
+  onFileUpdate,
+  onFileRemove,
+  onAdditionalFileUpdate,
+  uploadingFile,
+  onAdditionalFileRemove,
+}: Props) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const multipleFilesInputRef = useRef<HTMLInputElement>(null);
-  const [educationCertFile, setEducationCertFile] = useState<File | null>(null);
-  const [additionalFiles, setAdditionalFiles] = useState<File[]>([]);
+  // const [educationCertFile, setEducationCertFile] = useState<File | null>(null);
+  // const [additionalFiles, setAdditionalFiles] = useState<File[]>([]);
 
   const handleButtonClick = () => {
     fileInputRef.current?.click();
@@ -88,24 +106,24 @@ const Attachments = ({ applicantHighestEducation }: Props) => {
     multipleFilesInputRef.current?.click();
   };
 
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files ? event.target.files[0] : null;
+  // const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+  //   const file = event.target.files ? event.target.files[0] : null;
 
-    if (file) {
-      setEducationCertFile(file);
-      const url = URL.createObjectURL(file);
-    }
+  //   if (file) {
+  //     setEducationCertFile(file);
+  //     const url = URL.createObjectURL(file);
+  //   }
 
-    event.target.value = "";
-  };
+  //   event.target.value = "";
+  // };
 
-  const handleAdditionalFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files ? event.target.files[0] : null;
-    if (file) {
-      setAdditionalFiles((prevFiles) => [...prevFiles, file]);
-    }
-    event.target.value = "";
-  };
+  // const handleAdditionalFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+  //   const file = event.target.files ? event.target.files[0] : null;
+  //   if (file) {
+  //     setAdditionalFiles((prevFiles) => [...prevFiles, file]);
+  //   }
+  //   event.target.value = "";
+  // };
 
   return (
     <div className="mb-6">
@@ -118,7 +136,7 @@ const Attachments = ({ applicantHighestEducation }: Props) => {
       </p>
       <div>
         <Label>
-          {educationCertFile ? (
+          {applicantEducationFileData.url ? (
             <h3 className="my-4 block text-lg font-bold text-gray-800 dark:text-white">
               {getEducationLevelDisplayText(applicantHighestEducation)} File
             </h3>
@@ -131,47 +149,70 @@ const Attachments = ({ applicantHighestEducation }: Props) => {
           )}
         </Label>
 
-        {educationCertFile ? (
+        {applicantEducationFileData.url && (
           <div className="my-1 flex gap-2">
-            {renderFilePreview(educationCertFile)}
+            {renderFilePreview(
+              applicantEducationFileData.type,
+              applicantEducationFileData.url,
+            )}
             <div className="flex flex-col justify-between">
               <h3 className="block font-bold text-gray-800 dark:text-white">
-                {educationCertFile.name}
+                {applicantEducationFileData.name}
               </h3>
               <div>
                 <p className="text-gray-600 dark:text-gray-400">
-                  {formatBytes(educationCertFile.size)}
+                  {formatBytes(applicantEducationFileData.size)}
                 </p>
-                <Button size={"sm"} variant={"destructive"}>
-                  {/* <IoMdTrash className="mr-2 h-4 w-4 shrink-0" /> */}
-                  delete file
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleButtonClick}
+                    size={"sm"}
+                    disabled={uploadingFile}
+                    variant={"secondary"}
+                  >
+                    change file
+                  </Button>
+                  <Button
+                    onClick={onFileRemove}
+                    size={"sm"}
+                    disabled={uploadingFile}
+                    variant={"destructive"}
+                  >
+                    {/* <IoMdTrash className="mr-2 h-4 w-4 shrink-0" /> */}
+                    delete file
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
-        ) : (
-          <label className="mx-auto mt-2 flex w-full max-w-lg cursor-pointer flex-col items-center rounded-xl border-2 border-dashed border-gray-300 bg-white p-5 text-center dark:border-gray-700 dark:bg-gray-900">
-            <AiOutlineCloudUpload className="h-8 w-8 text-gray-500 dark:text-gray-400" />
-
-            <h2 className="mt-1 font-medium tracking-wide text-gray-700 dark:text-gray-200">
-              {getEducationLevelDisplayText(applicantHighestEducation)} File
-            </h2>
-
-            <p className="mt-2 text-xs tracking-wide text-gray-500 dark:text-gray-400">
-              Upload or drag & drop your file. SVG, PNG, JPG, GIF, PDF, and TIF.
-            </p>
-
-            <input
-              accept="image/jpeg, image/jpg, image/gif, image/png, application/pdf, image/tif"
-              type="file"
-              className="hidden"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-            />
-          </label>
         )}
+
+        <label
+          className={`mx-auto ${
+            applicantEducationFileData.url ? "hidden" : ""
+          } mt-2 flex w-full max-w-lg cursor-pointer flex-col items-center rounded-xl border-2 border-dashed border-gray-300 bg-white p-5 text-center dark:border-gray-700 dark:bg-gray-900`}
+        >
+          <AiOutlineCloudUpload className="h-8 w-8 text-gray-500 dark:text-gray-400" />
+
+          <h2 className="mt-1 font-medium tracking-wide text-gray-700 dark:text-gray-200">
+            {getEducationLevelDisplayText(applicantHighestEducation)} File
+          </h2>
+
+          <p className="mt-2 text-xs tracking-wide text-gray-500 dark:text-gray-400">
+            Upload or drag & drop your file. SVG, PNG, JPG, GIF, PDF, and TIF.
+          </p>
+
+          <input
+            accept="image/jpeg, image/jpg, image/gif, image/png, application/pdf, image/tif"
+            type="file"
+            disabled={uploadingFile}
+            className="hidden"
+            ref={fileInputRef}
+            onChange={onFileUpdate}
+          />
+        </label>
       </div>
-      {educationCertFile && (
+      {applicantEducationFileData.url && (
         <div>
           <div className="my-4">
             <h3 className="block text-lg font-bold text-gray-800 dark:text-white">
@@ -188,14 +229,15 @@ const Attachments = ({ applicantHighestEducation }: Props) => {
             accept="image/jpeg, image/jpg, image/gif, image/png, application/pdf, image/tif"
             type="file"
             className="hidden"
+            disabled={uploadingFile}
             ref={multipleFilesInputRef}
-            onChange={handleAdditionalFileChange}
+            onChange={onAdditionalFileUpdate}
           />
 
           <div className="space-y-4">
-            {additionalFiles.map((file, index) => (
-              <div className="flex gap-2" key={index}>
-                {renderFilePreview(file)}
+            {applicantAdditionalFileData.map((file) => (
+              <div className="flex gap-2" key={file.id}>
+                {renderFilePreview(file.type, file.url)}
                 <div className="flex flex-col justify-between">
                   <h3 className="block font-bold text-gray-800 dark:text-white">
                     {file.name}
@@ -204,8 +246,12 @@ const Attachments = ({ applicantHighestEducation }: Props) => {
                     <p className="text-gray-600 dark:text-gray-400">
                       {formatBytes(file.size)}
                     </p>
-                    <Button size={"sm"} variant={"destructive"}>
-                      {/* <IoMdTrash className="mr-2 h-4 w-4 shrink-0" /> */}
+                    <Button
+                      onClick={() => onAdditionalFileRemove(file)}
+                      size={"sm"}
+                      disabled={uploadingFile}
+                      variant={"destructive"}
+                    >
                       delete file
                     </Button>
                   </div>
@@ -214,8 +260,9 @@ const Attachments = ({ applicantHighestEducation }: Props) => {
             ))}
           </div>
 
-          {additionalFiles.length < 3 && (
+          {applicantAdditionalFileData.length < 3 && (
             <Button
+              disabled={uploadingFile}
               className="my-4 bg-green-500 hover:bg-green-600"
               onClick={handleMultipleFileSelect}
             >

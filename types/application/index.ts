@@ -97,11 +97,30 @@ interface ApplicantImageData {
   size: number;
 }
 
+interface ApplicantEducationFileData {
+  url: string;
+  key: string;
+  type: string;
+  name: string;
+  size: number;
+}
+
+interface ApplicantAdditionalFileData {
+  id: string;
+  url: string;
+  key: string;
+  type: string;
+  name: string;
+  size: number;
+}
+
 interface ApplicationDetails {
   applicantEducationBackground: ApplicantEducationBackground[];
   programmePriorities: ApplicantProgram[];
   applicantProfile: ApplicantProfile;
   applicantImageData: ApplicantImageData;
+  applicantEducationFileData: ApplicantEducationFileData;
+  applicantAdditionalFileData: ApplicantAdditionalFileData[];
   applicantContacts: ApplicantContacts;
   applicantEmergencyContacts: ApplicantEmergencyContacts;
   applicantHighestEducation: EducationLevelName;
@@ -117,4 +136,6 @@ export type {
   ApplicationStatus,
   ApplicantProgram,
   ApplicantImageData,
+  ApplicantEducationFileData,
+  ApplicantAdditionalFileData,
 };

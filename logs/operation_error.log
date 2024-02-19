@@ -22,3 +22,133 @@ Invalid `prisma.applicantEducationBackground.findUnique()` invocation:
 
 
 Inconsistent column data: Malformed ObjectID: provided hex string representation must be exactly 12 bytes, instead got: "1", length 1.
+2024-Feb-19 02:33:45 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 02:33:45 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 02:35:18 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 02:35:18 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 02:35:21 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 02:35:21 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 02:35:29 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 02:35:29 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 02:37:31 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 02:37:31 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 02:42:45 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 02:42:45 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 02:43:36 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 02:43:36 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 02:43:37 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 02:43:37 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 02:50:04 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 02:50:04 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 02:50:17 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 02:50:17 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 02:50:23 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 02:50:23 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 03:00:10 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 03:00:10 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 03:01:03 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`
+2024-Feb-19 03:01:03 [Operation] error: 
+Invalid `prisma.applicant.findUnique()` invocation:
+
+
+Raw query failed. Code: `unknown`. Message: `Kind: Server selection timeout: No available servers. Topology: { Type: ReplicaSetNoPrimary, Set Name: atlas-qvyhpc-shard-0, Max Set Version: 2, Max Election ID: 7fffffff0000000000000007, Servers: [ { Address: ac-wyoebwj-shard-00-00.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-01.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} }, { Address: ac-wyoebwj-shard-00-02.hw9xoki.mongodb.net:27017, Type: Unknown, Error: Kind: I/O error: No such host is known. (os error 11001), labels: {} } ] }, labels: {}`

@@ -216,6 +216,12 @@ export const newApplicantAccount = async (
       },
     });
 
+    await prisma.applicantEducationFileData.create({
+      data: {
+        applicantUsername: newApplicant.username,
+      },
+    });
+
     await prisma.applicantContacts.create({
       data: {
         applicantUsername: newApplicant.username,
@@ -425,11 +431,26 @@ export const getApplicationDetails =
         },
       });
 
+      const applicantEducationFileData =
+        await prisma.applicantEducationFileData.findUnique({
+          where: {
+            applicantUsername: applicant.username,
+          },
+        });
+
+      const applicantAdditionalFileData =
+        await prisma.applicantAdditionalFileData.findMany({
+          where: {
+            applicantUsername: applicant.username,
+          },
+        });
+
       if (
         !applicantProfile ||
         !applicantContacts ||
         !applicantEmergencyContacts ||
-        !applicantImageData
+        !applicantImageData ||
+        !applicantEducationFileData
       ) {
         throw new Error(
           `Unable to locate the applicant details for the applicant with the username: ${applicant.username}.`,
@@ -445,6 +466,8 @@ export const getApplicationDetails =
           applicantContacts,
           applicantEmergencyContacts,
           applicantHighestEducation: applicant.highestEducationLevel,
+          applicantEducationFileData,
+          applicantAdditionalFileData,
         },
       };
     } catch (error) {
@@ -885,6 +908,86 @@ export const addApplicantImageData = async (applicantImageData: {
   revalidatePath("/applicant_portal/edit");
 };
 
+export const addApplicantEducationFile = async (
+  applicantEducationFileData: {
+    key: string;
+    url: string;
+    name: string;
+    size: number;
+  },
+  fileType: string,
+) => {
+  const username = headers().get("userId");
+
+  if (!username) {
+    throw new Error("Applicant details now found!");
+  }
+
+  const applicant = await prisma.applicant.findUnique({
+    where: {
+      username,
+    },
+  });
+
+  if (!applicant) {
+    throw new Error("Applicant details now found!");
+  }
+
+  await prisma.applicantEducationFileData.update({
+    where: {
+      applicantUsername: applicant.username,
+    },
+    data: {
+      url: applicantEducationFileData.url,
+      key: applicantEducationFileData.key,
+      name: applicantEducationFileData.name,
+      size: applicantEducationFileData.size,
+      type: fileType,
+    },
+  });
+
+  revalidatePath("/applicant_portal/edit");
+};
+
+export const addApplicantAdditionalFile = async (
+  applicantEducationFileData: {
+    key: string;
+    url: string;
+    name: string;
+    size: number;
+  },
+  fileType: string,
+) => {
+  const username = headers().get("userId");
+
+  if (!username) {
+    throw new Error("Applicant details now found!");
+  }
+
+  const applicant = await prisma.applicant.findUnique({
+    where: {
+      username,
+    },
+  });
+
+  if (!applicant) {
+    throw new Error("Applicant details now found!");
+  }
+
+  await prisma.applicantAdditionalFileData.create({
+    data: {
+      applicantUsername: applicant.username,
+      url: applicantEducationFileData.url,
+      key: applicantEducationFileData.key,
+      name: applicantEducationFileData.name,
+      size: applicantEducationFileData.size,
+      type: fileType,
+    },
+  });
+
+  revalidatePath("/applicant_portal/edit");
+};
+
 export const deleteApplicantImageData = async () => {
   const username = headers().get("userId");
 
@@ -911,6 +1014,65 @@ export const deleteApplicantImageData = async () => {
       key: "",
       name: "",
       size: 0,
+    },
+  });
+
+  revalidatePath("/applicant_portal/edit");
+};
+
+export const deleteApplicantEducationFileData = async () => {
+  const username = headers().get("userId");
+
+  if (!username) {
+    throw new Error("Applicant details now found!");
+  }
+
+  const applicant = await prisma.applicant.findUnique({
+    where: {
+      username,
+    },
+  });
+
+  if (!applicant) {
+    throw new Error("Applicant details now found!");
+  }
+
+  await prisma.applicantEducationFileData.update({
+    where: {
+      applicantUsername: applicant.username,
+    },
+    data: {
+      url: "",
+      key: "",
+      name: "",
+      type: "",
+      size: 0,
+    },
+  });
+
+  revalidatePath("/applicant_portal/edit");
+};
+
+export const deleteApplicantAdditionalFileData = async (id: string) => {
+  const username = headers().get("userId");
+
+  if (!username) {
+    throw new Error("Applicant details now found!");
+  }
+
+  const applicant = await prisma.applicant.findUnique({
+    where: {
+      username,
+    },
+  });
+
+  if (!applicant) {
+    throw new Error("Applicant details now found!");
+  }
+
+  await prisma.applicantAdditionalFileData.delete({
+    where: {
+      id,
     },
   });
 

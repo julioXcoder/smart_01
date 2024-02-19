@@ -576,6 +576,30 @@ const ImageSchema = z.object({
     }),
 });
 
+const EducationFileSchema = z.object({
+  file: z
+    .any()
+    .optional()
+    .nullable()
+    .refine((file) => file && file.size <= 10 * 1024 * 1024, {
+      message: "File should be less than 10MB",
+    })
+    .refine((file) => {
+      const validTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/gif",
+        "image/png",
+        "image/tif",
+        "application/pdf"
+      ];
+      return file && validTypes.includes(file.type);
+    }, {
+      message: "Invalid file type. Only JPEG, JPG, GIF, PNG, TIF, and PDF are allowed.",
+    }),
+});
+
+
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: currentYear - 1970 + 1 }, (_, i) => {
   const year = i + 1970;
@@ -590,4 +614,5 @@ export {
   educationLevel,
   FormSchema,
   ImageSchema,
+  EducationFileSchema
 };

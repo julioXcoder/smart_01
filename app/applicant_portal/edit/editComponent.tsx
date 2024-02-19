@@ -26,7 +26,7 @@ import {
 } from "react-icons/fa6";
 import { MdOutlineAccessTime } from "react-icons/md";
 import z from "zod";
-import { FormSchema, ImageSchema } from "./data";
+import { FormSchema, ImageSchema, EducationFileSchema } from "./data";
 import MobileNavigation from "./mobileNavigation";
 import SideNavigation from "./sideNavigation";
 import { isEqual } from "lodash";
@@ -34,6 +34,7 @@ import {
   ApplicantImageData,
   ApplicantProgram,
   ApplicationDetails,
+  ApplicantEducationFileData,
 } from "@/types/application";
 import { ApplicantFormData } from "@/server/actions/applicant/schema";
 import { UploadFileResponse } from "@/types/uploadthing";
@@ -48,6 +49,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { ApplicantAdditionalFileData } from "@/types/application";
 
 import Attachments from "./attachments";
 import Contacts from "./contacts";
@@ -61,7 +63,11 @@ import {
   deleteApplicantProgrammePriority,
   saveApplicationData,
   addApplicantImageData,
+  addApplicantEducationFile,
   deleteApplicantImageData,
+  deleteApplicantEducationFileData,
+  addApplicantAdditionalFile,
+  deleteApplicantAdditionalFileData,
 } from "@/server/actions/applicant";
 
 interface Props {
@@ -101,12 +107,15 @@ const EditComponent = ({ data }: Props) => {
 
   const [image, setImage] = useState<File | null>(null);
   const [imageErrorMessage, setImageErrorMessage] = useState("");
+  const [educationFileErrorMessage, setEducationFileErrorMessage] =
+    useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(
     data.applicantImageData.imageUrl,
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setIsLoading] = useState(false);
   const [uploadingImage, setIsUploadingImage] = useState(false);
+  const [uploadingFile, setIsUploadingFile] = useState(false);
 
   // useEffect(() => {
   //   const initialState = {
@@ -440,6 +449,153 @@ const EditComponent = ({ data }: Props) => {
     [data.applicantImageData],
   );
 
+  const handleEducationFileUpload = async (
+    file: File,
+    method: string,
+    fileData?: any,
+  ) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    if (fileData) {
+      for (let key in fileData) {
+        if (Object.prototype.hasOwnProperty.call(fileData, key)) {
+          const element = fileData[key as keyof typeof fileData];
+          formData.append(key, String(element));
+        }
+      }
+    }
+
+    const responsePromise = fetch("/api/applicant/file", {
+      method,
+      body: formData,
+    });
+
+    toast.promise(responsePromise, {
+      loading: `${method === "PUT" ? "Updating" : "Uploading"} file...`,
+      success: <b>File processed successfully!</b>,
+      error: <b>Could not process the file.</b>,
+    });
+
+    const response = await responsePromise;
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const uploadedFile: UploadFileResponse = await response.json();
+    const { data: fileDataResponse, error } = uploadedFile;
+
+    if (fileDataResponse) {
+      toast.promise(addApplicantEducationFile(fileDataResponse, file.type), {
+        loading: "Saving file...",
+        success: <b>File saved.</b>,
+        error: <b>Oops failed to save file</b>,
+      });
+      return true;
+    } else if (error) {
+      toast.error("File upload failed!", { duration: 6000 });
+      return false;
+    }
+  };
+
+  const handleEducationFileChange = useCallback(
+    async (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files ? event.target.files[0] : null;
+      setEducationFileErrorMessage("");
+
+      if (file) {
+        const fileValidation = EducationFileSchema.safeParse({ file });
+
+        if (!fileValidation.success) {
+          toast.error(fileValidation.error.errors[0].message, {
+            duration: 6000,
+          });
+          return;
+        }
+
+        setIsUploadingFile(true);
+
+        let success;
+        // FIXME: check if file exists
+        if (data.applicantEducationFileData.key) {
+          success = await handleEducationFileUpload(
+            file,
+            "PUT",
+            data.applicantEducationFileData,
+          );
+        } else {
+          success = await handleEducationFileUpload(file, "POST");
+        }
+      }
+
+      event.target.value = "";
+      setIsUploadingFile(false);
+    },
+    [data.applicantEducationFileData],
+  );
+
+  const handleAdditionalFileChange = useCallback(
+    async (event: ChangeEvent<HTMLInputElement>) => {
+      const formData = new FormData();
+      const file = event.target.files ? event.target.files[0] : null;
+      setEducationFileErrorMessage("");
+
+      if (file) {
+        const fileValidation = EducationFileSchema.safeParse({ file });
+
+        if (!fileValidation.success) {
+          toast.error(fileValidation.error.errors[0].message, {
+            duration: 6000,
+          });
+          return;
+        }
+
+        setIsUploadingFile(true);
+        formData.append("file", file);
+
+        const responsePromise = fetch("/api/applicant/file", {
+          method: "POST",
+          body: formData,
+        });
+
+        toast.promise(responsePromise, {
+          loading: "Uploading file...",
+          success: <b>File processed successfully!</b>,
+          error: <b>Could not process the file.</b>,
+        });
+
+        const response = await responsePromise;
+
+        if (!response.ok) {
+          event.target.value = "";
+          setIsUploadingFile(false);
+          return;
+        }
+
+        const uploadedFile: UploadFileResponse = await response.json();
+        const { data: fileDataResponse, error } = uploadedFile;
+
+        if (fileDataResponse) {
+          toast.promise(
+            addApplicantAdditionalFile(fileDataResponse, file.type),
+            {
+              loading: "Saving file...",
+              success: <b>File saved.</b>,
+              error: <b>Oops failed to save file</b>,
+            },
+          );
+        } else if (error) {
+          toast.error("File upload failed!", { duration: 6000 });
+        }
+      }
+
+      event.target.value = "";
+      setIsUploadingFile(false);
+    },
+    [],
+  );
+
   // Helper function to handle image removal
   const handleImageRemoval = async (imageData: ApplicantImageData) => {
     const formData = new FormData();
@@ -501,6 +657,110 @@ const EditComponent = ({ data }: Props) => {
     setIsUploadingImage(false);
   }, [data, imagePreview]);
 
+  // Helper function to handle education file removal
+  const handleEducationFileRemoval = async (key: string) => {
+    const formData = new FormData();
+
+    formData.append("key", key);
+
+    const responsePromise = fetch("/api/applicant/file", {
+      method: "DELETE",
+      body: formData,
+    });
+
+    toast.promise(responsePromise, {
+      loading: "Removing file...",
+      success: <b>File removed successfully!</b>,
+      error: <b>Could not remove the file.</b>,
+    });
+
+    const response = await responsePromise;
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const success: boolean = await response.json();
+
+    if (success) {
+      toast.promise(deleteApplicantEducationFileData(), {
+        loading: "Removing file...",
+        success: <b>File removed.</b>,
+        error: <b>Oops failed to remove file</b>,
+      });
+      return true;
+    } else {
+      toast.error("File removal failed!", { duration: 6000 });
+      return false;
+    }
+  };
+
+  const handleEducationFileRemove = useCallback(async () => {
+    if (data.applicantAdditionalFileData.length > 0) {
+      toast.error(
+        "Please delete additional files before deleting the main file.",
+        { duration: 6000 },
+      );
+
+      return;
+    }
+
+    setIsUploadingFile(true);
+    setEducationFileErrorMessage("");
+
+    if (data.applicantEducationFileData.key) {
+      const success = await handleEducationFileRemoval(
+        data.applicantEducationFileData.key,
+      );
+    }
+
+    setIsUploadingFile(false);
+  }, [data]);
+
+  const handleAdditionalFileRemove = useCallback(
+    async (file: ApplicantAdditionalFileData) => {
+      setIsUploadingFile(true);
+      setEducationFileErrorMessage("");
+
+      const formData = new FormData();
+
+      formData.append("key", file.key);
+
+      const responsePromise = fetch("/api/applicant/file", {
+        method: "DELETE",
+        body: formData,
+      });
+
+      toast.promise(responsePromise, {
+        loading: "Removing file...",
+        success: <b>File removed successfully!</b>,
+        error: <b>Could not remove the file.</b>,
+      });
+
+      const response = await responsePromise;
+
+      if (!response.ok) {
+        setIsUploadingFile(false);
+        return;
+      }
+
+      const success: boolean = await response.json();
+
+      if (success) {
+        toast.promise(deleteApplicantAdditionalFileData(file.id), {
+          loading: "Removing file...",
+          success: <b>File removed.</b>,
+          error: <b>Oops failed to remove file</b>,
+        });
+      } else {
+        toast.error("File removal failed!", { duration: 6000 });
+      }
+
+      setIsUploadingFile(false);
+    },
+    [],
+  );
+
   const steps: Step[] = useMemo(
     () => [
       {
@@ -554,7 +814,16 @@ const EditComponent = ({ data }: Props) => {
       {
         label: "Attachments",
         stepContent: (
-          <Attachments applicantHighestEducation={applicantHighestEducation} />
+          <Attachments
+            applicantEducationFileData={data.applicantEducationFileData}
+            onFileUpdate={handleEducationFileChange}
+            applicantAdditionalFileData={data.applicantAdditionalFileData}
+            onFileRemove={handleEducationFileRemove}
+            onAdditionalFileUpdate={handleAdditionalFileChange}
+            onAdditionalFileRemove={handleAdditionalFileRemove}
+            applicantHighestEducation={applicantHighestEducation}
+            uploadingFile={uploadingFile}
+          />
         ),
         Icon: FaPaperclip,
       },
@@ -571,6 +840,8 @@ const EditComponent = ({ data }: Props) => {
       moveDown,
       deleteProgramme,
       data.applicantImageData,
+      data.applicantEducationFileData,
+      data.applicantAdditionalFileData,
       imagePreview,
       handleFileRemove,
       imageErrorMessage,
@@ -581,7 +852,12 @@ const EditComponent = ({ data }: Props) => {
       contactErrors,
       emergencyContactErrors,
       educationErrors,
+      handleEducationFileChange,
+      handleEducationFileRemove,
+      handleAdditionalFileChange,
+      handleAdditionalFileRemove,
       applicantHighestEducation,
+      uploadingFile,
     ],
   );
 
