@@ -12,6 +12,8 @@ import type {
   ApplicantProgrammesResponse,
   ApplicantFormData,
   GenericResponse,
+  ApplicantApplicationsResponse,
+  ApplicantApplication,
 } from "./schema";
 import prisma from "@/prisma/db";
 import bcrypt from "bcrypt";
@@ -25,14 +27,13 @@ import { ApplicantProgram, ApplicantImageData } from "@/types/application";
 
 const baseURL = "https://onlinesys.necta.go.tz/results/";
 
-const getProgrammePriorities = async (username: string) => {
+const getProgrammePriorities = async (applicantApplicationId: string) => {
   const applicantPrograms = await prisma.applicantProgrammes.findMany({
     where: {
-      applicantUsername: username,
+      applicantApplicationId,
     },
     select: {
       id: true, // Exclude the 'id' field
-      applicantUsername: false,
       programmeCode: true,
       priority: true,
     },
@@ -163,6 +164,7 @@ export const getFormIVData = async (
 
 export const newApplicantAccount = async (
   newApplicantData: NewApplicant,
+  universityApplicationId: string,
 ): Promise<GenericResponse> => {
   try {
     const {
@@ -180,6 +182,26 @@ export const newApplicantAccount = async (
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    const universityApplication = await prisma.universityApplication.findUnique(
+      {
+        where: { id: universityApplicationId },
+      },
+    );
+
+    if (!universityApplication) {
+      throw new Error("University application not found!");
+    }
+
+    const now = new Date();
+
+    if (now < universityApplication.startTime) {
+      return { error: "The application period has not started yet." };
+    }
+
+    if (now > universityApplication.endTime) {
+      return { error: "The application period has ended." };
+    }
+
     const applicant = await prisma.applicant.findUnique({
       where: {
         username,
@@ -194,16 +216,23 @@ export const newApplicantAccount = async (
       data: {
         username,
         hashedPassword,
+      },
+    });
+
+    const newApplicantApplication = await prisma.applicantApplication.create({
+      data: {
         formIVIndex,
-        applicationType,
+        type: applicationType,
         origin,
         highestEducationLevel,
+        applicantUsername: newApplicant.username,
+        universityApplicationId: universityApplication.id,
       },
     });
 
     await prisma.applicantProfile.create({
       data: {
-        applicantUsername: newApplicant.username,
+        applicantApplicationId: newApplicantApplication.id,
         firstName,
         middleName,
         lastName,
@@ -212,31 +241,31 @@ export const newApplicantAccount = async (
 
     await prisma.applicantImageData.create({
       data: {
-        applicantUsername: newApplicant.username,
+        applicantApplicationId: newApplicantApplication.id,
       },
     });
 
     await prisma.applicantEducationFileData.create({
       data: {
-        applicantUsername: newApplicant.username,
+        applicantApplicationId: newApplicantApplication.id,
       },
     });
 
     await prisma.applicantContacts.create({
       data: {
-        applicantUsername: newApplicant.username,
+        applicantApplicationId: newApplicantApplication.id,
       },
     });
 
     await prisma.applicantEmergencyContacts.create({
       data: {
-        applicantUsername: newApplicant.username,
+        applicantApplicationId: newApplicantApplication.id,
       },
     });
 
     await prisma.applicantEducationBackground.create({
       data: {
-        applicantUsername: newApplicant.username,
+        applicantApplicationId: newApplicantApplication.id,
         position: 0,
       },
     });
@@ -277,41 +306,62 @@ export const getApplicantData = async (): Promise<ApplicantDataResponse> => {
       };
     }
 
-    const profile = await prisma.applicantProfile.findUnique({
-      where: {
-        applicantUsername: applicant.username,
-      },
-    });
-
-    const applicantImageData = await prisma.applicantImageData.findUnique({
-      where: {
-        applicantUsername: applicant.username,
-      },
-    });
-
-    if (!profile || !applicantImageData) {
-      throw new Error(
-        `Unable to locate the profile or image data for the applicant with the username: ${applicant.username}.`,
-      );
-    }
-
-    const { firstName, middleName, lastName } = profile;
-
     const notifications = await prisma.applicantNotification.findMany({
       where: {
         applicantUsername: applicant.username,
       },
     });
 
+    const applicantApplications = await prisma.applicantApplication.findMany({
+      where: {
+        applicantUsername: applicant.username,
+      },
+    });
+
+    const results = await Promise.all(
+      applicantApplications.map(async (application) => {
+        const universityApplication =
+          await prisma.universityApplication.findUnique({
+            where: {
+              id: application.universityApplicationId,
+            },
+          });
+
+        if (!universityApplication) return null;
+
+        const academicYear = await prisma.academicYear.findUnique({
+          where: { id: universityApplication.academicYearId },
+        });
+
+        if (!academicYear) {
+          return null;
+        }
+
+        const programmePriorities = await getProgrammePriorities(
+          application.id,
+        );
+
+        return {
+          id: application.id,
+          status: application.status,
+          type: application.type,
+          year: academicYear.id,
+          start: universityApplication.startTime,
+          end: universityApplication.endTime,
+          programmePriorities,
+        };
+      }),
+    );
+
+    const filteredResult = results.filter(
+      (item) => item !== null,
+    ) as ApplicantApplication[];
+
     return {
       data: {
         username: applicant.username,
-        firstName,
-        middleName,
-        lastName,
-        imageUrl: applicantImageData.imageUrl,
         notifications,
-        applicationStatus: applicant.applicationStatus,
+        applications: filteredResult,
       },
     };
   } catch (error) {
@@ -323,164 +373,136 @@ export const getApplicantData = async (): Promise<ApplicantDataResponse> => {
   }
 };
 
-export const getApplicationStatus =
-  async (): Promise<ApplicationStatusResponse> => {
-    const username = headers().get("userId");
-    try {
-      if (!username) {
-        return { error: "Oops! Access denied. Please try again." };
-      }
+export const getApplicationDetails = async (
+  applicantApplicationId: string,
+): Promise<ApplicationDetailsResponse> => {
+  const username = headers().get("userId");
+  try {
+    if (!username) {
+      return { error: "Oops! Access denied. Please try again." };
+    }
 
-      const applicant = await prisma.applicant.findUnique({
-        where: {
-          username,
-        },
-      });
+    const applicant = await prisma.applicant.findUnique({
+      where: {
+        username,
+      },
+    });
 
-      if (!applicant) {
-        return {
-          error:
-            "Sorry, we couldn't process your request. Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
-        };
-      }
-
-      const { applicationType, applicationStatus } = applicant;
-
-      const programmePriorities = await getProgrammePriorities(
-        applicant.username,
-      );
-
-      return {
-        data: {
-          applicationType,
-          applicationStatus,
-          programmePriorities,
-        },
-      };
-    } catch (error) {
-      logOperationError(error);
+    if (!applicant) {
       return {
         error:
-          "We’re sorry, but an issue arose while retrieving your application status. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
+          "Sorry, we couldn't process your request. Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
       };
     }
-  };
 
-export const getApplicationDetails =
-  async (): Promise<ApplicationDetailsResponse> => {
-    const username = headers().get("userId");
-    try {
-      if (!username) {
-        return { error: "Oops! Access denied. Please try again." };
-      }
+    const applicantApplication = await prisma.applicantApplication.findUnique({
+      where: {
+        id: applicantApplicationId,
+      },
+    });
 
-      const applicant = await prisma.applicant.findUnique({
-        where: {
-          username,
-        },
-      });
-
-      if (!applicant) {
-        return {
-          error:
-            "Sorry, we couldn't process your request. Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
-        };
-      }
-
-      const programmePriorities = await getProgrammePriorities(
-        applicant.username,
-      );
-
-      const educationBackgrounds =
-        await prisma.applicantEducationBackground.findMany({
-          where: {
-            applicantUsername: applicant.username,
-          },
-          orderBy: {
-            position: "asc",
-          },
-        });
-
-      const applicantEducationBackground = educationBackgrounds.map((item) => {
-        const { id, ...rest } = item;
-        return { _id: id, ...rest };
-      });
-
-      const applicantProfile = await prisma.applicantProfile.findUnique({
-        where: {
-          applicantUsername: applicant.username,
-        },
-      });
-
-      const applicantContacts = await prisma.applicantContacts.findUnique({
-        where: {
-          applicantUsername: applicant.username,
-        },
-      });
-
-      const applicantEmergencyContacts =
-        await prisma.applicantEmergencyContacts.findUnique({
-          where: {
-            applicantUsername: applicant.username,
-          },
-        });
-
-      const applicantImageData = await prisma.applicantImageData.findUnique({
-        where: {
-          applicantUsername: applicant.username,
-        },
-      });
-
-      const applicantEducationFileData =
-        await prisma.applicantEducationFileData.findUnique({
-          where: {
-            applicantUsername: applicant.username,
-          },
-        });
-
-      const applicantAdditionalFileData =
-        await prisma.applicantAdditionalFileData.findMany({
-          where: {
-            applicantUsername: applicant.username,
-          },
-        });
-
-      if (
-        !applicantProfile ||
-        !applicantContacts ||
-        !applicantEmergencyContacts ||
-        !applicantImageData ||
-        !applicantEducationFileData
-      ) {
-        throw new Error(
-          `Unable to locate the applicant details for the applicant with the username: ${applicant.username}.`,
-        );
-      }
-
-      return {
-        data: {
-          programmePriorities,
-          applicantEducationBackground,
-          applicantProfile,
-          applicantImageData,
-          applicantContacts,
-          applicantEmergencyContacts,
-          applicantHighestEducation: applicant.highestEducationLevel,
-          applicantEducationFileData,
-          applicantAdditionalFileData,
-        },
-      };
-    } catch (error) {
-      logOperationError(error);
+    if (!applicantApplication) {
       return {
         error:
-          "We’re sorry, but an issue arose while retrieving your application details. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
+          "We're sorry, but we couldn't find the application you're looking for. Please double-check your information and try again.",
       };
     }
-  };
+
+    const programmePriorities = await getProgrammePriorities(
+      applicantApplication.id,
+    );
+
+    const educationBackgrounds =
+      await prisma.applicantEducationBackground.findMany({
+        where: {
+          applicantApplicationId: applicantApplication.id,
+        },
+        orderBy: {
+          position: "asc",
+        },
+      });
+
+    const applicantEducationBackground = educationBackgrounds.map((item) => {
+      const { id, ...rest } = item;
+      return { _id: id, ...rest };
+    });
+
+    const applicantProfile = await prisma.applicantProfile.findUnique({
+      where: {
+        applicantApplicationId: applicantApplication.id,
+      },
+    });
+
+    const applicantContacts = await prisma.applicantContacts.findUnique({
+      where: {
+        applicantApplicationId: applicantApplication.id,
+      },
+    });
+
+    const applicantEmergencyContacts =
+      await prisma.applicantEmergencyContacts.findUnique({
+        where: {
+          applicantApplicationId: applicantApplication.id,
+        },
+      });
+
+    const applicantImageData = await prisma.applicantImageData.findUnique({
+      where: {
+        applicantApplicationId: applicantApplication.id,
+      },
+    });
+
+    const applicantEducationFileData =
+      await prisma.applicantEducationFileData.findUnique({
+        where: {
+          applicantApplicationId: applicantApplication.id,
+        },
+      });
+
+    const applicantAdditionalFileData =
+      await prisma.applicantAdditionalFileData.findMany({
+        where: {
+          applicantApplicationId: applicantApplication.id,
+        },
+      });
+
+    if (
+      !applicantProfile ||
+      !applicantContacts ||
+      !applicantEmergencyContacts ||
+      !applicantImageData ||
+      !applicantEducationFileData
+    ) {
+      throw new Error(
+        `Unable to locate the applicant details for the applicant with the username: ${applicant.username}.`,
+      );
+    }
+
+    return {
+      data: {
+        programmePriorities,
+        applicantEducationBackground,
+        applicantProfile,
+        applicantImageData,
+        applicantContacts,
+        applicantEmergencyContacts,
+        applicantHighestEducation: applicantApplication.highestEducationLevel,
+        applicantEducationFileData,
+        applicantAdditionalFileData,
+      },
+    };
+  } catch (error) {
+    logOperationError(error);
+    return {
+      error:
+        "We’re sorry, but an issue arose while retrieving your application details. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
+    };
+  }
+};
 
 export const addApplicantProgrammePriority = async (
   programmeCode: string,
+  applicantApplicationId: string,
 ): Promise<GenericResponse> => {
   const username = headers().get("userId");
   try {
@@ -501,8 +523,21 @@ export const addApplicantProgrammePriority = async (
       };
     }
 
+    const applicantApplication = await prisma.applicantApplication.findUnique({
+      where: {
+        id: applicantApplicationId,
+      },
+    });
+
+    if (!applicantApplication) {
+      return {
+        error:
+          "We're sorry, but we couldn't find the application you're looking for. Please double-check your information and try again.",
+      };
+    }
+
     const programmePriorities = await getProgrammePriorities(
-      applicant.username,
+      applicantApplication.id,
     );
 
     const hasDuplicateProgrammeCode = programmePriorities.some(
@@ -538,14 +573,14 @@ export const addApplicantProgrammePriority = async (
 
     await prisma.applicantProgrammes.create({
       data: {
-        applicantUsername: applicant.username,
+        applicantApplicationId: applicantApplication.id,
         programmeCode: programme.code,
         priority: programmesLength + 1,
       },
     });
 
-    revalidatePath("/applicant_portal/edit");
-    return { data: "/applicant_portal/edit" };
+    revalidatePath(`/applicant_portal/edit/${applicantApplication.id}`);
+    return { data: `/applicant_portal/edit/${applicantApplication.id}` };
   } catch (error) {
     logOperationError(error);
     return {
@@ -557,6 +592,7 @@ export const addApplicantProgrammePriority = async (
 
 export const deleteApplicantProgrammePriority = async (
   priorityProgramme: ApplicantProgram,
+  applicantApplicationId: string,
 ): Promise<GenericResponse> => {
   const username = headers().get("userId");
   try {
@@ -577,11 +613,24 @@ export const deleteApplicantProgrammePriority = async (
       };
     }
 
+    const applicantApplication = await prisma.applicantApplication.findUnique({
+      where: {
+        id: applicantApplicationId,
+      },
+    });
+
+    if (!applicantApplication) {
+      return {
+        error:
+          "We're sorry, but we couldn't find the application you're looking for. Please double-check your information and try again.",
+      };
+    }
+
     const applicantPriorityProgramme =
       await prisma.applicantProgrammes.findUnique({
         where: {
           id: priorityProgramme.id,
-          applicantUsername: applicant.username,
+          applicantApplicationId: applicantApplication.id,
         },
       });
 
@@ -595,7 +644,7 @@ export const deleteApplicantProgrammePriority = async (
       },
     });
 
-    revalidatePath("/applicant_portal/edit");
+    revalidatePath(`/applicant_portal/edit/${applicantApplication.id}`);
     return { data: "Programme Deleted!" };
   } catch (error) {
     logOperationError(error);
@@ -608,6 +657,7 @@ export const deleteApplicantProgrammePriority = async (
 
 export const addApplicantEducationBackground = async (
   position: number,
+  applicantApplicationId: string,
 ): Promise<GenericResponse> => {
   const username = headers().get("userId");
   try {
@@ -636,9 +686,22 @@ export const addApplicantEducationBackground = async (
       };
     }
 
+    const applicantApplication = await prisma.applicantApplication.findUnique({
+      where: {
+        id: applicantApplicationId,
+      },
+    });
+
+    if (!applicantApplication) {
+      return {
+        error:
+          "We're sorry, but we couldn't find the application you're looking for. Please double-check your information and try again.",
+      };
+    }
+
     const newEducation = await prisma.applicantEducationBackground.create({
       data: {
-        applicantUsername: applicant.username,
+        applicantApplicationId: applicantApplication.id,
         position,
       },
     });
@@ -655,6 +718,7 @@ export const addApplicantEducationBackground = async (
 
 export const deleteApplicantEducationBackground = async (
   itemId: string,
+  applicantApplicationId: string,
 ): Promise<GenericResponse> => {
   const username = headers().get("userId");
   try {
@@ -691,7 +755,7 @@ export const deleteApplicantEducationBackground = async (
       },
     });
 
-    revalidatePath("/applicant_portal/edit");
+    revalidatePath(`/applicant_portal/edit/${applicantApplicationId}`);
     return { data: "Removed!" };
   } catch (error) {
     logOperationError(error);
@@ -704,6 +768,7 @@ export const deleteApplicantEducationBackground = async (
 
 export const saveApplicationData = async (
   applicantFormData: ApplicantFormData,
+  applicantApplicationId: string,
 ) => {
   const username = headers().get("userId");
 
@@ -719,6 +784,19 @@ export const saveApplicationData = async (
 
   if (!applicant) {
     throw new Error("Applicant details now found!");
+  }
+
+  const applicantApplication = await prisma.applicantApplication.findUnique({
+    where: {
+      id: applicantApplicationId,
+    },
+  });
+
+  if (!applicantApplication) {
+    return {
+      error:
+        "We're sorry, but we couldn't find the application you're looking for. Please double-check your information and try again.",
+    };
   }
 
   const {
@@ -753,7 +831,7 @@ export const saveApplicationData = async (
 
   await prisma.applicantProfile.update({
     where: {
-      applicantUsername: applicant.username,
+      applicantApplicationId: applicantApplication.id,
     },
     data: {
       nida,
@@ -767,7 +845,7 @@ export const saveApplicationData = async (
 
   await prisma.applicantContacts.update({
     where: {
-      applicantUsername: applicant.username,
+      applicantApplicationId: applicantApplication.id,
     },
     data: {
       phone: applicantPhoneNumber,
@@ -784,7 +862,7 @@ export const saveApplicationData = async (
 
   await prisma.applicantEmergencyContacts.update({
     where: {
-      applicantUsername: applicant.username,
+      applicantApplicationId: applicantApplication.id,
     },
     data: {
       fullName: emergencyContactFullName,
@@ -824,15 +902,7 @@ export const saveApplicationData = async (
     });
   }
 
-  revalidatePath("/applicant_portal/edit");
-  //   try{
-
-  //   return { data: "Draft saved. Resume anytime." };
-  // } catch (error) {
-  //   return {
-  //     error: "Oops! There was an error saving your draft.",
-  //   };
-  // }
+  revalidatePath(`/applicant_portal/edit/${applicantApplication.id}`);
 };
 
 export const authorizeApplicant = async ({
@@ -871,12 +941,15 @@ export const authorizeApplicant = async ({
   }
 };
 
-export const addApplicantImageData = async (applicantImageData: {
-  key: string;
-  url: string;
-  name: string;
-  size: number;
-}) => {
+export const addApplicantImageData = async (
+  applicantImageData: {
+    key: string;
+    url: string;
+    name: string;
+    size: number;
+  },
+  applicantApplicationId: string,
+) => {
   const username = headers().get("userId");
 
   if (!username) {
@@ -893,9 +966,22 @@ export const addApplicantImageData = async (applicantImageData: {
     throw new Error("Applicant details now found!");
   }
 
+  const applicantApplication = await prisma.applicantApplication.findUnique({
+    where: {
+      id: applicantApplicationId,
+    },
+  });
+
+  if (!applicantApplication) {
+    return {
+      error:
+        "We're sorry, but we couldn't find the application you're looking for. Please double-check your information and try again.",
+    };
+  }
+
   await prisma.applicantImageData.update({
     where: {
-      applicantUsername: applicant.username,
+      applicantApplicationId: applicantApplication.id,
     },
     data: {
       imageUrl: applicantImageData.url,
@@ -905,7 +991,7 @@ export const addApplicantImageData = async (applicantImageData: {
     },
   });
 
-  revalidatePath("/applicant_portal/edit");
+  revalidatePath(`/applicant_portal/edit/${applicantApplication.id}`);
 };
 
 export const addApplicantEducationFile = async (
@@ -916,6 +1002,7 @@ export const addApplicantEducationFile = async (
     size: number;
   },
   fileType: string,
+  applicantApplicationId: string,
 ) => {
   const username = headers().get("userId");
 
@@ -933,9 +1020,22 @@ export const addApplicantEducationFile = async (
     throw new Error("Applicant details now found!");
   }
 
+  const applicantApplication = await prisma.applicantApplication.findUnique({
+    where: {
+      id: applicantApplicationId,
+    },
+  });
+
+  if (!applicantApplication) {
+    return {
+      error:
+        "We're sorry, but we couldn't find the application you're looking for. Please double-check your information and try again.",
+    };
+  }
+
   await prisma.applicantEducationFileData.update({
     where: {
-      applicantUsername: applicant.username,
+      applicantApplicationId: applicantApplication.id,
     },
     data: {
       url: applicantEducationFileData.url,
@@ -946,7 +1046,7 @@ export const addApplicantEducationFile = async (
     },
   });
 
-  revalidatePath("/applicant_portal/edit");
+  revalidatePath(`/applicant_portal/edit/${applicantApplication.id}`);
 };
 
 export const addApplicantAdditionalFile = async (
@@ -957,6 +1057,7 @@ export const addApplicantAdditionalFile = async (
     size: number;
   },
   fileType: string,
+  applicantApplicationId: string,
 ) => {
   const username = headers().get("userId");
 
@@ -974,9 +1075,22 @@ export const addApplicantAdditionalFile = async (
     throw new Error("Applicant details now found!");
   }
 
+  const applicantApplication = await prisma.applicantApplication.findUnique({
+    where: {
+      id: applicantApplicationId,
+    },
+  });
+
+  if (!applicantApplication) {
+    return {
+      error:
+        "We're sorry, but we couldn't find the application you're looking for. Please double-check your information and try again.",
+    };
+  }
+
   await prisma.applicantAdditionalFileData.create({
     data: {
-      applicantUsername: applicant.username,
+      applicantApplicationId: applicantApplication.id,
       url: applicantEducationFileData.url,
       key: applicantEducationFileData.key,
       name: applicantEducationFileData.name,
@@ -985,10 +1099,12 @@ export const addApplicantAdditionalFile = async (
     },
   });
 
-  revalidatePath("/applicant_portal/edit");
+  revalidatePath(`/applicant_portal/edit/${applicantApplication.id}`);
 };
 
-export const deleteApplicantImageData = async () => {
+export const deleteApplicantImageData = async (
+  applicantApplicationId: string,
+) => {
   const username = headers().get("userId");
 
   if (!username) {
@@ -1005,9 +1121,22 @@ export const deleteApplicantImageData = async () => {
     throw new Error("Applicant details now found!");
   }
 
+  const applicantApplication = await prisma.applicantApplication.findUnique({
+    where: {
+      id: applicantApplicationId,
+    },
+  });
+
+  if (!applicantApplication) {
+    return {
+      error:
+        "We're sorry, but we couldn't find the application you're looking for. Please double-check your information and try again.",
+    };
+  }
+
   await prisma.applicantImageData.update({
     where: {
-      applicantUsername: applicant.username,
+      applicantApplicationId: applicantApplication.id,
     },
     data: {
       imageUrl: "",
@@ -1017,10 +1146,12 @@ export const deleteApplicantImageData = async () => {
     },
   });
 
-  revalidatePath("/applicant_portal/edit");
+  revalidatePath(`/applicant_portal/edit/${applicantApplication.id}`);
 };
 
-export const deleteApplicantEducationFileData = async () => {
+export const deleteApplicantEducationFileData = async (
+  applicantApplicationId: string,
+) => {
   const username = headers().get("userId");
 
   if (!username) {
@@ -1037,9 +1168,22 @@ export const deleteApplicantEducationFileData = async () => {
     throw new Error("Applicant details now found!");
   }
 
+  const applicantApplication = await prisma.applicantApplication.findUnique({
+    where: {
+      id: applicantApplicationId,
+    },
+  });
+
+  if (!applicantApplication) {
+    return {
+      error:
+        "We're sorry, but we couldn't find the application you're looking for. Please double-check your information and try again.",
+    };
+  }
+
   await prisma.applicantEducationFileData.update({
     where: {
-      applicantUsername: applicant.username,
+      applicantApplicationId: applicantApplication.id,
     },
     data: {
       url: "",
@@ -1050,10 +1194,13 @@ export const deleteApplicantEducationFileData = async () => {
     },
   });
 
-  revalidatePath("/applicant_portal/edit");
+  revalidatePath(`/applicant_portal/edit/${applicantApplication.id}`);
 };
 
-export const deleteApplicantAdditionalFileData = async (id: string) => {
+export const deleteApplicantAdditionalFileData = async (
+  id: string,
+  applicantApplicationId: string,
+) => {
   const username = headers().get("userId");
 
   if (!username) {
@@ -1076,78 +1223,92 @@ export const deleteApplicantAdditionalFileData = async (id: string) => {
     },
   });
 
-  revalidatePath("/applicant_portal/edit");
+  revalidatePath(`/applicant_portal/edit/${applicantApplicationId}`);
 };
 
-export const getApplicantProgrammes =
-  async (): Promise<ApplicantProgrammesResponse> => {
-    const username = headers().get("userId");
-    try {
-      if (!username) {
-        throw new Error("Applicant details now found!");
-      }
+export const getApplicantProgrammes = async (
+  applicantApplicationId: string,
+): Promise<ApplicantProgrammesResponse> => {
+  const username = headers().get("userId");
+  try {
+    if (!username) {
+      throw new Error("Applicant details now found!");
+    }
 
-      const applicant = await prisma.applicant.findUnique({
-        where: {
-          username,
-        },
-      });
+    const applicantApplication = await prisma.applicantApplication.findUnique({
+      where: {
+        id: applicantApplicationId,
+      },
+    });
 
-      if (!applicant) {
-        throw new Error("Applicant details now found!");
-      }
-
-      const programmes = await prisma.programme.findMany({
-        where: {
-          level: applicant.applicationType,
-        },
-      });
-      const result = await Promise.all(
-        programmes.map(async (programme) => {
-          const department = await prisma.department.findUnique({
-            where: { id: programme.departmentId },
-          });
-
-          if (!department) {
-            return null;
-          }
-
-          const college = await prisma.college.findUnique({
-            where: { id: department.collegeId },
-          });
-
-          if (!college) {
-            return null;
-          }
-
-          const campus = await prisma.campus.findUnique({
-            where: { id: college.campusId },
-          });
-
-          if (!campus) {
-            return null;
-          }
-
-          return {
-            ...programme,
-            department: department,
-            college: college,
-            campus: campus,
-          };
-        }),
-      );
-
-      // Filter out the null values
-      const validProgrammes = result.filter(
-        (programme) => programme !== null,
-      ) as Programme[];
-
-      return { data: validProgrammes };
-    } catch (error) {
-      logOperationError(error);
+    if (!applicantApplication) {
       return {
         error:
-          "We’re sorry, but an issue arose while getting applicant programmes.",
+          "We're sorry, but we couldn't find the application you're looking for. Please double-check your information and try again.",
       };
     }
-  };
+
+    const applicant = await prisma.applicant.findUnique({
+      where: {
+        username,
+      },
+    });
+
+    if (!applicant) {
+      throw new Error("Applicant details now found!");
+    }
+
+    const programmes = await prisma.programme.findMany({
+      where: {
+        level: applicantApplication.type,
+      },
+    });
+    const result = await Promise.all(
+      programmes.map(async (programme) => {
+        const department = await prisma.department.findUnique({
+          where: { id: programme.departmentId },
+        });
+
+        if (!department) {
+          return null;
+        }
+
+        const college = await prisma.college.findUnique({
+          where: { id: department.collegeId },
+        });
+
+        if (!college) {
+          return null;
+        }
+
+        const campus = await prisma.campus.findUnique({
+          where: { id: college.campusId },
+        });
+
+        if (!campus) {
+          return null;
+        }
+
+        return {
+          ...programme,
+          department: department,
+          college: college,
+          campus: campus,
+        };
+      }),
+    );
+
+    // Filter out the null values
+    const validProgrammes = result.filter(
+      (programme) => programme !== null,
+    ) as Programme[];
+
+    return { data: validProgrammes };
+  } catch (error) {
+    logOperationError(error);
+    return {
+      error:
+        "We’re sorry, but an issue arose while getting applicant programmes.",
+    };
+  }
+};

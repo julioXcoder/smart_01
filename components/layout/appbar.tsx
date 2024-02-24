@@ -7,20 +7,13 @@ import Profile from "./profile";
 import { ApplicantNotification } from "@/types/application";
 
 interface Props {
-  firstName: string;
-  lastName: string;
+  fullName?: string;
   username: string;
   imageUrl: string | null;
-  notifications: ApplicantNotification[];
+  notifications?: ApplicantNotification[];
 }
 
-const Appbar = ({
-  firstName,
-  lastName,
-  username,
-  imageUrl,
-  notifications,
-}: Props) => {
+const Appbar = ({ fullName, username, imageUrl, notifications }: Props) => {
   const [show, setShow] = useState(true);
   const [scrollPos, setScrollPos] = useState(0);
 
@@ -54,10 +47,11 @@ const Appbar = ({
           <div className="flex items-center">
             <div className="ml-3 flex items-center">
               <div className="flex items-center gap-3">
-                <Notifications value={notifications.length} />
+                {notifications && (
+                  <Notifications value={notifications.length} />
+                )}
                 <Profile
-                  firstName={firstName}
-                  lastName={lastName}
+                  fullName={fullName}
                   username={username}
                   imageUrl={imageUrl}
                 />

@@ -23,13 +23,12 @@ import Link from "next/link";
 import Image from "next/image";
 
 interface Props {
-  firstName: string;
-  lastName: string;
+  fullName?: string;
   username: string;
   imageUrl: string | null;
 }
 
-const Profile = ({ firstName, lastName, username, imageUrl }: Props) => {
+const Profile = ({ fullName, username, imageUrl }: Props) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -45,7 +44,7 @@ const Profile = ({ firstName, lastName, username, imageUrl }: Props) => {
             />
           </div>
           <span className="max-w-[7.5rem] truncate font-medium">
-            {firstName.trim() ? `${firstName} ${lastName}` : username}
+            {fullName ? fullName.trim() : username}
           </span>
           <BiChevronDown size={20} />
         </Button>

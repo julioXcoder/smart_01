@@ -39,15 +39,32 @@ interface NewApplicant {
   highestEducationLevel: EducationLevelName;
 }
 
+interface ApplicantApplication {
+  id: string;
+  status: ApplicationStatusName;
+  year: string;
+  type: ProgrammeLevelName;
+  start: Date;
+  end: Date;
+  programmePriorities: ApplicantProgram[];
+}
+
 interface ApplicantData {
   username: string;
-  firstName: string;
-  middleName: string;
-  lastName: string;
-  imageUrl: string | null;
-  applicationStatus: ApplicationStatusName;
   notifications: ApplicantNotification[];
+  applications: ApplicantApplication[];
 }
+
+// FIXME: applicant edit page
+// interface ApplicantData {
+//   username: string;
+//   firstName: string;
+//   middleName: string;
+//   lastName: string;
+//   imageUrl: string | null;
+//   applicationStatus: ApplicationStatusName;
+//   notifications: ApplicantNotification[];
+// }
 
 interface ApplicantFormData {
   formData: z.infer<typeof FormSchema>;
@@ -57,6 +74,8 @@ interface ApplicantFormData {
 type GenericResponse = Response<string>;
 
 type ApplicantDataResponse = Response<ApplicantData>;
+
+type ApplicantApplicationsResponse = Response<ApplicantApplication[]>;
 
 type ApplicantProgrammesResponse = Response<Programme[]>;
 
@@ -69,8 +88,10 @@ export type {
   ApplicantData,
   GenericResponse,
   ApplicantFormData,
+  ApplicantApplication,
   ApplicantDataResponse,
   ApplicationStatusResponse,
   ApplicationDetailsResponse,
   ApplicantProgrammesResponse,
+  ApplicantApplicationsResponse,
 };

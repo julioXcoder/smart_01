@@ -47,7 +47,6 @@ interface ApplicantEducationBackground {
 }
 
 interface ApplicantProfile {
-  applicantUsername: string;
   nida: string;
   firstName: string;
   middleName: string;
@@ -57,7 +56,6 @@ interface ApplicantProfile {
 }
 
 interface ApplicantContacts {
-  applicantUsername: string;
   phone: string;
   email: string | null;
   alternativeEmail: string | null;
@@ -70,7 +68,6 @@ interface ApplicantContacts {
 }
 
 interface ApplicantEmergencyContacts {
-  applicantUsername: string;
   fullName: string;
   phone: string;
   email: string | null;

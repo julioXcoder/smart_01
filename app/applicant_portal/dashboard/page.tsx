@@ -12,8 +12,10 @@ import { LiaHandPointRightSolid } from "react-icons/lia";
 import { MdModeEdit } from "react-icons/md";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import moment from "moment-timezone";
 import { ApplicationStatusName } from "@/types/application";
-import { getApplicationStatus } from "@/server/actions/applicant";
+import Appbar from "@/components/layout/appbar";
+import { getApplicantData } from "@/server/actions/applicant";
 import {
   AiOutlineInfoCircle,
   AiOutlineExclamationCircle,
@@ -96,7 +98,7 @@ function getStatusText(applicationStatus: ApplicationStatusName): {
 }
 
 const Page = async () => {
-  const { data, error } = await getApplicationStatus();
+  const { data, error } = await getApplicantData();
 
   // FIXME: Build an error card
 
@@ -106,75 +108,95 @@ const Page = async () => {
 
   if (data) {
     return (
-      <div className="mt-20 w-full md:px-28">
-        <Card className="w-full">
-          <CardHeader>
-            <div className="flex w-full justify-between">
-              <div className="flex items-center gap-2">
-                {/* <IoWarning className="h-12 w-12 shrink-0 text-orange-400" /> */}
-                {getStatusText(data.applicationStatus).TitleIcon}
-                <div>
-                  <p className="font-semibold text-gray-800 dark:text-gray-200">
-                    {getStatusText(data.applicationStatus).title}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {data.applicationType}
-                  </p>
+      <div>
+        <Appbar
+          notifications={data.notifications}
+          username={data.username}
+          imageUrl={""}
+        />
 
-                  <p className="text-xs text-gray-500">Deadline: 31 Aug 2024</p>
-                </div>
-              </div>
-              <Badge
-                className={`shrink-0 ${
-                  getStatusText(data.applicationStatus).color
-                }`}
-                variant={"secondary"}
-              >
-                {data.applicationStatus}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Separator className="mb-4 h-1.5" />
-            {data.programmePriorities.length === 0 ? (
-              <div className="flex h-10 w-full items-center justify-center">
-                No Programs selected
-              </div>
-            ) : (
-              <div className="flex w-full flex-col gap-1 px-4">
-                {data.programmePriorities.map((priority) => (
-                  <div key={priority.programmeCode}>
-                    <div className="flex w-full items-center gap-2">
-                      <div className="shrink-0 text-3xl">
-                        {priority.priority}
+        <div className="mx-auto my-14 max-w-[85rem] p-4 sm:p-6">
+          <div className="mt-20 w-full md:px-28">
+            {data.applications.map((application) => (
+              <div key={application.id}>
+                <Card className="w-full">
+                  <CardHeader>
+                    <div className="flex w-full justify-between">
+                      <div className="flex items-center gap-2">
+                        {/* <IoWarning className="h-12 w-12 shrink-0 text-orange-400" /> */}
+                        {getStatusText(application.status).TitleIcon}
+                        <div>
+                          <p className="font-semibold text-gray-800 dark:text-gray-200">
+                            {getStatusText(application.status).title}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {application.type}
+                          </p>
+
+                          <p className="text-xs text-gray-500">
+                            Deadline:{" "}
+                            {moment(application.end)
+                              .tz("Africa/Dar_es_Salaam")
+                              .format("DD MMM YYYY HH:mm:ss")}
+                          </p>
+                        </div>
                       </div>
-                      <div className="ms-3 sm:ms-4">
-                        <p className="font-semibold text-gray-800 dark:text-gray-200 sm:mb-1">
-                          {priority.programmeDetails.name}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {priority.programmeDetails.level}
-                        </p>
-                      </div>
+                      <Badge
+                        className={`shrink-0 ${
+                          getStatusText(application.status).color
+                        }`}
+                        variant={"secondary"}
+                      >
+                        {application.status}
+                      </Badge>
                     </div>
-                    <Separator className="my-5 h-0.5 last:hidden" />
-                  </div>
-                ))}
+                  </CardHeader>
+                  <CardContent>
+                    <Separator className="mb-4 h-1.5" />
+                    {application.programmePriorities.length === 0 ? (
+                      <div className="flex h-10 w-full items-center justify-center">
+                        No Programs selected
+                      </div>
+                    ) : (
+                      <div className="flex w-full flex-col gap-1 px-4">
+                        {application.programmePriorities.map((priority) => (
+                          <div key={priority.programmeCode}>
+                            <div className="flex w-full items-center gap-2">
+                              <div className="shrink-0 text-3xl">
+                                {priority.priority}
+                              </div>
+                              <div className="ms-3 sm:ms-4">
+                                <p className="font-semibold text-gray-800 dark:text-gray-200 sm:mb-1">
+                                  {priority.programmeDetails.name}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {priority.programmeDetails.level}
+                                </p>
+                              </div>
+                            </div>
+                            <Separator className="my-5 h-0.5 last:hidden" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                  <CardDescription className="flex items-center p-1 text-orange-600 dark:text-yellow-300">
+                    <LiaHandPointRightSolid className="mx-2 h-4 w-4 shrink-0" />
+                    {/* {getStatusText(data.applicationStatus).DescriptionIcon} */}
+                    {getStatusText(application.status).description}
+                  </CardDescription>
+                </Card>
               </div>
-            )}
-          </CardContent>
-          <CardDescription className="flex items-center p-1 text-orange-600 dark:text-yellow-300">
-            <LiaHandPointRightSolid className="mx-2 h-4 w-4 shrink-0" />
-            {/* {getStatusText(data.applicationStatus).DescriptionIcon} */}
-            {getStatusText(data.applicationStatus).description}
-          </CardDescription>
-        </Card>
-        <Link href="/applicant_portal/edit">
-          <Button className="mt-4 w-full">
-            <MdModeEdit className="mr-2 h-5 w-5 shrink-0" />
-            Edit Application
-          </Button>
-        </Link>
+            ))}
+
+            {/* <Link href="/applicant_portal/edit">
+              <Button className="mt-4 w-full">
+                <MdModeEdit className="mr-2 h-5 w-5 shrink-0" />
+                Edit Application
+              </Button>
+            </Link> */}
+          </div>
+        </div>
       </div>
     );
   }

@@ -8,4 +8,10 @@ interface Step {
   errors?: number;
 }
 
-export type { Step };
+interface Path {
+  title: string;
+  path: string;
+  Icon?: IconType;
+}
+
+export type { Step ,Path};

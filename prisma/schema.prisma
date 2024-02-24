@@ -64,85 +64,92 @@ enum EducationLevelName {
 //USERS
 
 model Applicant {
-  username              String              @id @map("_id")
-  hashedPassword        String
-  role                  RoleName            @default(APPLICANT)
-  applicationStatus     ApplicantStatusName @default(DRAFT)
-  formIVIndex           String
-  applicationType       ProgrammeLevelName
-  origin                ORIGIN
-  highestEducationLevel EducationLevelName
+  username       String   @id @map("_id")
+  hashedPassword String
+  role           RoleName @default(APPLICANT)
 }
 
 //USERS
 
 //APPLICANT DATA
 // FIXME: ADD University application ID to check the application period
+model ApplicantApplication {
+  id                      String              @id @default(auto()) @map("_id") @db.ObjectId
+  applicantUsername       String
+  status                  ApplicantStatusName @default(DRAFT)
+  formIVIndex             String
+  type                    ProgrammeLevelName
+  origin                  ORIGIN
+  highestEducationLevel   EducationLevelName
+  universityApplicationId String              @db.ObjectId
+}
+
 model ApplicantNotification {
-  id                String   @id @default(auto()) @map("_id") @db.ObjectId
-  applicantUsername String
-  title             String // Title of the notification
-  message           String // The actual notification message
-  read              Boolean // Whether the notification has been read
-  timestamp         DateTime // When the notification was created
+  id                     String   @id @default(auto()) @map("_id") @db.ObjectId
+  applicantUsername      String
+  applicantApplicationId String   @db.ObjectId
+  title                  String // Title of the notification
+  message                String // The actual notification message
+  read                   Boolean // Whether the notification has been read
+  timestamp              DateTime // When the notification was created
 }
 
 model ApplicantProgrammes {
-  id                String @id @default(auto()) @map("_id") @db.ObjectId
-  applicantUsername String
-  programmeCode     String
-  priority          Int
+  id                     String @id @default(auto()) @map("_id") @db.ObjectId
+  applicantApplicationId String @db.ObjectId
+  programmeCode          String
+  priority               Int
 }
 
 model ApplicantEducationBackground {
-  id                String @id @default(auto()) @map("_id") @db.ObjectId
-  applicantUsername String
-  position          Int
-  level             String @default("")
-  schoolName        String @default("")
-  startYear         String @default("")
-  endYear           String @default("")
+  id                     String @id @default(auto()) @map("_id") @db.ObjectId
+  applicantApplicationId String @db.ObjectId
+  position               Int
+  level                  String @default("")
+  schoolName             String @default("")
+  startYear              String @default("")
+  endYear                String @default("")
 }
 
 model ApplicantProfile {
-  applicantUsername String @id @map("_id")
-  nida              String @default("")
-  firstName         String @default("")
-  middleName        String @default("")
-  lastName          String @default("")
-  nationality       String @default("")
-  gender            String @default("")
+  applicantApplicationId String @id @map("_id") @db.ObjectId
+  nida                   String @default("")
+  firstName              String @default("")
+  middleName             String @default("")
+  lastName               String @default("")
+  nationality            String @default("")
+  gender                 String @default("")
 }
 
 model ApplicantImageData {
-  applicantUsername String @id @map("_id")
-  imageUrl          String @default("")
-  key               String @default("")
-  name              String @default("")
-  size              Int    @default(0)
+  applicantApplicationId String @id @map("_id") @db.ObjectId
+  imageUrl               String @default("")
+  key                    String @default("")
+  name                   String @default("")
+  size                   Int    @default(0)
 }
 
 model ApplicantEducationFileData {
-  applicantUsername String @id @map("_id")
-  url               String @default("")
-  key               String @default("")
-  type              String @default("")
-  name              String @default("")
-  size              Int    @default(0)
+  applicantApplicationId String @id @map("_id") @db.ObjectId
+  url                    String @default("")
+  key                    String @default("")
+  type                   String @default("")
+  name                   String @default("")
+  size                   Int    @default(0)
 }
 
 model ApplicantAdditionalFileData {
-  id                String @id @default(auto()) @map("_id") @db.ObjectId
-  applicantUsername String
-  url               String
-  type              String
-  key               String
-  name              String
-  size              Int
+  id                     String @id @default(auto()) @map("_id") @db.ObjectId
+  applicantApplicationId String @db.ObjectId
+  url                    String
+  type                   String
+  key                    String
+  name                   String
+  size                   Int
 }
 
 model ApplicantContacts {
-  applicantUsername      String  @id @map("_id")
+  applicantApplicationId String  @id @map("_id") @db.ObjectId
   phone                  String  @default("")
   email                  String? @default("")
   alternativeEmail       String? @default("")
@@ -155,7 +162,7 @@ model ApplicantContacts {
 }
 
 model ApplicantEmergencyContacts {
-  applicantUsername      String  @id @map("_id")
+  applicantApplicationId String  @id @map("_id") @db.ObjectId
   fullName               String  @default("")
   phone                  String  @default("")
   email                  String? @default("")
@@ -170,9 +177,9 @@ model ApplicantEmergencyContacts {
 }
 
 model ApplicationPayment {
-  controlNumber     Int           @id @map("_id")
-  applicantUsername String
-  status            PaymentStatus @default(PENDING)
+  controlNumber          Int           @id @map("_id")
+  applicantApplicationId String        @db.ObjectId
+  status                 PaymentStatus @default(PENDING)
 }
 
 //APPLICANT DATA
