@@ -46,6 +46,7 @@ interface ApplicantApplication {
   type: ProgrammeLevelName;
   start: Date;
   end: Date;
+  isExpired: boolean;
   programmePriorities: ApplicantProgram[];
 }
 
@@ -73,6 +74,8 @@ interface ApplicantFormData {
 
 type GenericResponse = Response<string>;
 
+type ApplicationPeriodResponse = Response<"OPEN" | "CLOSED">;
+
 type ApplicantDataResponse = Response<ApplicantData>;
 
 type ApplicantApplicationsResponse = Response<ApplicantApplication[]>;
@@ -90,6 +93,7 @@ export type {
   ApplicantFormData,
   ApplicantApplication,
   ApplicantDataResponse,
+  ApplicationPeriodResponse,
   ApplicationStatusResponse,
   ApplicationDetailsResponse,
   ApplicantProgrammesResponse,

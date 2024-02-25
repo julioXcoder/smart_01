@@ -12,6 +12,7 @@ import type {
   ApplicantProgrammesResponse,
   ApplicantFormData,
   GenericResponse,
+  ApplicationPeriodResponse,
   ApplicantApplicationsResponse,
   ApplicantApplication,
 } from "./schema";
@@ -20,7 +21,7 @@ import bcrypt from "bcrypt";
 import { createToken } from "@/lib/auth";
 import { cookies, headers } from "next/headers";
 import { Programme } from "@/types/university";
-
+import moment from "moment-timezone";
 import { logOperationError } from "@/utils/logger";
 import { revalidatePath } from "next/cache";
 import { ApplicantProgram, ApplicantImageData } from "@/types/application";
@@ -182,23 +183,39 @@ export const newApplicantAccount = async (
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const universityApplication = await prisma.universityApplication.findUnique(
-      {
-        where: { id: universityApplicationId },
+    const latestAcademicYear = await prisma.academicYear.findFirst({
+      orderBy: {
+        createdAt: "desc",
       },
-    );
+    });
+
+    if (!latestAcademicYear) {
+      throw new Error("Latest Academic Year not found!");
+    }
+
+    const universityApplication = await prisma.universityApplication.findFirst({
+      where: { academicYearId: latestAcademicYear.id },
+    });
 
     if (!universityApplication) {
       throw new Error("University application not found!");
     }
 
-    const now = new Date();
+    const now = moment().tz("Africa/Dar_es_Salaam");
 
-    if (now < universityApplication.startTime) {
+    if (
+      now.isBefore(
+        moment(universityApplication.startTime).tz("Africa/Dar_es_Salaam"),
+      )
+    ) {
       return { error: "The application period has not started yet." };
     }
 
-    if (now > universityApplication.endTime) {
+    if (
+      now.isAfter(
+        moment(universityApplication.endTime).tz("Africa/Dar_es_Salaam"),
+      )
+    ) {
       return { error: "The application period has ended." };
     }
 
@@ -320,6 +337,8 @@ export const getApplicantData = async (): Promise<ApplicantDataResponse> => {
 
     const results = await Promise.all(
       applicantApplications.map(async (application) => {
+        let isExpired = false;
+
         const universityApplication =
           await prisma.universityApplication.findUnique({
             where: {
@@ -337,6 +356,16 @@ export const getApplicantData = async (): Promise<ApplicantDataResponse> => {
           return null;
         }
 
+        const now = moment().tz("Africa/Dar_es_Salaam");
+
+        if (
+          now.isAfter(
+            moment(universityApplication.endTime).tz("Africa/Dar_es_Salaam"),
+          )
+        ) {
+          isExpired = true;
+        }
+
         const programmePriorities = await getProgrammePriorities(
           application.id,
         );
@@ -349,6 +378,7 @@ export const getApplicantData = async (): Promise<ApplicantDataResponse> => {
           start: universityApplication.startTime,
           end: universityApplication.endTime,
           programmePriorities,
+          isExpired,
         };
       }),
     );
@@ -1312,3 +1342,47 @@ export const getApplicantProgrammes = async (
     };
   }
 };
+
+export const isApplicationPeriodOpen =
+  async (): Promise<ApplicationPeriodResponse> => {
+    try {
+      const latestAcademicYear = await prisma.academicYear.findFirst({
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      if (!latestAcademicYear) {
+        throw new Error("Latest Academic Year not found!");
+      }
+
+      const universityApplication =
+        await prisma.universityApplication.findFirst({
+          where: { academicYearId: latestAcademicYear.id },
+        });
+
+      if (!universityApplication) {
+        throw new Error("University application not found!");
+      }
+
+      const now = moment().tz("Africa/Dar_es_Salaam");
+
+      if (
+        now.isBefore(
+          moment(universityApplication.startTime).tz("Africa/Dar_es_Salaam"),
+        ) ||
+        now.isAfter(
+          moment(universityApplication.endTime).tz("Africa/Dar_es_Salaam"),
+        )
+      )
+        return { data: "CLOSED" };
+
+      return { data: "OPEN" };
+    } catch (error) {
+      logOperationError(error);
+      return {
+        error:
+          "We’re sorry, but an issue arose.  Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
+      };
+    }
+  };
