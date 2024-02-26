@@ -1,16 +1,35 @@
 "use client";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import { ApplicantFormData } from "@/server/actions/applicant/schema";
 import { Step } from "@/types";
+import {
+  ApplicantAdditionalFileData,
+  ApplicantImageData,
+  ApplicationDetails,
+} from "@/types/application";
+import { UploadFileResponse } from "@/types/uploadthing";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { isEqual } from "lodash";
 import {
   ChangeEvent,
+  useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
-  useCallback,
-  useMemo,
 } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -26,30 +45,9 @@ import {
 } from "react-icons/fa6";
 import { MdOutlineAccessTime } from "react-icons/md";
 import z from "zod";
-import { FormSchema, ImageSchema, EducationFileSchema } from "./data";
+import { EducationFileSchema, FormSchema, ImageSchema } from "./data";
 import MobileNavigation from "./mobileNavigation";
 import SideNavigation from "./sideNavigation";
-import { isEqual } from "lodash";
-import {
-  ApplicantImageData,
-  ApplicantProgram,
-  ApplicationDetails,
-  ApplicantEducationFileData,
-} from "@/types/application";
-import { ApplicantFormData } from "@/server/actions/applicant/schema";
-import { UploadFileResponse } from "@/types/uploadthing";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { ApplicantAdditionalFileData } from "@/types/application";
 
 import Attachments from "./attachments";
 import Contacts from "./contacts";
@@ -60,14 +58,14 @@ import Priorities from "./priorities";
 import Profile from "./profile";
 
 import {
+  addApplicantAdditionalFile,
+  addApplicantEducationFile,
+  addApplicantImageData,
+  deleteApplicantAdditionalFileData,
+  deleteApplicantEducationFileData,
+  deleteApplicantImageData,
   deleteApplicantProgrammePriority,
   saveApplicationData,
-  addApplicantImageData,
-  addApplicantEducationFile,
-  deleteApplicantImageData,
-  deleteApplicantEducationFileData,
-  addApplicantAdditionalFile,
-  deleteApplicantAdditionalFileData,
 } from "@/server/actions/applicant";
 
 interface Props {
@@ -839,7 +837,12 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
       },
       {
         label: "Education",
-        stepContent: <Education form={form} />,
+        stepContent: (
+          <Education
+            applicantApplicationId={applicantApplicationId}
+            form={form}
+          />
+        ),
         errors: educationErrors,
         Icon: FaBook,
       },
@@ -861,7 +864,12 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
       },
       {
         label: "Payments",
-        stepContent: <Payment />,
+        stepContent: (
+          <Payment
+            applicantApplicationId={applicantApplicationId}
+            applicantControlNumber={data.applicantControlNumber}
+          />
+        ),
         Icon: FaCreditCard,
       },
     ],
@@ -875,6 +883,7 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
       data.applicantImageData,
       data.applicantEducationFileData,
       data.applicantAdditionalFileData,
+      data.applicantControlNumber,
       imagePreview,
       handleFileRemove,
       imageErrorMessage,

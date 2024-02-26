@@ -41,11 +41,12 @@ import { useState } from "react";
 
 interface Props {
   form: UseFormReturn<z.infer<typeof FormSchema>>;
+  applicantApplicationId: string;
 }
 
 const maxItems = 4;
 
-const Education = ({ form }: Props) => {
+const Education = ({ form, applicantApplicationId }: Props) => {
   const { fields, append, move, remove } = useFieldArray({
     control: form.control,
     name: "education",
@@ -98,6 +99,7 @@ const Education = ({ form }: Props) => {
       setIsLoading(true);
       const { data, error } = await addApplicantEducationBackground(
         fields.length,
+        applicantApplicationId,
       );
       setIsLoading(false);
 
@@ -138,7 +140,10 @@ const Education = ({ form }: Props) => {
     const removeItemId = fields[index]._id;
 
     setIsLoading(true);
-    const { error } = await deleteApplicantEducationBackground(removeItemId);
+    const { error } = await deleteApplicantEducationBackground(
+      removeItemId,
+      applicantApplicationId,
+    );
     setIsLoading(false);
 
     if (error) {

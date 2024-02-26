@@ -9,15 +9,16 @@ import {
 } from "@/components/ui/tooltip";
 import toast from "react-hot-toast";
 
-const CopyToClipboard = () => {
-  const [controlNumber, setControlNumber] = useState(
-    "213142343242342342342342342",
-  );
+interface Props {
+  controlNumber: number;
+}
+
+const CopyToClipboard = ({ controlNumber }: Props) => {
   const [copySuccess, setCopySuccess] = useState(false);
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(controlNumber);
+      await navigator.clipboard.writeText(controlNumber.toString());
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 600);
     } catch (err) {

@@ -16,6 +16,8 @@ type Origin = "NECTA" | "FOREIGN" | "NECTA1988";
 
 type ApplicationStatusName = "DRAFT" | "ACCEPTED" | "UNDER_REVIEW" | "REJECTED";
 
+type PaymentStatusName = "PENDING" | "SUCCESS" | "FAILED" | "CANCELLED";
+
 interface ApplicantNotification {
   id: string; // Unique identifier for the notification
   title: string; // Title of the notification
@@ -111,6 +113,12 @@ interface ApplicantAdditionalFileData {
   size: number;
 }
 
+interface ApplicantControlNumber {
+  applicantApplicationId: string;
+  controlNumber: number | null;
+  status: PaymentStatusName;
+}
+
 interface ApplicationDetails {
   applicantEducationBackground: ApplicantEducationBackground[];
   programmePriorities: ApplicantProgram[];
@@ -121,6 +129,7 @@ interface ApplicationDetails {
   applicantContacts: ApplicantContacts;
   applicantEmergencyContacts: ApplicantEmergencyContacts;
   applicantHighestEducation: EducationLevelName;
+  applicantControlNumber: ApplicantControlNumber;
 }
 
 export type {
@@ -135,4 +144,6 @@ export type {
   ApplicantImageData,
   ApplicantEducationFileData,
   ApplicantAdditionalFileData,
+  ApplicantControlNumber,
+  PaymentStatusName,
 };

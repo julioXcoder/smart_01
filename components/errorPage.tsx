@@ -43,7 +43,7 @@ const ErrorPage = ({ errorMessage }: Props) => {
               variant={"secondary"}
             >
               <IoArrowBackOutline className="h-4 w-4 flex-shrink-0" />
-              go back
+              return to previous page
             </Button>
           </div>
         </div>

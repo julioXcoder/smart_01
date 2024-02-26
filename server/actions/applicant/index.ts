@@ -287,6 +287,12 @@ export const newApplicantAccount = async (
       },
     });
 
+    await prisma.applicationPayment.create({
+      data: {
+        applicantApplicationId: newApplicantApplication.id,
+      },
+    });
+
     const data = { id: newApplicant.username, role: newApplicant.role };
 
     const token = await createToken(data);
@@ -596,12 +602,19 @@ export const getApplicationDetails = async (
         },
       });
 
+    const applicantControlNumber = await prisma.applicationPayment.findUnique({
+      where: {
+        applicantApplicationId: applicantApplication.id,
+      },
+    });
+
     if (
       !applicantProfile ||
       !applicantContacts ||
       !applicantEmergencyContacts ||
       !applicantImageData ||
-      !applicantEducationFileData
+      !applicantEducationFileData ||
+      !applicantControlNumber
     ) {
       throw new Error(
         `Unable to locate the applicant details for the applicant with the username: ${applicant.username}.`,
@@ -619,6 +632,7 @@ export const getApplicationDetails = async (
         applicantHighestEducation: applicantApplication.highestEducationLevel,
         applicantEducationFileData,
         applicantAdditionalFileData,
+        applicantControlNumber,
       },
     };
   } catch (error) {
@@ -1170,6 +1184,7 @@ export const addApplicantEducationFile = async (
   const applicantApplication = await prisma.applicantApplication.findUnique({
     where: {
       id: applicantApplicationId,
+      applicantUsername: applicant.username,
     },
   });
 
@@ -1227,6 +1242,7 @@ export const addApplicantAdditionalFile = async (
   const applicantApplication = await prisma.applicantApplication.findUnique({
     where: {
       id: applicantApplicationId,
+      applicantUsername: applicant.username,
     },
   });
 
@@ -1275,6 +1291,7 @@ export const deleteApplicantImageData = async (
   const applicantApplication = await prisma.applicantApplication.findUnique({
     where: {
       id: applicantApplicationId,
+      applicantUsername: applicant.username,
     },
   });
 
@@ -1515,3 +1532,60 @@ export const isApplicationPeriodOpen =
       };
     }
   };
+
+export const generateControlNumber = async (
+  applicantApplicationId: string,
+): Promise<GenericResponse> => {
+  const username = headers().get("userId");
+  try {
+    if (!username) {
+      throw new Error("Applicant details now found!");
+    }
+
+    const applicant = await prisma.applicant.findUnique({
+      where: {
+        username,
+      },
+    });
+
+    if (!applicant) {
+      throw new Error("Applicant details now found!");
+    }
+
+    const applicantApplication = await prisma.applicantApplication.findUnique({
+      where: {
+        id: applicantApplicationId,
+        applicantUsername: applicant.username,
+      },
+    });
+
+    if (!applicantApplication) {
+      return {
+        error:
+          "We're sorry, but we couldn't find the application you're looking for. Please double-check your information and try again.",
+      };
+    }
+
+    // FIXME: use api to get control number
+    const controlNumber =
+      Math.floor(Math.random() * 900000000000) + 100000000000;
+
+    const newApplicationPayment = await prisma.applicationPayment.update({
+      where: { applicantApplicationId: applicantApplication.id },
+      data: {
+        controlNumber,
+      },
+    });
+
+    revalidatePath(
+      `/applicant_portal/edit_application/${applicantApplicationId}`,
+    );
+    return { data: "OK!" };
+  } catch (error) {
+    logOperationError(error);
+    return {
+      error:
+        "We’re sorry, but an issue arose while generating your control number. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
+    };
+  }
+};
