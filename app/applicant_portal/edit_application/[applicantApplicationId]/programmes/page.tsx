@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import mustLogo from "@/public/logo/must.svg";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
+import ErrorPage from "@/components/errorPage";
 
 interface Props {
   params: { applicantApplicationId: string };
@@ -14,7 +15,9 @@ interface Props {
 const Page = async ({ params: { applicantApplicationId } }: Props) => {
   const { data, error } = await getApplicantProgrammes(applicantApplicationId);
 
-  if (error) return <div className="mt-20">{error}</div>;
+  if (error) {
+    <ErrorPage errorMessage={error} />;
+  }
 
   if (data) {
     return (

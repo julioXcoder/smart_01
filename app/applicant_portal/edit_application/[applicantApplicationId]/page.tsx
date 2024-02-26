@@ -1,5 +1,6 @@
 import EditComponent from "./editComponent";
 import { getApplicationDetails } from "@/server/actions/applicant";
+import ErrorPage from "@/components/errorPage";
 
 interface Props {
   params: { applicantApplicationId: string };
@@ -8,9 +9,8 @@ interface Props {
 const Page = async ({ params: { applicantApplicationId } }: Props) => {
   const { data, error } = await getApplicationDetails(applicantApplicationId);
 
-  // FIXME: Build an error card
   if (error) {
-    <div>{error}</div>;
+    <ErrorPage errorMessage={error} />;
   }
 
   if (data) {

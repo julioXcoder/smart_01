@@ -6,7 +6,7 @@ const Spinner = () => {
       <div className="flex items-center gap-x-3">
         <Logo />
       </div>
-      <span className="loader w-14 h-14 text-black dark:text-white"></span>
+      <span className="loader h-14 w-14 text-black dark:text-white"></span>
     </div>
   );
 };

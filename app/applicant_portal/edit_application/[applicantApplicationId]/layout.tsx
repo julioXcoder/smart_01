@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import Appbar from "@/components/layout/appbar";
 import { getApplicantDetails } from "@/server/actions/applicant";
+import ErrorPage from "@/components/errorPage";
 
 interface Props {
   children: ReactNode;
@@ -13,7 +14,9 @@ const Layout = async ({
 }: Props) => {
   const { data, error } = await getApplicantDetails(applicantApplicationId);
 
-  if (error) return <>{error}</>;
+  if (error) {
+    <ErrorPage errorMessage={error} />;
+  }
 
   if (data) {
     return (

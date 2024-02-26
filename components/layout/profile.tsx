@@ -76,7 +76,7 @@ const Profile = ({ fullName, username, imageUrl }: Props) => {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          {/* <DropdownMenuItem>
             <Link
               href="/applicant_portal/programmes"
               className="flex w-full items-center"
@@ -84,7 +84,7 @@ const Profile = ({ fullName, username, imageUrl }: Props) => {
               <IoSearch className="mr-2 h-4 w-4" />
               <span>Search Programmes</span>
             </Link>
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
           <DropdownMenuItem>
             <FaQuestionCircle className="mr-2 h-4 w-4" />
             <span>How To Apply</span>

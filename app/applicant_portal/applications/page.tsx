@@ -27,6 +27,7 @@ import {
 } from "react-icons/ai";
 import { ReactNode } from "react";
 import { ApplicantApplication } from "@/server/actions/applicant/schema";
+import ErrorPage from "@/components/errorPage";
 
 function getStatusText(applicationStatus: ApplicationStatusName): {
   title: string;
@@ -102,10 +103,8 @@ function getStatusText(applicationStatus: ApplicationStatusName): {
 const Page = async () => {
   const { data, error } = await getApplicantData();
 
-  // FIXME: Build an error card
-
   if (error) {
-    <div>{error}</div>;
+    <ErrorPage errorMessage={error} />;
   }
 
   if (data) {
