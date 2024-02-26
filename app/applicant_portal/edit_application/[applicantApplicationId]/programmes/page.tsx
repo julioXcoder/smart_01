@@ -7,15 +7,22 @@ import { Button } from "@/components/ui/button";
 import mustLogo from "@/public/logo/must.svg";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 
-const Page = async () => {
-  const { data, error } = await getApplicantProgrammes();
+interface Props {
+  params: { applicantApplicationId: string };
+}
+
+const Page = async ({ params: { applicantApplicationId } }: Props) => {
+  const { data, error } = await getApplicantProgrammes(applicantApplicationId);
 
   if (error) return <div className="mt-20">{error}</div>;
 
   if (data) {
     return (
       <div className="mx-auto max-w-6xl py-6 sm:px-4 lg:px-8 lg:py-10">
-        <SearchComponent programmes={data} />
+        <SearchComponent
+          applicantApplicationId={applicantApplicationId}
+          programmes={data}
+        />
       </div>
     );
   }

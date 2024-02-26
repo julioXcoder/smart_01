@@ -29,6 +29,7 @@ interface Props {
   onMoveDown: (index: number) => void;
   onDelete: (index: number) => void;
   programmePrioritiesErrorMessage: string;
+  applicantApplicationId: string;
 }
 
 const Priorities = ({
@@ -37,6 +38,7 @@ const Priorities = ({
   onMoveDown,
   onDelete,
   programmePrioritiesErrorMessage,
+  applicantApplicationId,
 }: Props) => {
   // const handleMoveUp = (index: number) => {
   //   if (index === 0) return;
@@ -184,7 +186,10 @@ const Priorities = ({
             {programmePrioritiesErrorMessage}
           </div>
         )}
-        <Link href={"/applicant_portal/programmes"}>
+        {/* FIXME:  */}
+        <Link
+          href={`/applicant_portal/edit_application/${applicantApplicationId}/programmes`}
+        >
           <Button className="bg-green-500 hover:bg-green-600">
             <IoSearch className="mr-2 h-4 w-4 shrink-0" /> search{" "}
             <span

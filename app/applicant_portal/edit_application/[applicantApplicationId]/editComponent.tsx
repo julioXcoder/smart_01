@@ -72,9 +72,10 @@ import {
 
 interface Props {
   data: ApplicationDetails;
+  applicantApplicationId: string;
 }
 
-const EditComponent = ({ data }: Props) => {
+const EditComponent = ({ data, applicantApplicationId }: Props) => {
   const [step, setStep] = useState(0);
   const [isSaved, setIsSaved] = useState(true);
 
@@ -344,8 +345,10 @@ const EditComponent = ({ data }: Props) => {
       // Then perform the server operation
       const programmeToDelete = programmePriorities[index];
 
-      const { data, error } =
-        await deleteApplicantProgrammePriority(programmeToDelete);
+      const { data, error } = await deleteApplicantProgrammePriority(
+        programmeToDelete,
+        applicantApplicationId,
+      );
 
       if (error) {
         toast.error(error, { duration: 6000 });
@@ -354,58 +357,60 @@ const EditComponent = ({ data }: Props) => {
         toast.success(data, { duration: 6000 });
       }
     },
-    [programmePriorities],
+    [applicantApplicationId, programmePriorities],
   );
 
-  const handleImageUpload = async (
-    file: File,
-    method: string,
-    imageData?: any,
-  ) => {
-    const formData = new FormData();
-    formData.append("imageFile", file);
+  const handleImageUpload = useCallback(
+    async (file: File, method: string, imageData?: any) => {
+      const formData = new FormData();
+      formData.append("imageFile", file);
 
-    if (imageData) {
-      for (let key in imageData) {
-        if (Object.prototype.hasOwnProperty.call(imageData, key)) {
-          const element = imageData[key as keyof typeof imageData];
-          formData.append(key, String(element));
+      if (imageData) {
+        for (let key in imageData) {
+          if (Object.prototype.hasOwnProperty.call(imageData, key)) {
+            const element = imageData[key as keyof typeof imageData];
+            formData.append(key, String(element));
+          }
         }
       }
-    }
 
-    const responsePromise = fetch("/api/applicant/image", {
-      method,
-      body: formData,
-    });
-
-    toast.promise(responsePromise, {
-      loading: `${method === "PUT" ? "Updating" : "Uploading"} image...`,
-      success: <b>Image processed successfully!</b>,
-      error: <b>Could not process the image.</b>,
-    });
-
-    const response = await responsePromise;
-
-    if (!response.ok) {
-      return false;
-    }
-
-    const uploadedImage: UploadFileResponse = await response.json();
-    const { data: imageDataResponse, error } = uploadedImage;
-
-    if (imageDataResponse) {
-      toast.promise(addApplicantImageData(imageDataResponse), {
-        loading: "Saving image...",
-        success: <b>Image saved.</b>,
-        error: <b>Oops failed to save image</b>,
+      const responsePromise = fetch("/api/applicant/image", {
+        method,
+        body: formData,
       });
-      return true;
-    } else if (error) {
-      toast.error("Image upload failed!", { duration: 6000 });
-      return false;
-    }
-  };
+
+      toast.promise(responsePromise, {
+        loading: `${method === "PUT" ? "Updating" : "Uploading"} image...`,
+        success: <b>Image processed successfully!</b>,
+        error: <b>Could not process the image.</b>,
+      });
+
+      const response = await responsePromise;
+
+      if (!response.ok) {
+        return false;
+      }
+
+      const uploadedImage: UploadFileResponse = await response.json();
+      const { data: imageDataResponse, error } = uploadedImage;
+
+      if (imageDataResponse) {
+        toast.promise(
+          addApplicantImageData(imageDataResponse, applicantApplicationId),
+          {
+            loading: "Saving image...",
+            success: <b>Image saved.</b>,
+            error: <b>Oops failed to save image</b>,
+          },
+        );
+        return true;
+      } else if (error) {
+        toast.error("Image upload failed!", { duration: 6000 });
+        return false;
+      }
+    },
+    [applicantApplicationId],
+  );
 
   const handleImageChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
@@ -446,58 +451,64 @@ const EditComponent = ({ data }: Props) => {
       event.target.value = "";
       setIsUploadingImage(false);
     },
-    [data.applicantImageData],
+    [data.applicantImageData, handleImageUpload],
   );
 
-  const handleEducationFileUpload = async (
-    file: File,
-    method: string,
-    fileData?: any,
-  ) => {
-    const formData = new FormData();
-    formData.append("file", file);
+  const handleEducationFileUpload = useCallback(
+    async (file: File, method: string, fileData?: any) => {
+      const formData = new FormData();
+      formData.append("file", file);
 
-    if (fileData) {
-      for (let key in fileData) {
-        if (Object.prototype.hasOwnProperty.call(fileData, key)) {
-          const element = fileData[key as keyof typeof fileData];
-          formData.append(key, String(element));
+      if (fileData) {
+        for (let key in fileData) {
+          if (Object.prototype.hasOwnProperty.call(fileData, key)) {
+            const element = fileData[key as keyof typeof fileData];
+            formData.append(key, String(element));
+          }
         }
       }
-    }
 
-    const responsePromise = fetch("/api/applicant/file", {
-      method,
-      body: formData,
-    });
-
-    toast.promise(responsePromise, {
-      loading: `${method === "PUT" ? "Updating" : "Uploading"} file...`,
-      success: <b>File processed successfully!</b>,
-      error: <b>Could not process the file.</b>,
-    });
-
-    const response = await responsePromise;
-
-    if (!response.ok) {
-      return false;
-    }
-
-    const uploadedFile: UploadFileResponse = await response.json();
-    const { data: fileDataResponse, error } = uploadedFile;
-
-    if (fileDataResponse) {
-      toast.promise(addApplicantEducationFile(fileDataResponse, file.type), {
-        loading: "Saving file...",
-        success: <b>File saved.</b>,
-        error: <b>Oops failed to save file</b>,
+      const responsePromise = fetch("/api/applicant/file", {
+        method,
+        body: formData,
       });
-      return true;
-    } else if (error) {
-      toast.error("File upload failed!", { duration: 6000 });
-      return false;
-    }
-  };
+
+      toast.promise(responsePromise, {
+        loading: `${method === "PUT" ? "Updating" : "Uploading"} file...`,
+        success: <b>File processed successfully!</b>,
+        error: <b>Could not process the file.</b>,
+      });
+
+      const response = await responsePromise;
+
+      if (!response.ok) {
+        return false;
+      }
+
+      const uploadedFile: UploadFileResponse = await response.json();
+      const { data: fileDataResponse, error } = uploadedFile;
+
+      if (fileDataResponse) {
+        toast.promise(
+          addApplicantEducationFile(
+            fileDataResponse,
+            file.type,
+            applicantApplicationId,
+          ),
+          {
+            loading: "Saving file...",
+            success: <b>File saved.</b>,
+            error: <b>Oops failed to save file</b>,
+          },
+        );
+        return true;
+      } else if (error) {
+        toast.error("File upload failed!", { duration: 6000 });
+        return false;
+      }
+    },
+    [applicantApplicationId],
+  );
 
   const handleEducationFileChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
@@ -532,7 +543,7 @@ const EditComponent = ({ data }: Props) => {
       event.target.value = "";
       setIsUploadingFile(false);
     },
-    [data.applicantEducationFileData],
+    [data.applicantEducationFileData, handleEducationFileUpload],
   );
 
   const handleAdditionalFileChange = useCallback(
@@ -578,7 +589,11 @@ const EditComponent = ({ data }: Props) => {
 
         if (fileDataResponse) {
           toast.promise(
-            addApplicantAdditionalFile(fileDataResponse, file.type),
+            addApplicantAdditionalFile(
+              fileDataResponse,
+              file.type,
+              applicantApplicationId,
+            ),
             {
               loading: "Saving file...",
               success: <b>File saved.</b>,
@@ -593,51 +608,54 @@ const EditComponent = ({ data }: Props) => {
       event.target.value = "";
       setIsUploadingFile(false);
     },
-    [],
+    [applicantApplicationId],
   );
 
   // Helper function to handle image removal
-  const handleImageRemoval = async (imageData: ApplicantImageData) => {
-    const formData = new FormData();
+  const handleImageRemoval = useCallback(
+    async (imageData: ApplicantImageData) => {
+      const formData = new FormData();
 
-    for (let key in imageData) {
-      if (Object.prototype.hasOwnProperty.call(imageData, key)) {
-        const element = imageData[key as keyof typeof imageData];
-        formData.append(key, String(element));
+      for (let key in imageData) {
+        if (Object.prototype.hasOwnProperty.call(imageData, key)) {
+          const element = imageData[key as keyof typeof imageData];
+          formData.append(key, String(element));
+        }
       }
-    }
 
-    const responsePromise = fetch("/api/applicant/image", {
-      method: "DELETE",
-      body: formData,
-    });
-
-    toast.promise(responsePromise, {
-      loading: "Removing image...",
-      success: <b>Image removed successfully!</b>,
-      error: <b>Could not remove the image.</b>,
-    });
-
-    const response = await responsePromise;
-
-    if (!response.ok) {
-      return false;
-    }
-
-    const success: boolean = await response.json();
-
-    if (success) {
-      toast.promise(deleteApplicantImageData(), {
-        loading: "Removing image...",
-        success: <b>Image removed.</b>,
-        error: <b>Oops failed to remove image</b>,
+      const responsePromise = fetch("/api/applicant/image", {
+        method: "DELETE",
+        body: formData,
       });
-      return true;
-    } else {
-      toast.error("Image removal failed!", { duration: 6000 });
-      return false;
-    }
-  };
+
+      toast.promise(responsePromise, {
+        loading: "Removing image...",
+        success: <b>Image removed successfully!</b>,
+        error: <b>Could not remove the image.</b>,
+      });
+
+      const response = await responsePromise;
+
+      if (!response.ok) {
+        return false;
+      }
+
+      const success: boolean = await response.json();
+
+      if (success) {
+        toast.promise(deleteApplicantImageData(applicantApplicationId), {
+          loading: "Removing image...",
+          success: <b>Image removed.</b>,
+          error: <b>Oops failed to remove image</b>,
+        });
+        return true;
+      } else {
+        toast.error("Image removal failed!", { duration: 6000 });
+        return false;
+      }
+    },
+    [applicantApplicationId],
+  );
 
   const handleFileRemove = useCallback(async () => {
     const prevImagePreView = imagePreview;
@@ -655,45 +673,51 @@ const EditComponent = ({ data }: Props) => {
     }
 
     setIsUploadingImage(false);
-  }, [data, imagePreview]);
+  }, [data.applicantImageData, handleImageRemoval, imagePreview]);
 
   // Helper function to handle education file removal
-  const handleEducationFileRemoval = async (key: string) => {
-    const formData = new FormData();
+  const handleEducationFileRemoval = useCallback(
+    async (key: string) => {
+      const formData = new FormData();
 
-    formData.append("key", key);
+      formData.append("key", key);
 
-    const responsePromise = fetch("/api/applicant/file", {
-      method: "DELETE",
-      body: formData,
-    });
-
-    toast.promise(responsePromise, {
-      loading: "Removing file...",
-      success: <b>File removed successfully!</b>,
-      error: <b>Could not remove the file.</b>,
-    });
-
-    const response = await responsePromise;
-
-    if (!response.ok) {
-      return false;
-    }
-
-    const success: boolean = await response.json();
-
-    if (success) {
-      toast.promise(deleteApplicantEducationFileData(), {
-        loading: "Removing file...",
-        success: <b>File removed.</b>,
-        error: <b>Oops failed to remove file</b>,
+      const responsePromise = fetch("/api/applicant/file", {
+        method: "DELETE",
+        body: formData,
       });
-      return true;
-    } else {
-      toast.error("File removal failed!", { duration: 6000 });
-      return false;
-    }
-  };
+
+      toast.promise(responsePromise, {
+        loading: "Removing file...",
+        success: <b>File removed successfully!</b>,
+        error: <b>Could not remove the file.</b>,
+      });
+
+      const response = await responsePromise;
+
+      if (!response.ok) {
+        return false;
+      }
+
+      const success: boolean = await response.json();
+
+      if (success) {
+        toast.promise(
+          deleteApplicantEducationFileData(applicantApplicationId),
+          {
+            loading: "Removing file...",
+            success: <b>File removed.</b>,
+            error: <b>Oops failed to remove file</b>,
+          },
+        );
+        return true;
+      } else {
+        toast.error("File removal failed!", { duration: 6000 });
+        return false;
+      }
+    },
+    [applicantApplicationId],
+  );
 
   const handleEducationFileRemove = useCallback(async () => {
     if (data.applicantAdditionalFileData.length > 0) {
@@ -715,7 +739,11 @@ const EditComponent = ({ data }: Props) => {
     }
 
     setIsUploadingFile(false);
-  }, [data]);
+  }, [
+    data.applicantAdditionalFileData.length,
+    data.applicantEducationFileData.key,
+    handleEducationFileRemoval,
+  ]);
 
   const handleAdditionalFileRemove = useCallback(
     async (file: ApplicantAdditionalFileData) => {
@@ -747,18 +775,21 @@ const EditComponent = ({ data }: Props) => {
       const success: boolean = await response.json();
 
       if (success) {
-        toast.promise(deleteApplicantAdditionalFileData(file.id), {
-          loading: "Removing file...",
-          success: <b>File removed.</b>,
-          error: <b>Oops failed to remove file</b>,
-        });
+        toast.promise(
+          deleteApplicantAdditionalFileData(file.id, applicantApplicationId),
+          {
+            loading: "Removing file...",
+            success: <b>File removed.</b>,
+            error: <b>Oops failed to remove file</b>,
+          },
+        );
       } else {
         toast.error("File removal failed!", { duration: 6000 });
       }
 
       setIsUploadingFile(false);
     },
-    [],
+    [applicantApplicationId],
   );
 
   const steps: Step[] = useMemo(
@@ -772,6 +803,7 @@ const EditComponent = ({ data }: Props) => {
             programmePrioritiesErrorMessage={programmePrioritiesErrorMessage}
             onMoveDown={moveDown}
             onDelete={deleteProgramme}
+            applicantApplicationId={applicantApplicationId}
           />
         ),
         Icon: FaList,
@@ -839,6 +871,7 @@ const EditComponent = ({ data }: Props) => {
       programmePrioritiesErrorMessage,
       moveDown,
       deleteProgramme,
+      applicantApplicationId,
       data.applicantImageData,
       data.applicantEducationFileData,
       data.applicantAdditionalFileData,
@@ -927,11 +960,14 @@ const EditComponent = ({ data }: Props) => {
       applicantProgrammes: applicantPriorities,
     };
 
-    toast.promise(saveApplicationData(applicantFormData), {
-      loading: `${loadingText}`,
-      success: <b>{successText}</b>,
-      error: <b>{errorText}</b>,
-    });
+    toast.promise(
+      saveApplicationData(applicantFormData, applicantApplicationId),
+      {
+        loading: `${loadingText}`,
+        success: <b>{successText}</b>,
+        error: <b>{errorText}</b>,
+      },
+    );
   };
 
   const handleSubmitApplication = () => {

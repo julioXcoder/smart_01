@@ -21,7 +21,7 @@ const roleConfig: {
     allowedUrls: ["/staff/examination_officer"],
   },
   APPLICANT: {
-    dashboardUrl: "/applicant_portal/dashboard",
+    dashboardUrl: "/applicant_portal/applications",
     allowedUrls: ["/applicant_portal"],
   },
   // Add more roles and their configurations here

@@ -34,9 +34,10 @@ const levels: ProgrammeLevelName[] = [
 
 interface Props {
   programmes: Programme[] | null;
+  applicantApplicationId: string;
 }
 
-const SearchComponent = ({ programmes }: Props) => {
+const SearchComponent = ({ programmes, applicantApplicationId }: Props) => {
   const router = useRouter();
   const [loading, setIsLoading] = useState(false);
   const [selectedLevels, setSelectedLevels] = useState<ProgrammeLevelName[]>(
@@ -138,8 +139,10 @@ const SearchComponent = ({ programmes }: Props) => {
 
   const handleAddApplicantProgramme = async (programmeCode: string) => {
     setIsLoading(true);
-    const { data: redirect, error } =
-      await addApplicantProgrammePriority(programmeCode);
+    const { data: redirect, error } = await addApplicantProgrammePriority(
+      programmeCode,
+      applicantApplicationId,
+    );
 
     if (error) {
       toast.error(error, { duration: 6000 });
@@ -193,7 +196,9 @@ const SearchComponent = ({ programmes }: Props) => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div> */}
-              <Link href="/applicant_portal/edit">
+              <Link
+                href={`/applicant_portal/edit_application/${applicantApplicationId}`}
+              >
                 <Button variant={"outline"}>
                   <MdArrowBack className="mr-1 h-4 w-4 shrink-0" />
                   Return to Edit

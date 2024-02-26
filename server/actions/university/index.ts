@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 
 import type { GenericResponse } from "./schema";
 
-const createNewAcademicYear = async ({
+export const createNewAcademicYear = async ({
   name,
   startTime,
   endTime,
@@ -34,6 +34,7 @@ const createNewAcademicYear = async ({
       },
     });
 
+    revalidatePath("/management/new_academic_year");
     return { data: "OK" };
   } catch (error) {
     logOperationError(error);
@@ -41,5 +42,23 @@ const createNewAcademicYear = async ({
       error:
         "Oops! We couldn’t create the new academic year. Please try again or reach out to our support team for further assistance.",
     };
+  }
+};
+
+export const getCurrentYear = async (): Promise<GenericResponse> => {
+  try {
+    const latestAcademicYear = await prisma.academicYear.findFirst({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    if (!latestAcademicYear) {
+      return { data: "Latest Academic Year not found!" };
+    }
+
+    return { data: latestAcademicYear.name };
+  } catch (error) {
+    return { error: "error" };
   }
 };

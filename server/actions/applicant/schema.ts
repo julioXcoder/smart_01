@@ -9,7 +9,7 @@ import {
   ApplicationStatusName,
 } from "@/types/application";
 import z from "zod";
-import { FormSchema } from "@/app/applicant_portal/edit/data";
+import { FormSchema } from "@/app/applicant_portal/edit_application/[applicantApplicationId]/data";
 import { Programme } from "@/types/university";
 import { Response } from "@/types/api";
 
@@ -50,10 +50,24 @@ interface ApplicantApplication {
   programmePriorities: ApplicantProgram[];
 }
 
+interface GroupedByYear {
+  year: string;
+  applications: ApplicantApplication[];
+}
+
 interface ApplicantData {
   username: string;
   notifications: ApplicantNotification[];
-  applications: ApplicantApplication[];
+  // applications: ApplicantApplication[];
+  years: GroupedByYear[];
+}
+
+interface ApplicantDetails {
+  username: string;
+  imageUrl: string;
+  firstName: string;
+  lastName: string;
+  notifications: ApplicantNotification[];
 }
 
 // FIXME: applicant edit page
@@ -82,6 +96,8 @@ type ApplicantApplicationsResponse = Response<ApplicantApplication[]>;
 
 type ApplicantProgrammesResponse = Response<Programme[]>;
 
+type ApplicantDetailsResponse = Response<ApplicantDetails>;
+
 type ApplicationStatusResponse = Response<ApplicationStatus>;
 
 type ApplicationDetailsResponse = Response<ApplicationDetails>;
@@ -93,6 +109,7 @@ export type {
   ApplicantFormData,
   ApplicantApplication,
   ApplicantDataResponse,
+  ApplicantDetailsResponse,
   ApplicationPeriodResponse,
   ApplicationStatusResponse,
   ApplicationDetailsResponse,

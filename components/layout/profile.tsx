@@ -64,16 +64,13 @@ const Profile = ({ fullName, username, imageUrl }: Props) => {
           </DropdownMenuItem>
           <DropdownMenuItem>
             <Link
-              href="/applicant_portal/dashboard"
+              href="/applicant_portal/applications"
               className="flex w-full items-center justify-between"
             >
               <div className="flex items-center">
                 <BiLayer className="mr-2 h-4 w-4" />
-                <span>My Application</span>
+                <span>My Applications</span>
               </div>
-              {/* <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-800 dark:bg-blue-800/30 dark:text-blue-50">
-                4
-              </div> */}
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>

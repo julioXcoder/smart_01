@@ -8,9 +8,7 @@ const Page = async () => {
   if (error) return <div>{error}</div>;
 
   if (data) {
-    {
-      data === "OPEN" ? <StepperForm /> : <ClosedApplicationCard />;
-    }
+    return <>{data === "OPEN" ? <StepperForm /> : <ClosedApplicationCard />}</>;
   }
 };
 
