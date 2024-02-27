@@ -1113,7 +1113,6 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
 
   return (
     <div>
-      draft:{JSON.stringify(draftSaving)}
       <div className="flex w-full items-center justify-center">
         <div>
           <MobileNavigation
