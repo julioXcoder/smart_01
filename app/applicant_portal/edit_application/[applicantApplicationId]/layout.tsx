@@ -15,7 +15,7 @@ const Layout = async ({
   const { data, error } = await getApplicantDetails(applicantApplicationId);
 
   if (error) {
-    <ErrorPage errorMessage={error} />;
+    return <ErrorPage errorMessage={error} />;
   }
 
   if (data) {
@@ -27,7 +27,7 @@ const Layout = async ({
           imageUrl={data.imageUrl}
           fullName={`${data.firstName} ${data.lastName}`}
         />
-        <div className="mx-auto py-10 sm:px-6 lg:px-8 lg:py-14">{children}</div>
+        <div className="mx-auto my-14 max-w-[85rem] p-4 sm:p-6">{children}</div>
       </div>
     );
   }

@@ -115,7 +115,7 @@ interface ApplicantAdditionalFileData {
 
 interface ApplicantControlNumber {
   applicantApplicationId: string;
-  controlNumber: number | null;
+  controlNumber: string;
   status: PaymentStatusName;
 }
 

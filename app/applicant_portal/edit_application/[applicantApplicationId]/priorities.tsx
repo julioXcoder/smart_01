@@ -30,6 +30,8 @@ interface Props {
   onDelete: (index: number) => void;
   programmePrioritiesErrorMessage: string;
   applicantApplicationId: string;
+  draftSaving: boolean;
+  isSubmitting: boolean;
 }
 
 const Priorities = ({
@@ -39,6 +41,8 @@ const Priorities = ({
   onDelete,
   programmePrioritiesErrorMessage,
   applicantApplicationId,
+  draftSaving,
+  isSubmitting,
 }: Props) => {
   // const handleMoveUp = (index: number) => {
   //   if (index === 0) return;
@@ -98,7 +102,7 @@ const Priorities = ({
 
                 <div className="flex items-center space-x-2">
                   <Button
-                    disabled={index === 0}
+                    disabled={index === 0 || isSubmitting || draftSaving}
                     onClick={() => onMoveUp(index)}
                     variant="outline"
                     size="icon"
@@ -107,7 +111,11 @@ const Priorities = ({
                     <FiArrowUp className="h-4 w-4" />
                   </Button>
                   <Button
-                    disabled={index === applicantProgrammes.length - 1}
+                    disabled={
+                      index === applicantProgrammes.length - 1 ||
+                      isSubmitting ||
+                      draftSaving
+                    }
                     onClick={() => onMoveDown(index)}
                     variant="outline"
                     size="icon"
@@ -118,6 +126,7 @@ const Priorities = ({
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
+                        disabled={isSubmitting || draftSaving}
                         variant="outline"
                         size="icon"
                         className="text-red-500 hover:bg-red-600 hover:text-white "
@@ -190,7 +199,10 @@ const Priorities = ({
         <Link
           href={`/applicant_portal/edit_application/${applicantApplicationId}/programmes`}
         >
-          <Button className="bg-green-500 hover:bg-green-600">
+          <Button
+            disabled={isSubmitting || draftSaving}
+            className="bg-green-500 hover:bg-green-600"
+          >
             <IoSearch className="mr-2 h-4 w-4 shrink-0" /> search{" "}
             <span
               className={`mx-1 ${

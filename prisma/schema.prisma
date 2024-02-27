@@ -178,7 +178,7 @@ model ApplicantEmergencyContacts {
 
 model ApplicationPayment {
   applicantApplicationId String        @id @map("_id") @db.ObjectId
-  controlNumber          Int?
+  controlNumber          String        @default("")
   status                 PaymentStatus @default(PENDING)
 }
 

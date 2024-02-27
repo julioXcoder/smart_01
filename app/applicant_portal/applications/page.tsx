@@ -104,7 +104,7 @@ const Page = async () => {
   const { data, error } = await getApplicantData();
 
   if (error) {
-    <ErrorPage errorMessage={error} />;
+    return <ErrorPage errorMessage={error} />;
   }
 
   if (data) {

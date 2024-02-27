@@ -7,7 +7,7 @@ const Page = async () => {
   const { data, error } = await isApplicationPeriodOpen();
 
   if (error) {
-    <ErrorPage errorMessage={error} />;
+    return <ErrorPage errorMessage={error} />;
   }
 
   if (data) {

@@ -14,12 +14,11 @@ import {
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { BiChevronDown, BiLayer } from "react-icons/bi";
 import { FaHeadset, FaQuestionCircle } from "react-icons/fa";
-import { IoSearch } from "react-icons/io5";
+import { useRouter } from "next/navigation";
 import { LuUser } from "react-icons/lu";
 import avatarImage from "@/public/avatar.svg";
 import { MdEvent, MdLogout } from "react-icons/md";
 import ProfileThemeChanger from "./profileThemeChanger";
-import Link from "next/link";
 import Image from "next/image";
 
 interface Props {
@@ -29,6 +28,12 @@ interface Props {
 }
 
 const Profile = ({ fullName, username, imageUrl }: Props) => {
+  const router = useRouter();
+
+  const handleNavigation = (path: string) => {
+    router.push(path);
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -53,25 +58,15 @@ const Profile = ({ fullName, username, imageUrl }: Props) => {
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <Link
-              href="/applicant_portal/profile"
-              className="flex w-full items-center"
-            >
-              <LuUser className="mr-2 h-4 w-4" />
-              <span>Profile</span>
-            </Link>
+          <DropdownMenuItem onClick={() => console.log("profile")}>
+            <LuUser className="mr-2 h-4 w-4" />
+            <span>Profile</span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Link
-              href="/applicant_portal/applications"
-              className="flex w-full items-center justify-between"
-            >
-              <div className="flex items-center">
-                <BiLayer className="mr-2 h-4 w-4" />
-                <span>My Applications</span>
-              </div>
-            </Link>
+          <DropdownMenuItem
+            onClick={() => handleNavigation("/applicant_portal/applications")}
+          >
+            <BiLayer className="mr-2 h-4 w-4" />
+            <span>My Applications</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
@@ -96,7 +91,7 @@ const Profile = ({ fullName, username, imageUrl }: Props) => {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => console.log("Events")}>
             <MdEvent className="mr-2 h-4 w-4" />
             <span>Events</span>
           </DropdownMenuItem>
@@ -116,16 +111,13 @@ const Profile = ({ fullName, username, imageUrl }: Props) => {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <Link
-              href="/api/logout/applicant"
-              className="flex w-full items-center"
-            >
-              <div className="flex w-full items-center hover:text-red-500">
-                <MdLogout className="mr-2 h-4 w-4 " />
-                <span>Log Out</span>
-              </div>
-            </Link>
+          <DropdownMenuItem
+            onClick={() => handleNavigation("/api/logout/applicant")}
+          >
+            <div className="flex w-full items-center hover:text-red-500">
+              <MdLogout className="mr-2 h-4 w-4" />
+              <span>Log Out</span>
+            </div>
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

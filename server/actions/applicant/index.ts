@@ -301,7 +301,7 @@ export const newApplicantAccount = async (
 
     return { data: "/applicant_portal/applications" };
   } catch (error) {
-    logOperationError(error);
+    logOperationError(error, "newApplicantAccount");
     return {
       error:
         "We’re sorry, but we were unable to create your account at this time. Please try again later, and if the problem persists, reach out to our support team for assistance.",
@@ -422,7 +422,7 @@ export const getApplicantData = async (): Promise<ApplicantDataResponse> => {
       },
     };
   } catch (error) {
-    logOperationError(error);
+    logOperationError(error, "getApplicantData");
     return {
       error:
         "Apologies for the inconvenience. We encountered an issue while retrieving your applicant data. Please reach out to our dedicated support team for further assistance. We appreciate your understanding and patience",
@@ -500,7 +500,7 @@ export const getApplicantDetails = async (
       },
     };
   } catch (error) {
-    logOperationError(error);
+    logOperationError(error, "getApplicantDetails");
     return {
       error:
         "We’re sorry, but an issue arose while retrieving your details. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
@@ -636,7 +636,7 @@ export const getApplicationDetails = async (
       },
     };
   } catch (error) {
-    logOperationError(error);
+    logOperationError(error, "getApplicationDetails");
     return {
       error:
         "We’re sorry, but an issue arose while retrieving your application details. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
@@ -731,7 +731,7 @@ export const addApplicantProgrammePriority = async (
       data: `/applicant_portal/edit_application/${applicantApplication.id}`,
     };
   } catch (error) {
-    logOperationError(error);
+    logOperationError(error, "addApplicantProgrammePriority");
     return {
       error:
         "We’re sorry, but an issue arose while adding applicant programme priority.",
@@ -799,7 +799,7 @@ export const deleteApplicantProgrammePriority = async (
     );
     return { data: "Programme Deleted!" };
   } catch (error) {
-    logOperationError(error);
+    logOperationError(error, "deleteApplicantProgrammePriority");
     return {
       error:
         "We’re sorry, but an issue arose while deleting applicant programme priority.",
@@ -861,7 +861,7 @@ export const addApplicantEducationBackground = async (
 
     return { data: newEducation.id };
   } catch (error) {
-    logOperationError(error);
+    logOperationError(error, "addApplicantEducationBackground");
     return {
       error:
         "We’re sorry, but an issue arose while adding applicant education background.",
@@ -913,7 +913,7 @@ export const deleteApplicantEducationBackground = async (
     );
     return { data: "Removed!" };
   } catch (error) {
-    logOperationError(error);
+    logOperationError(error, "deleteApplicantEducationBackground");
     return {
       error:
         "We’re sorry, but an issue arose while deleting applicant education background.",
@@ -924,143 +924,151 @@ export const deleteApplicantEducationBackground = async (
 export const saveApplicationData = async (
   applicantFormData: ApplicantFormData,
   applicantApplicationId: string,
-) => {
+): Promise<GenericResponse> => {
   const username = headers().get("userId");
+  try {
+    if (!username) {
+      throw new Error("Applicant details now found!");
+    }
 
-  if (!username) {
-    throw new Error("Applicant details now found!");
-  }
+    const applicant = await prisma.applicant.findUnique({
+      where: {
+        username,
+      },
+    });
 
-  const applicant = await prisma.applicant.findUnique({
-    where: {
-      username,
-    },
-  });
+    if (!applicant) {
+      throw new Error("Applicant details now found!");
+    }
 
-  if (!applicant) {
-    throw new Error("Applicant details now found!");
-  }
+    const applicantApplication = await prisma.applicantApplication.findUnique({
+      where: {
+        id: applicantApplicationId,
+        applicantUsername: applicant.username,
+      },
+    });
 
-  const applicantApplication = await prisma.applicantApplication.findUnique({
-    where: {
-      id: applicantApplicationId,
-      applicantUsername: applicant.username,
-    },
-  });
+    if (!applicantApplication) {
+      return {
+        error:
+          "We're sorry, but we couldn't find the application you're looking for. Please double-check your information and try again.",
+      };
+    }
 
-  if (!applicantApplication) {
-    return {
-      error:
-        "We're sorry, but we couldn't find the application you're looking for. Please double-check your information and try again.",
-    };
-  }
-
-  const {
-    firstName,
-    middleName,
-    lastName,
-    nida,
-    applicantEmail,
-    applicantPhoneNumber,
-    citizenship,
-    country,
-    emergencyContactCity,
-    emergencyContactCountry,
-    emergencyContactEmail,
-    emergencyContactPhoneNumber,
-    emergencyContactPostalCode,
-    emergencyContactRegion,
-    emergencyContactRelation,
-    emergencyContactStreetAddress,
-    city,
-    gender,
-    region,
-    postalCode,
-    streetAddress,
-    emergencyContactFullName,
-    applicantAlternativeEmail,
-    applicantAlternativePhoneNumber,
-    emergencyContactAlternativeEmail,
-    emergencyContactAlternativePhoneNumber,
-    education,
-  } = applicantFormData.formData;
-
-  await prisma.applicantProfile.update({
-    where: {
-      applicantApplicationId: applicantApplication.id,
-    },
-    data: {
-      nida,
+    const {
       firstName,
       middleName,
       lastName,
-      nationality: citizenship,
-      gender,
-    },
-  });
-
-  await prisma.applicantContacts.update({
-    where: {
-      applicantApplicationId: applicantApplication.id,
-    },
-    data: {
-      phone: applicantPhoneNumber,
-      email: applicantEmail,
-      alternativeEmail: applicantAlternativeEmail,
-      alternativePhoneNumber: applicantAlternativePhoneNumber,
-      streetAddress,
+      nida,
+      applicantEmail,
+      applicantPhoneNumber,
+      citizenship,
+      country,
+      emergencyContactCity,
+      emergencyContactCountry,
+      emergencyContactEmail,
+      emergencyContactPhoneNumber,
+      emergencyContactPostalCode,
+      emergencyContactRegion,
+      emergencyContactRelation,
+      emergencyContactStreetAddress,
       city,
+      gender,
       region,
       postalCode,
-      country,
-    },
-  });
+      streetAddress,
+      emergencyContactFullName,
+      applicantAlternativeEmail,
+      applicantAlternativePhoneNumber,
+      emergencyContactAlternativeEmail,
+      emergencyContactAlternativePhoneNumber,
+      education,
+    } = applicantFormData.formData;
 
-  await prisma.applicantEmergencyContacts.update({
-    where: {
-      applicantApplicationId: applicantApplication.id,
-    },
-    data: {
-      fullName: emergencyContactFullName,
-      phone: emergencyContactPhoneNumber,
-      email: emergencyContactEmail,
-      alternativeEmail: emergencyContactAlternativeEmail,
-      alternativePhoneNumber: emergencyContactAlternativePhoneNumber,
-      streetAddress: emergencyContactStreetAddress,
-      city: emergencyContactCity,
-      region: emergencyContactRegion,
-      postalCode: emergencyContactPostalCode,
-      country: emergencyContactCountry,
-      relation: emergencyContactRelation,
-    },
-  });
-
-  for (const educationBackground of education) {
-    await prisma.applicantEducationBackground.update({
-      where: { id: educationBackground._id },
+    await prisma.applicantProfile.update({
+      where: {
+        applicantApplicationId: applicantApplication.id,
+      },
       data: {
-        position: educationBackground.position,
-        level: educationBackground.level,
-        schoolName: educationBackground.schoolName,
-        startYear: educationBackground.startYear,
-        endYear: educationBackground.endYear,
+        nida,
+        firstName,
+        middleName,
+        lastName,
+        nationality: citizenship,
+        gender,
       },
     });
-  }
 
-  for (const programme of applicantFormData.applicantProgrammes) {
-    await prisma.applicantProgrammes.update({
-      where: { id: programme.id },
+    await prisma.applicantContacts.update({
+      where: {
+        applicantApplicationId: applicantApplication.id,
+      },
       data: {
-        priority: programme.priority,
-        programmeCode: programme.programmeCode,
+        phone: applicantPhoneNumber,
+        email: applicantEmail,
+        alternativeEmail: applicantAlternativeEmail,
+        alternativePhoneNumber: applicantAlternativePhoneNumber,
+        streetAddress,
+        city,
+        region,
+        postalCode,
+        country,
       },
     });
-  }
 
-  revalidatePath(
-    `/applicant_portal/edit_application/${applicantApplication.id}`,
-  );
+    await prisma.applicantEmergencyContacts.update({
+      where: {
+        applicantApplicationId: applicantApplication.id,
+      },
+      data: {
+        fullName: emergencyContactFullName,
+        phone: emergencyContactPhoneNumber,
+        email: emergencyContactEmail,
+        alternativeEmail: emergencyContactAlternativeEmail,
+        alternativePhoneNumber: emergencyContactAlternativePhoneNumber,
+        streetAddress: emergencyContactStreetAddress,
+        city: emergencyContactCity,
+        region: emergencyContactRegion,
+        postalCode: emergencyContactPostalCode,
+        country: emergencyContactCountry,
+        relation: emergencyContactRelation,
+      },
+    });
+
+    for (const educationBackground of education) {
+      await prisma.applicantEducationBackground.update({
+        where: { id: educationBackground._id },
+        data: {
+          position: educationBackground.position,
+          level: educationBackground.level,
+          schoolName: educationBackground.schoolName,
+          startYear: educationBackground.startYear,
+          endYear: educationBackground.endYear,
+        },
+      });
+    }
+
+    for (const programme of applicantFormData.applicantProgrammes) {
+      await prisma.applicantProgrammes.update({
+        where: { id: programme.id },
+        data: {
+          priority: programme.priority,
+          programmeCode: programme.programmeCode,
+        },
+      });
+    }
+
+    revalidatePath(
+      `/applicant_portal/edit_application/${applicantApplication.id}`,
+    );
+    return { data: "Saved!" };
+  } catch (error) {
+    logOperationError(error, "saveApplicationData");
+    return {
+      error:
+        "We’re sorry, but an issue arose while saving applicant information. Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
+    };
+  }
 };
 
 export const authorizeApplicant = async ({
@@ -1091,7 +1099,7 @@ export const authorizeApplicant = async ({
 
     return { data: "/applicant_portal/applications" };
   } catch (error) {
-    logOperationError(error);
+    logOperationError(error, "authorizeApplicant");
     return {
       error:
         "We’re sorry, but an issue arose while signing in. Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
@@ -1481,7 +1489,7 @@ export const getApplicantProgrammes = async (
 
     return { data: validProgrammes };
   } catch (error) {
-    logOperationError(error);
+    logOperationError(error, "getApplicantProgrammes");
     return {
       error:
         "We’re sorry, but an issue arose while getting applicant programmes.",
@@ -1525,7 +1533,7 @@ export const isApplicationPeriodOpen =
 
       return { data: "OPEN" };
     } catch (error) {
-      logOperationError(error);
+      logOperationError(error, "isApplicationPeriodOpen");
       return {
         error:
           "We’re sorry, but an issue arose.  Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
@@ -1570,10 +1578,12 @@ export const generateControlNumber = async (
     const controlNumber =
       Math.floor(Math.random() * 900000000000) + 100000000000;
 
+    const controlNumberString = controlNumber.toString();
+
     const newApplicationPayment = await prisma.applicationPayment.update({
       where: { applicantApplicationId: applicantApplication.id },
       data: {
-        controlNumber,
+        controlNumber: controlNumberString,
       },
     });
 
@@ -1582,7 +1592,7 @@ export const generateControlNumber = async (
     );
     return { data: "OK!" };
   } catch (error) {
-    logOperationError(error);
+    logOperationError(error, "generateControlNumber");
     return {
       error:
         "We’re sorry, but an issue arose while generating your control number. For further assistance, please don’t hesitate to reach out to our dedicated support team.",

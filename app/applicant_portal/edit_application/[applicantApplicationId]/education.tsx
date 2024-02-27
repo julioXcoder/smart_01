@@ -42,11 +42,18 @@ import { useState } from "react";
 interface Props {
   form: UseFormReturn<z.infer<typeof FormSchema>>;
   applicantApplicationId: string;
+  draftSaving: boolean;
+  isSubmitting: boolean;
 }
 
 const maxItems = 4;
 
-const Education = ({ form, applicantApplicationId }: Props) => {
+const Education = ({
+  form,
+  applicantApplicationId,
+  draftSaving,
+  isSubmitting,
+}: Props) => {
   const { fields, append, move, remove } = useFieldArray({
     control: form.control,
     name: "education",
@@ -168,7 +175,7 @@ const Education = ({ form, applicantApplicationId }: Props) => {
               <Badge className="shrink-0"># {index + 1}</Badge>
               <div className="flex items-center space-x-2">
                 <Button
-                  disabled={index === 0}
+                  disabled={index === 0 || isSubmitting || draftSaving}
                   onClick={() => handleMoveUp(index)}
                   variant="outline"
                   size="icon"
@@ -177,7 +184,9 @@ const Education = ({ form, applicantApplicationId }: Props) => {
                   <FiArrowUp className="h-4 w-4" />
                 </Button>
                 <Button
-                  disabled={index === fields.length - 1}
+                  disabled={
+                    index === fields.length - 1 || isSubmitting || draftSaving
+                  }
                   onClick={() => handleMoveDown(index)}
                   variant="outline"
                   size="icon"
@@ -189,7 +198,7 @@ const Education = ({ form, applicantApplicationId }: Props) => {
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
-                        disabled={isLoading}
+                        disabled={isLoading || isSubmitting || draftSaving}
                         variant="outline"
                         size="icon"
                         className="text-red-500 hover:bg-red-600 hover:text-white "
@@ -234,7 +243,7 @@ const Education = ({ form, applicantApplicationId }: Props) => {
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger disabled={isSubmitting || draftSaving}>
                           <SelectValue placeholder="Select education level" />
                         </SelectTrigger>
                       </FormControl>
@@ -257,7 +266,10 @@ const Education = ({ form, applicantApplicationId }: Props) => {
                   <FormItem>
                     <FormLabel>Official name of school or university</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input
+                        disabled={isSubmitting || draftSaving}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -276,7 +288,7 @@ const Education = ({ form, applicantApplicationId }: Props) => {
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger disabled={isSubmitting || draftSaving}>
                           <SelectValue placeholder="Select your start year" />
                         </SelectTrigger>
                       </FormControl>
@@ -303,7 +315,7 @@ const Education = ({ form, applicantApplicationId }: Props) => {
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger disabled={isSubmitting || draftSaving}>
                           <SelectValue placeholder="Select your end year" />
                         </SelectTrigger>
                       </FormControl>
@@ -326,7 +338,12 @@ const Education = ({ form, applicantApplicationId }: Props) => {
 
       <div className="my-5 flex w-full items-center justify-center">
         <Button
-          disabled={fields.length >= maxItems || isLoading}
+          disabled={
+            fields.length >= maxItems ||
+            isLoading ||
+            isSubmitting ||
+            draftSaving
+          }
           className="flex items-center gap-2"
           variant={"outline"}
           onClick={handleAddItem}

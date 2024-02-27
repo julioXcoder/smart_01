@@ -11,7 +11,7 @@ import toast from "react-hot-toast";
 import { PaymentStatusName } from "@/types/application";
 
 interface Props {
-  controlNumber: number;
+  controlNumber: string;
   status: PaymentStatusName;
 }
 
@@ -20,7 +20,7 @@ const ControlNCard = ({ controlNumber, status }: Props) => {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(controlNumber.toString());
+      await navigator.clipboard.writeText(controlNumber);
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 600);
     } catch (err) {

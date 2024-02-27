@@ -1,0 +1,10 @@
+2024-Feb-27 00:23:02 [Operation] error: 
+Invalid `prisma.applicantApplication.findUnique()` invocation:
+
+
+Inconsistent column data: Malformed ObjectID: provided hex string representation must be exactly 12 bytes, instead got: "65dcedfa24757c084491efe", length 23.
+2024-Feb-27 00:23:02 [Operation] error: 
+Invalid `prisma.applicantApplication.findUnique()` invocation:
+
+
+Inconsistent column data: Malformed ObjectID: provided hex string representation must be exactly 12 bytes, instead got: "65dcedfa24757c084491efe", length 23.

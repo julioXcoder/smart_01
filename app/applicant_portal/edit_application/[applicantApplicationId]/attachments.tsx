@@ -23,6 +23,8 @@ interface Props {
   onFileRemove: () => void;
   onAdditionalFileRemove: (file: ApplicantAdditionalFileData) => void;
   uploadingFile: boolean;
+  draftSaving: boolean;
+  isSubmitting: boolean;
 }
 
 function getEducationLevelDisplayText(level: EducationLevelName): string {
@@ -92,6 +94,8 @@ const Attachments = ({
   onAdditionalFileUpdate,
   uploadingFile,
   onAdditionalFileRemove,
+  draftSaving,
+  isSubmitting,
 }: Props) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const multipleFilesInputRef = useRef<HTMLInputElement>(null);
@@ -167,7 +171,7 @@ const Attachments = ({
                   <Button
                     onClick={handleButtonClick}
                     size={"sm"}
-                    disabled={uploadingFile}
+                    disabled={uploadingFile || isSubmitting || draftSaving}
                     variant={"secondary"}
                   >
                     change file
@@ -175,7 +179,7 @@ const Attachments = ({
                   <Button
                     onClick={onFileRemove}
                     size={"sm"}
-                    disabled={uploadingFile}
+                    disabled={uploadingFile || isSubmitting || draftSaving}
                     variant={"destructive"}
                   >
                     {/* <IoMdTrash className="mr-2 h-4 w-4 shrink-0" /> */}
@@ -205,7 +209,6 @@ const Attachments = ({
           <input
             accept="image/jpeg, image/jpg, image/gif, image/png, application/pdf, image/tif"
             type="file"
-            disabled={uploadingFile}
             className="hidden"
             ref={fileInputRef}
             onChange={onFileUpdate}
@@ -229,7 +232,6 @@ const Attachments = ({
             accept="image/jpeg, image/jpg, image/gif, image/png, application/pdf, image/tif"
             type="file"
             className="hidden"
-            disabled={uploadingFile}
             ref={multipleFilesInputRef}
             onChange={onAdditionalFileUpdate}
           />
@@ -249,7 +251,7 @@ const Attachments = ({
                     <Button
                       onClick={() => onAdditionalFileRemove(file)}
                       size={"sm"}
-                      disabled={uploadingFile}
+                      disabled={uploadingFile || isSubmitting || draftSaving}
                       variant={"destructive"}
                     >
                       delete file
@@ -262,7 +264,7 @@ const Attachments = ({
 
           {applicantAdditionalFileData.length < 3 && (
             <Button
-              disabled={uploadingFile}
+              disabled={uploadingFile || isSubmitting || draftSaving}
               className="my-4 bg-green-500 hover:bg-green-600"
               onClick={handleMultipleFileSelect}
             >

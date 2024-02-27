@@ -11,9 +11,16 @@ import { ApplicantControlNumber } from "@/types/application";
 interface Props {
   applicantApplicationId: string;
   applicantControlNumber: ApplicantControlNumber;
+  draftSaving: boolean;
+  isSubmitting: boolean;
 }
 
-const Payment = ({ applicantApplicationId, applicantControlNumber }: Props) => {
+const Payment = ({
+  applicantApplicationId,
+  applicantControlNumber,
+  draftSaving,
+  isSubmitting,
+}: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -63,14 +70,15 @@ const Payment = ({ applicantApplicationId, applicantControlNumber }: Props) => {
                   To proceed with your application, a fee of 10,000 Tanzanian
                   Shillings is required.
                 </p>
-                {!applicantControlNumber.controlNumber && (
+                {/* FIXME: return ! */}
+                {applicantControlNumber.controlNumber && (
                   <div className="mt-4">
                     <p className="mb-2 text-sm text-gray-700 dark:text-gray-400">
                       Click the button below to generate the control number:
                     </p>
 
                     <Button
-                      disabled={isLoading}
+                      disabled={isLoading || isSubmitting || draftSaving}
                       onClick={handleGenerateControlNumber}
                       className="w-full"
                       type="button"

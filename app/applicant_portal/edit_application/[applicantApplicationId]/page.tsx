@@ -10,7 +10,7 @@ const Page = async ({ params: { applicantApplicationId } }: Props) => {
   const { data, error } = await getApplicationDetails(applicantApplicationId);
 
   if (error) {
-    <ErrorPage errorMessage={error} />;
+    return <ErrorPage errorMessage={error} />;
   }
 
   if (data) {

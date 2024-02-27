@@ -112,25 +112,10 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
     data.applicantImageData.imageUrl,
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [loading, setIsLoading] = useState(false);
+  const [draftSaving, setDraftSaving] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadingImage, setIsUploadingImage] = useState(false);
   const [uploadingFile, setIsUploadingFile] = useState(false);
-
-  // useEffect(() => {
-  //   const initialState = {
-  //     programmePriorities: data.programmePriorities,
-  //   };
-
-  //   const currentState = {
-  //     programmePriorities,
-  //   };
-
-  //   if (isEqual(initialState, currentState)) {
-  //     setIsSaved(true);
-  //   } else {
-  //     setIsSaved(false);
-  //   }
-  // }, [data]);
 
   useEffect(() => {
     const initialState = {
@@ -796,6 +781,8 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
         label: "Priorities",
         stepContent: (
           <Priorities
+            draftSaving={draftSaving}
+            isSubmitting={isSubmitting}
             applicantProgrammes={programmePriorities}
             onMoveUp={moveUp}
             programmePrioritiesErrorMessage={programmePrioritiesErrorMessage}
@@ -811,6 +798,8 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
         label: "Profile",
         stepContent: (
           <Profile
+            draftSaving={draftSaving}
+            isSubmitting={isSubmitting}
             applicantImageData={data.applicantImageData}
             imagePreview={imagePreview}
             onImageDelete={handleFileRemove}
@@ -825,13 +814,25 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
       },
       {
         label: "Contacts",
-        stepContent: <Contacts form={form} />,
+        stepContent: (
+          <Contacts
+            draftSaving={draftSaving}
+            isSubmitting={isSubmitting}
+            form={form}
+          />
+        ),
         errors: contactErrors,
         Icon: FaAddressBook,
       },
       {
         label: "Emergency",
-        stepContent: <EmergencyContact form={form} />,
+        stepContent: (
+          <EmergencyContact
+            draftSaving={draftSaving}
+            isSubmitting={isSubmitting}
+            form={form}
+          />
+        ),
         errors: emergencyContactErrors,
         Icon: FaExclamation,
       },
@@ -839,6 +840,8 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
         label: "Education",
         stepContent: (
           <Education
+            draftSaving={draftSaving}
+            isSubmitting={isSubmitting}
             applicantApplicationId={applicantApplicationId}
             form={form}
           />
@@ -850,6 +853,8 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
         label: "Attachments",
         stepContent: (
           <Attachments
+            draftSaving={draftSaving}
+            isSubmitting={isSubmitting}
             applicantEducationFileData={data.applicantEducationFileData}
             onFileUpdate={handleEducationFileChange}
             applicantAdditionalFileData={data.applicantAdditionalFileData}
@@ -866,6 +871,8 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
         label: "Payments",
         stepContent: (
           <Payment
+            draftSaving={draftSaving}
+            isSubmitting={isSubmitting}
             applicantApplicationId={applicantApplicationId}
             applicantControlNumber={data.applicantControlNumber}
           />
@@ -874,6 +881,8 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
       },
     ],
     [
+      draftSaving,
+      isSubmitting,
       programmePriorities,
       moveUp,
       programmePrioritiesErrorMessage,
@@ -934,6 +943,7 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
   };
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
+    setIsSubmitting(true);
     handleSaveAsDraft({ successText: "Saved" });
 
     toast.success(
@@ -942,6 +952,8 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
         duration: 6000,
       },
     );
+
+    setIsSubmitting(false);
   }
 
   const handleSaveAsDraft = async ({
@@ -953,6 +965,7 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
     errorText?: string;
     loadingText?: string;
   }) => {
+    setDraftSaving(true);
     const formData = form.getValues();
     clearAllErrors();
 
@@ -969,14 +982,20 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
       applicantProgrammes: applicantPriorities,
     };
 
-    toast.promise(
-      saveApplicationData(applicantFormData, applicantApplicationId),
-      {
-        loading: `${loadingText}`,
-        success: <b>{successText}</b>,
-        error: <b>{errorText}</b>,
-      },
+    const responsePromise = saveApplicationData(
+      applicantFormData,
+      applicantApplicationId,
     );
+
+    toast.promise(responsePromise, {
+      loading: `${loadingText}`,
+      success: <b>{successText}</b>,
+      error: <b>{errorText}</b>,
+    });
+
+    const { data } = await responsePromise;
+
+    setDraftSaving(false);
   };
 
   const handleSubmitApplication = () => {
@@ -1094,6 +1113,7 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
 
   return (
     <div>
+      draft:{JSON.stringify(draftSaving)}
       <div className="flex w-full items-center justify-center">
         <div>
           <MobileNavigation
@@ -1105,7 +1125,6 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
           />
         </div>
       </div>
-
       <div className="grid grid-cols-10">
         <div className="hidden overflow-y-auto pt-2 transition-all duration-300 md:col-span-2 md:block">
           <SideNavigation
@@ -1135,6 +1154,7 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
               className="mt-2 w-full"
               variant="secondary"
               onClick={() => handleSaveAsDraft({})}
+              disabled={isSubmitting || draftSaving}
             >
               <span className="flex items-center gap-2">
                 <MdOutlineAccessTime className="h-4 w-4 shrink-0" />
@@ -1143,7 +1163,10 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
             </Button>
 
             <AlertDialog>
-              <AlertDialogTrigger asChild>
+              <AlertDialogTrigger
+                disabled={isSubmitting || draftSaving}
+                asChild
+              >
                 <Button className="mt-2 w-full">
                   <span className="flex items-center gap-2">
                     <FaPaperPlane className="h-4 w-4 shrink-0" />

@@ -50,6 +50,8 @@ interface Props {
   imageErrorMessage: string;
   applicantImageData: ApplicantImageData;
   uploadingImage: boolean;
+  draftSaving: boolean;
+  isSubmitting: boolean;
 }
 
 const Profile = ({
@@ -60,6 +62,8 @@ const Profile = ({
   imageErrorMessage,
   applicantImageData,
   uploadingImage,
+  draftSaving,
+  isSubmitting,
 }: Props) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -85,7 +89,11 @@ const Profile = ({
               <FormItem>
                 <FormLabel>First Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter your first name" {...field} />
+                  <Input
+                    disabled={isSubmitting || draftSaving}
+                    placeholder="Enter your first name"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -98,7 +106,11 @@ const Profile = ({
               <FormItem>
                 <FormLabel>Middle Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter your middle name" {...field} />
+                  <Input
+                    disabled={isSubmitting || draftSaving}
+                    placeholder="Enter your middle name"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -111,7 +123,11 @@ const Profile = ({
               <FormItem>
                 <FormLabel>Last Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter your last name" {...field} />
+                  <Input
+                    disabled={isSubmitting || draftSaving}
+                    placeholder="Enter your last name"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -130,7 +146,7 @@ const Profile = ({
                   defaultValue={field.value}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger disabled={isSubmitting || draftSaving}>
                       <SelectValue placeholder="Select your Gender" />
                     </SelectTrigger>
                   </FormControl>
@@ -153,7 +169,10 @@ const Profile = ({
               <FormItem className="flex flex-col">
                 <FormLabel>Nationality</FormLabel>
                 <Popover>
-                  <PopoverTrigger asChild>
+                  <PopoverTrigger
+                    disabled={isSubmitting || draftSaving}
+                    asChild
+                  >
                     <FormControl>
                       <Button
                         variant="outline"
@@ -214,7 +233,11 @@ const Profile = ({
               <FormItem>
                 <FormLabel>NIDA</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter your NIDA number" {...field} />
+                  <Input
+                    disabled={isSubmitting || draftSaving}
+                    placeholder="Enter your NIDA number"
+                    {...field}
+                  />
                 </FormControl>
                 <FormDescription>
                   Your NIDA number is a unique identifier assigned to you by
@@ -290,17 +313,25 @@ const Profile = ({
 
           {!uploadingImage && (
             <div className="flex flex-col gap-2">
-              <Button variant={"secondary"} onClick={handleButtonClick}>
+              <Button
+                disabled={isSubmitting || draftSaving}
+                variant={"secondary"}
+                onClick={handleButtonClick}
+              >
                 <AiOutlineCloudUpload className="mr-2 h-4 w-4 shrink-0" />
                 {applicantImageData.imageUrl ? "Change" : "Upload"} image
               </Button>
               {applicantImageData.name && (
                 <span className="text-small flex items-center gap-x-2">
                   {applicantImageData.name}{" "}
-                  <IoMdTrash
+                  <Button
                     onClick={onImageDelete}
-                    className="h-6 w-6 shrink-0 cursor-pointer text-red-600"
-                  />
+                    variant={"ghost"}
+                    disabled={isSubmitting || draftSaving}
+                    size={"icon"}
+                  >
+                    <IoMdTrash className="h-6 w-6 shrink-0 cursor-pointer text-red-600" />
+                  </Button>
                 </span>
               )}
               {imageErrorMessage && (

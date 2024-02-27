@@ -1,11 +1,11 @@
 import { getCurrentYear } from "@/server/actions/university";
-
+import ErrorPage from "@/components/errorPage";
 import NewAcademicYearForm from "./newAcademicYearForm";
 
 const Page = async () => {
   const { data, error } = await getCurrentYear();
 
-  if (error) return <>error</>;
+  if (error) return <ErrorPage errorMessage={error} />;
 
   if (data) {
     return (

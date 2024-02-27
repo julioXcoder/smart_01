@@ -29,9 +29,11 @@ import { FormSchema, countries } from "./data";
 
 interface Props {
   form: UseFormReturn<z.infer<typeof FormSchema>>;
+  draftSaving: boolean;
+  isSubmitting: boolean;
 }
 
-const EmergencyContact = ({ form }: Props) => {
+const EmergencyContact = ({ form, draftSaving, isSubmitting }: Props) => {
   return (
     <>
       <h1 className="block text-2xl font-bold text-gray-800 dark:text-white">
@@ -52,7 +54,7 @@ const EmergencyContact = ({ form }: Props) => {
                 <FormItem>
                   <FormLabel>Emergency Contact Full Name</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input disabled={isSubmitting || draftSaving} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -70,7 +72,7 @@ const EmergencyContact = ({ form }: Props) => {
                     </span>
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input disabled={isSubmitting || draftSaving} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -84,6 +86,7 @@ const EmergencyContact = ({ form }: Props) => {
                   <FormLabel>Emergency contact Phone Number</FormLabel>
                   <FormControl>
                     <Input
+                      disabled={isSubmitting || draftSaving}
                       placeholder="Include country code, e.g., +25512345678"
                       {...field}
                     />
@@ -104,7 +107,7 @@ const EmergencyContact = ({ form }: Props) => {
                     </span>
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input disabled={isSubmitting || draftSaving} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -123,6 +126,7 @@ const EmergencyContact = ({ form }: Props) => {
                   </FormLabel>
                   <FormControl>
                     <Input
+                      disabled={isSubmitting || draftSaving}
                       placeholder="Include country code, e.g., +25512345678"
                       {...field}
                     />
@@ -142,7 +146,7 @@ const EmergencyContact = ({ form }: Props) => {
                 <FormItem>
                   <FormLabel>Emergency Contact Street Address</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input disabled={isSubmitting || draftSaving} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -155,7 +159,7 @@ const EmergencyContact = ({ form }: Props) => {
                 <FormItem>
                   <FormLabel>Emergency Contact City, town, village</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input disabled={isSubmitting || draftSaving} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -170,7 +174,7 @@ const EmergencyContact = ({ form }: Props) => {
                     Emergency Contact Region, province, county
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input disabled={isSubmitting || draftSaving} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -183,7 +187,7 @@ const EmergencyContact = ({ form }: Props) => {
                 <FormItem>
                   <FormLabel>Emergency Contact Postal Code</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input disabled={isSubmitting || draftSaving} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -199,6 +203,7 @@ const EmergencyContact = ({ form }: Props) => {
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
+                          disabled={isSubmitting || draftSaving}
                           variant="outline"
                           role="combobox"
                           className={cn(
@@ -259,7 +264,7 @@ const EmergencyContact = ({ form }: Props) => {
                 <FormItem>
                   <FormLabel>Emergency Contact Relation</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input disabled={isSubmitting || draftSaving} {...field} />
                   </FormControl>
                   <FormDescription>
                     This could be a parent, sibling, spouse, fiancée, friend, or
