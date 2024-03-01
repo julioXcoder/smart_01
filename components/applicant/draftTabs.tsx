@@ -47,7 +47,7 @@ const DraftTabs = () => {
 
   return (
     <Tabs defaultValue="priorities">
-      <TabsList className={`sticky md:top-16 ${show ? "top-16" : "top-2"}`}>
+      <TabsList className={`sticky md:top-20 ${show ? "top-16" : "top-2"}`}>
         {tabs.map((tab) => (
           <TabsTrigger key={tab.value} value={tab.value}>
             <tab.icon className="size-5 shrink-0 lg:size-[1.1rem] xl:mr-2" />
