@@ -6,8 +6,8 @@ interface Props {
 
 const MainComponent = ({ children }: Props) => {
   return (
-    <main className="p-4 sm:ml-64">
-      <div className="mt-20 rounded-lg border-2 border-dashed border-gray-200 p-4 dark:border-gray-700">
+    <main className="p-2 sm:ml-64">
+      <div className="mt-16 rounded-lg border-2 border-dashed border-gray-200 px-1 py-2 dark:border-gray-700 sm:p-4">
         {children}
       </div>
     </main>
