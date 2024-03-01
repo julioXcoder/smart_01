@@ -39,14 +39,15 @@ const pathToAuthUrl: {
 const authPaths = ["/auth/staff", "/auth/student", "/auth/applicant"];
 
 export async function middleware(request: NextRequest) {
-  let token = request.cookies.get("token")?.value;
-  const authUser = token && (await verifyAuth(token).catch((ex) => {}));
+  let token = request.cookies.get("session")?.value;
+  const authUser =
+    token && (await verifyAuth(token).catch((ex) => console.log(ex)));
 
   if (authUser) {
     const userId = authUser.id;
     const response = NextResponse.next();
 
-    response.headers.set("userId", userId);
+    // response.headers.set("userId", userId);
 
     const config = roleConfig[authUser.role];
 

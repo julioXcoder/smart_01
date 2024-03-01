@@ -43,6 +43,7 @@ interface ApplicantApplication {
   id: string;
   status: ApplicationStatusName;
   year: string;
+  createdAt: Date;
   type: ProgrammeLevelName;
   start: Date;
   end: Date;
@@ -60,6 +61,8 @@ interface ApplicantData {
   notifications: ApplicantNotification[];
   // applications: ApplicantApplication[];
   years: GroupedByYear[];
+  canCreateApp: boolean;
+  latestAcademicYearName: string;
 }
 
 interface ApplicantDetails {
@@ -86,6 +89,11 @@ interface ApplicantFormData {
   applicantProgrammes: ApplicantProgram[];
 }
 
+interface ApplicantProgrammesAndStatus {
+  programmes: Programme[];
+  status: ApplicationStatusName;
+}
+
 type GenericResponse = Response<string>;
 
 type ApplicationPeriodResponse = Response<"OPEN" | "CLOSED">;
@@ -94,7 +102,7 @@ type ApplicantDataResponse = Response<ApplicantData>;
 
 type ApplicantApplicationsResponse = Response<ApplicantApplication[]>;
 
-type ApplicantProgrammesResponse = Response<Programme[]>;
+type ApplicantProgrammesResponse = Response<ApplicantProgrammesAndStatus>;
 
 type ApplicantDetailsResponse = Response<ApplicantDetails>;
 

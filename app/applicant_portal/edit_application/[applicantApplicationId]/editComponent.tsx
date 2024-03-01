@@ -48,6 +48,7 @@ import z from "zod";
 import { EducationFileSchema, FormSchema, ImageSchema } from "./data";
 import MobileNavigation from "./mobileNavigation";
 import SideNavigation from "./sideNavigation";
+import { useRouter } from "next/navigation";
 
 import Attachments from "./attachments";
 import Contacts from "./contacts";
@@ -66,6 +67,7 @@ import {
   deleteApplicantImageData,
   deleteApplicantProgrammePriority,
   saveApplicationData,
+  submitApplicantApplication,
 } from "@/server/actions/applicant";
 
 interface Props {
@@ -74,6 +76,7 @@ interface Props {
 }
 
 const EditComponent = ({ data, applicantApplicationId }: Props) => {
+  const router = useRouter();
   const [step, setStep] = useState(0);
   const [isSaved, setIsSaved] = useState(true);
 
@@ -99,6 +102,7 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
     data.applicantEmergencyContacts,
   );
 
+  const [saveDraftErrorMessage, setSaveDraftErrorMessage] = useState("");
   const [profileErrors, setProfileErrors] = useState(0);
   const [contactErrors, setContactErrors] = useState(0);
   const [emergencyContactErrors, setEmergencyContactErrors] = useState(0);
@@ -942,18 +946,46 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
     return sortedProgrammes;
   };
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
     setIsSubmitting(true);
-    handleSaveAsDraft({ successText: "Saved" });
 
-    toast.success(
-      "Your application is successfully submitted and under review. Stay tuned!",
-      {
-        duration: 6000,
-      },
-    );
+    try {
+      await handleSaveAsDraft({ successText: "Saved" });
+    } catch (error) {
+      setIsSubmitting(false);
+      return;
+    }
 
-    setIsSubmitting(false);
+    setSaveDraftErrorMessage("");
+
+    const responsePromise = submitApplicantApplication(applicantApplicationId);
+
+    toast.promise(responsePromise, {
+      loading: "Your application is being processed. Please wait...",
+      success: (
+        <b>
+          Your application is successfully submitted and under review. Stay
+          tuned!
+        </b>
+      ),
+      error: (
+        <b>
+          Oops! Something went wrong while submitting your application. Please
+          try again.
+        </b>
+      ),
+    });
+
+    await responsePromise
+      .then((value) => {
+        router.replace(value as string);
+      })
+      .catch((error) => {
+        setSaveDraftErrorMessage(
+          "We’re sorry, but an issue arose while submitting your application. Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
+        );
+        setIsSubmitting(false);
+      });
   }
 
   const handleSaveAsDraft = async ({
@@ -967,6 +999,7 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
   }) => {
     setDraftSaving(true);
     const formData = form.getValues();
+    setSaveDraftErrorMessage("");
     clearAllErrors();
 
     const applicantPriorities = reorderPriorities();
@@ -993,12 +1026,18 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
       error: <b>{errorText}</b>,
     });
 
-    const { data } = await responsePromise;
-
-    setDraftSaving(false);
+    try {
+      await responsePromise;
+    } catch (error) {
+      setSaveDraftErrorMessage(
+        "We’re sorry, but an issue arose while saving your application data. Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
+      );
+      setDraftSaving(false);
+      throw error; // Propagate the error up
+    }
   };
 
-  const handleSubmitApplication = () => {
+  const handleSubmitApplication = async () => {
     const applicationFormValues = form.getValues();
 
     clearAllErrors();
@@ -1096,7 +1135,7 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
       return;
     }
 
-    form.handleSubmit(onSubmit)();
+    await form.handleSubmit(onSubmit)();
   };
 
   const clearAllErrors = () => {
@@ -1113,6 +1152,9 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
 
   return (
     <div>
+      {saveDraftErrorMessage && (
+        <p className="text-red-500">{saveDraftErrorMessage}</p>
+      )}
       <div className="flex w-full items-center justify-center">
         <div>
           <MobileNavigation
@@ -1161,36 +1203,38 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
               </span>
             </Button>
 
-            <AlertDialog>
-              <AlertDialogTrigger
-                disabled={isSubmitting || draftSaving}
-                asChild
-              >
-                <Button className="mt-2 w-full">
-                  <span className="flex items-center gap-2">
-                    <FaPaperPlane className="h-4 w-4 shrink-0" />
-                    Submit Application
-                  </span>
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>
-                    Application Submission Confirmation
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Please review your information carefully before submitting.
-                    Are you sure all the information is correct?
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Review Again</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleSubmitApplication}>
-                    Confirm and Submit
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            {data.applicantControlNumber.status === "SUCCESS" && (
+              <AlertDialog>
+                <AlertDialogTrigger
+                  disabled={isSubmitting || draftSaving}
+                  asChild
+                >
+                  <Button className="mt-2 w-full">
+                    <span className="flex items-center gap-2">
+                      <FaPaperPlane className="h-4 w-4 shrink-0" />
+                      Submit Application
+                    </span>
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Application Submission Confirmation
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Please review your information carefully before
+                      submitting. Are you sure all the information is correct?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Review Again</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleSubmitApplication}>
+                      Confirm and Submit
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </Form>
         </div>
       </div>

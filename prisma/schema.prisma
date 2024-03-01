@@ -78,6 +78,8 @@ model ApplicantApplication {
   applicantUsername       String
   status                  ApplicantStatusName @default(DRAFT)
   formIVIndex             String
+  createdAt               DateTime
+  submittedAt             DateTime?
   type                    ProgrammeLevelName
   origin                  ORIGIN
   highestEducationLevel   EducationLevelName

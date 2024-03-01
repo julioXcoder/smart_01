@@ -130,6 +130,7 @@ interface ApplicationDetails {
   applicantEmergencyContacts: ApplicantEmergencyContacts;
   applicantHighestEducation: EducationLevelName;
   applicantControlNumber: ApplicantControlNumber;
+  status: ApplicationStatusName;
 }
 
 export type {

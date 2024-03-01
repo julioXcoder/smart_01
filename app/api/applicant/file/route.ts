@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { utapi } from "@/server/uploadthing";
-import { verifyAuth } from "@/lib/auth";
+import { getSession } from "@/lib";
 
 // Add new image
 export async function POST(req: NextRequest) {
+  const authUser = await getSession();
   try {
-    let token = req.cookies.get("token")?.value;
-    const authUser = token && (await verifyAuth(token).catch((ex) => {}));
-
     if (!authUser) {
       return NextResponse.json(
         { error: "User is not authenticated" },
@@ -41,10 +39,8 @@ export async function POST(req: NextRequest) {
 
 // update image
 export async function PUT(req: NextRequest) {
+  const authUser = await getSession();
   try {
-    let token = req.cookies.get("token")?.value;
-    const authUser = token && (await verifyAuth(token).catch((ex) => {}));
-
     if (!authUser) {
       return NextResponse.json(
         { error: "User is not authenticated" },
@@ -96,10 +92,8 @@ export async function PUT(req: NextRequest) {
 
 // delete image
 export async function DELETE(req: NextRequest) {
+  const authUser = await getSession();
   try {
-    let token = req.cookies.get("token")?.value;
-    const authUser = token && (await verifyAuth(token).catch((ex) => {}));
-
     if (!authUser) {
       return NextResponse.json(
         { error: "User is not authenticated" },

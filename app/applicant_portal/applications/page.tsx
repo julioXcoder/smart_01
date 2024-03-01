@@ -1,33 +1,30 @@
+import ErrorPage from "@/components/errorPage";
+import Appbar from "@/components/layout/appbar";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   CardDescription,
+  CardHeader,
 } from "@/components/ui/card";
-import { IoWarning, IoCalendar } from "react-icons/io5";
-import { FaHourglassEnd } from "react-icons/fa";
 import { Separator } from "@/components/ui/separator";
-import { LiaHandPointRightSolid } from "react-icons/lia";
-import { MdModeEdit, MdSchedule } from "react-icons/md";
-import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
-import moment from "moment-timezone";
-import { ApplicationStatusName } from "@/types/application";
-import Appbar from "@/components/layout/appbar";
 import { getApplicantData } from "@/server/actions/applicant";
+import { ApplicationStatusName } from "@/types/application";
+import moment from "moment-timezone";
+import Link from "next/link";
+import { ReactNode } from "react";
 import {
-  AiOutlineInfoCircle,
-  AiOutlineExclamationCircle,
   AiOutlineCheckCircle,
   AiOutlineClockCircle,
-  AiOutlineSearch,
   AiOutlineCloseCircle,
+  AiOutlineExclamationCircle,
+  AiOutlineInfoCircle,
+  AiOutlineSearch,
 } from "react-icons/ai";
-import { ReactNode } from "react";
-import { ApplicantApplication } from "@/server/actions/applicant/schema";
-import ErrorPage from "@/components/errorPage";
+import { FaHourglassEnd } from "react-icons/fa";
+import { IoCalendar, IoAdd } from "react-icons/io5";
+import { LiaHandPointRightSolid } from "react-icons/lia";
+import { MdModeEdit, MdSchedule } from "react-icons/md";
 
 function getStatusText(applicationStatus: ApplicationStatusName): {
   title: string;
@@ -118,6 +115,14 @@ const Page = async () => {
 
         <div className="mx-auto my-14 max-w-[85rem] p-4 sm:p-6">
           <div className="mt-20 w-full md:px-28">
+            {data.canCreateApp && (
+              <div className="my-5 flex items-center justify-center">
+                <Button className="bg-green-500 hover:bg-green-600">
+                  <IoAdd className="mr-2 h-4 w-4 shrink-0" />
+                  {`Consider Starting Your Application for ${data.latestAcademicYearName}?`}
+                </Button>
+              </div>
+            )}
             <ol className="relative border-s border-gray-200 dark:border-gray-700">
               {data.years.map((application, index) => (
                 <li className="mb-10 ms-6" key={index}>

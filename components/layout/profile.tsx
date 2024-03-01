@@ -20,6 +20,9 @@ import avatarImage from "@/public/avatar.svg";
 import { MdEvent, MdLogout } from "react-icons/md";
 import ProfileThemeChanger from "./profileThemeChanger";
 import Image from "next/image";
+import { logoutUser } from "@/server/actions/auth";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 interface Props {
   fullName?: string;
@@ -32,6 +35,17 @@ const Profile = ({ fullName, username, imageUrl }: Props) => {
 
   const handleNavigation = (path: string) => {
     router.push(path);
+  };
+
+  const handleLogout = async (user: string) => {
+    // const responsePromise = logoutUser(user);
+    await logoutUser(user);
+
+    // toast.promise(responsePromise, {
+    //   loading: `logging out...`,
+    //   success: <b>Logged out successfully!</b>,
+    //   error: <b>error logging out.</b>,
+    // });
   };
 
   return (
@@ -111,9 +125,7 @@ const Profile = ({ fullName, username, imageUrl }: Props) => {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem
-            onClick={() => handleNavigation("/api/logout/applicant")}
-          >
+          <DropdownMenuItem onClick={() => handleLogout("applicant")}>
             <div className="flex w-full items-center hover:text-red-500">
               <MdLogout className="mr-2 h-4 w-4" />
               <span>Log Out</span>

@@ -14,14 +14,18 @@ const Page = async ({ params: { applicantApplicationId } }: Props) => {
   }
 
   if (data) {
-    return (
-      <div className="mt-20 w-full md:px-28">
-        <EditComponent
-          applicantApplicationId={applicantApplicationId}
-          data={data}
-        />
-      </div>
-    );
+    if (data.status !== "DRAFT") {
+      return <ErrorPage errorMessage={`Application status: ${data.status}.`} />;
+    } else {
+      return (
+        <div className="mt-20 w-full md:px-28">
+          <EditComponent
+            applicantApplicationId={applicantApplicationId}
+            data={data}
+          />
+        </div>
+      );
+    }
   }
 };
 

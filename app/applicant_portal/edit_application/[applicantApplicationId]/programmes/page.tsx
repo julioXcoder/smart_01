@@ -20,14 +20,18 @@ const Page = async ({ params: { applicantApplicationId } }: Props) => {
   }
 
   if (data) {
-    return (
-      <div className="mx-auto max-w-6xl py-6 sm:px-4 lg:px-8 lg:py-10">
-        <SearchComponent
-          applicantApplicationId={applicantApplicationId}
-          programmes={data}
-        />
-      </div>
-    );
+    if (data.status !== "DRAFT") {
+      return <ErrorPage errorMessage={`Application status: ${data.status}.`} />;
+    } else {
+      return (
+        <div className="mx-auto max-w-6xl py-6 sm:px-4 lg:px-8 lg:py-10">
+          <SearchComponent
+            applicantApplicationId={applicantApplicationId}
+            programmes={data.programmes}
+          />
+        </div>
+      );
+    }
   }
 };
 

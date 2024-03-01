@@ -1,31 +1,28 @@
 "use server";
 
-import * as cheerio from "cheerio";
-import axios from "axios";
-import type {
-  GetFormIVDataResponse,
-  StudentInfo,
-  NewApplicant,
-  ApplicationDetailsResponse,
-  ApplicantDataResponse,
-  ApplicationStatusResponse,
-  ApplicantProgrammesResponse,
-  ApplicantFormData,
-  GenericResponse,
-  ApplicationPeriodResponse,
-  ApplicantApplicationsResponse,
-  ApplicantApplication,
-  ApplicantDetailsResponse,
-} from "./schema";
+import { getSession, setSession } from "@/lib";
 import prisma from "@/prisma/db";
-import bcrypt from "bcrypt";
-import { createToken } from "@/lib/auth";
-import { cookies, headers } from "next/headers";
+import { ApplicantProgram } from "@/types/application";
 import { Programme } from "@/types/university";
-import moment from "moment-timezone";
 import { logOperationError } from "@/utils/logger";
+import axios from "axios";
+import bcrypt from "bcrypt";
+import * as cheerio from "cheerio";
+import moment from "moment-timezone";
 import { revalidatePath } from "next/cache";
-import { ApplicantProgram, ApplicantImageData } from "@/types/application";
+import type {
+  ApplicantApplication,
+  ApplicantDataResponse,
+  ApplicantDetailsResponse,
+  ApplicantFormData,
+  ApplicantProgrammesResponse,
+  ApplicationDetailsResponse,
+  ApplicationPeriodResponse,
+  GenericResponse,
+  GetFormIVDataResponse,
+  NewApplicant,
+  StudentInfo,
+} from "./schema";
 
 const baseURL = "https://onlinesys.necta.go.tz/results/";
 
@@ -295,9 +292,7 @@ export const newApplicantAccount = async (
 
     const data = { id: newApplicant.username, role: newApplicant.role };
 
-    const token = await createToken(data);
-
-    cookies().set("token", token);
+    await setSession(data);
 
     return { data: "/applicant_portal/applications" };
   } catch (error) {
@@ -310,15 +305,15 @@ export const newApplicantAccount = async (
 };
 
 export const getApplicantData = async (): Promise<ApplicantDataResponse> => {
-  const username = headers().get("userId");
+  const userSession = await getSession();
   try {
-    if (!username) {
+    if (!userSession) {
       return { error: "Oops! Access denied. Please try again." };
     }
 
     const applicant = await prisma.applicant.findUnique({
       where: {
-        username,
+        username: userSession.id,
       },
     });
 
@@ -340,6 +335,29 @@ export const getApplicantData = async (): Promise<ApplicantDataResponse> => {
         applicantUsername: applicant.username,
       },
     });
+
+    const latestAcademicYear = await prisma.academicYear.findFirst({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    if (!latestAcademicYear) {
+      throw new Error("Latest Academic Year not found!");
+    }
+
+    const universityApplication = await prisma.universityApplication.findFirst({
+      where: { academicYearId: latestAcademicYear.id },
+    });
+
+    if (!universityApplication) {
+      throw new Error("University application not found!");
+    }
+
+    const canCreateApp = applicantApplications.some(
+      (application) =>
+        application.universityApplicationId === universityApplication.id,
+    );
 
     const results = await Promise.all(
       applicantApplications.map(async (application) => {
@@ -381,6 +399,7 @@ export const getApplicantData = async (): Promise<ApplicantDataResponse> => {
           status: application.status,
           type: application.type,
           year: academicYear.name,
+          createdAt: academicYear.createdAt,
           start: universityApplication.startTime,
           end: universityApplication.endTime,
           programmePriorities,
@@ -393,13 +412,14 @@ export const getApplicantData = async (): Promise<ApplicantDataResponse> => {
       (item) => item !== null,
     ) as ApplicantApplication[];
 
-    const sortedResults = filteredResult.sort((a, b) =>
-      a.year.localeCompare(b.year),
+    const sortedResults = filteredResult.sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
     );
 
     const groupedByYear = sortedResults.reduce(
       (acc: { year: string; applications: ApplicantApplication[] }[], curr) => {
         const existingYear = acc.find((item) => item.year === curr.year);
+
         if (existingYear) {
           existingYear.applications.push(curr);
         } else {
@@ -418,7 +438,8 @@ export const getApplicantData = async (): Promise<ApplicantDataResponse> => {
         username: applicant.username,
         notifications,
         years: groupedByYear,
-        // applications: filteredResult,
+        canCreateApp: !canCreateApp,
+        latestAcademicYearName: latestAcademicYear.name,
       },
     };
   } catch (error) {
@@ -433,15 +454,15 @@ export const getApplicantData = async (): Promise<ApplicantDataResponse> => {
 export const getApplicantDetails = async (
   applicantApplicationId: string,
 ): Promise<ApplicantDetailsResponse> => {
-  const username = headers().get("userId");
+  const userSession = await getSession();
   try {
-    if (!username) {
+    if (!userSession) {
       return { error: "Oops! Access denied. Please try again." };
     }
 
     const applicant = await prisma.applicant.findUnique({
       where: {
-        username,
+        username: userSession.id,
       },
     });
 
@@ -511,15 +532,15 @@ export const getApplicantDetails = async (
 export const getApplicationDetails = async (
   applicantApplicationId: string,
 ): Promise<ApplicationDetailsResponse> => {
-  const username = headers().get("userId");
+  const userSession = await getSession();
   try {
-    if (!username) {
+    if (!userSession) {
       return { error: "Oops! Access denied. Please try again." };
     }
 
     const applicant = await prisma.applicant.findUnique({
       where: {
-        username,
+        username: userSession.id,
       },
     });
 
@@ -633,6 +654,7 @@ export const getApplicationDetails = async (
         applicantEducationFileData,
         applicantAdditionalFileData,
         applicantControlNumber,
+        status: applicantApplication.status,
       },
     };
   } catch (error) {
@@ -648,15 +670,15 @@ export const addApplicantProgrammePriority = async (
   programmeCode: string,
   applicantApplicationId: string,
 ): Promise<GenericResponse> => {
-  const username = headers().get("userId");
+  const userSession = await getSession();
   try {
-    if (!username) {
+    if (!userSession) {
       return { error: "Oops! Access denied. Please try again." };
     }
 
     const applicant = await prisma.applicant.findUnique({
       where: {
-        username,
+        username: userSession.id,
       },
     });
 
@@ -743,15 +765,15 @@ export const deleteApplicantProgrammePriority = async (
   priorityProgramme: ApplicantProgram,
   applicantApplicationId: string,
 ): Promise<GenericResponse> => {
-  const username = headers().get("userId");
+  const userSession = await getSession();
   try {
-    if (!username) {
+    if (!userSession) {
       return { error: "Oops! Access denied. Please try again." };
     }
 
     const applicant = await prisma.applicant.findUnique({
       where: {
-        username,
+        username: userSession.id,
       },
     });
 
@@ -811,7 +833,7 @@ export const addApplicantEducationBackground = async (
   position: number,
   applicantApplicationId: string,
 ): Promise<GenericResponse> => {
-  const username = headers().get("userId");
+  const userSession = await getSession();
   try {
     if (position > 5) {
       return { error: "You've reached the maximum limit." };
@@ -821,13 +843,13 @@ export const addApplicantEducationBackground = async (
       return { error: "The provided position is invalid." };
     }
 
-    if (!username) {
+    if (!userSession) {
       return { error: "Oops! Access denied. Please try again." };
     }
 
     const applicant = await prisma.applicant.findUnique({
       where: {
-        username,
+        username: userSession.id,
       },
     });
 
@@ -873,15 +895,15 @@ export const deleteApplicantEducationBackground = async (
   itemId: string,
   applicantApplicationId: string,
 ): Promise<GenericResponse> => {
-  const username = headers().get("userId");
+  const userSession = await getSession();
   try {
-    if (!username) {
+    if (!userSession) {
       return { error: "Oops! Access denied. Please try again." };
     }
 
     const applicant = await prisma.applicant.findUnique({
       where: {
-        username,
+        username: userSession.id,
       },
     });
 
@@ -924,21 +946,23 @@ export const deleteApplicantEducationBackground = async (
 export const saveApplicationData = async (
   applicantFormData: ApplicantFormData,
   applicantApplicationId: string,
-): Promise<GenericResponse> => {
-  const username = headers().get("userId");
+) => {
+  const userSession = await getSession();
   try {
-    if (!username) {
-      throw new Error("Applicant details now found!");
+    // FIXME: log security error when its not an applicant
+    if (!userSession || userSession.role !== "APPLICANT") {
+      revalidatePath(`/applicant_portal/edit_application`);
+      throw new Error("no applicant session.");
     }
 
     const applicant = await prisma.applicant.findUnique({
       where: {
-        username,
+        username: userSession.id,
       },
     });
 
     if (!applicant) {
-      throw new Error("Applicant details now found!");
+      throw new Error("Applicant details not found!");
     }
 
     const applicantApplication = await prisma.applicantApplication.findUnique({
@@ -949,10 +973,7 @@ export const saveApplicationData = async (
     });
 
     if (!applicantApplication) {
-      return {
-        error:
-          "We're sorry, but we couldn't find the application you're looking for. Please double-check your information and try again.",
-      };
+      throw new Error("Applicant details not found!");
     }
 
     const {
@@ -1061,13 +1082,89 @@ export const saveApplicationData = async (
     revalidatePath(
       `/applicant_portal/edit_application/${applicantApplication.id}`,
     );
-    return { data: "Saved!" };
   } catch (error) {
     logOperationError(error, "saveApplicationData");
-    return {
-      error:
-        "We’re sorry, but an issue arose while saving applicant information. Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
-    };
+    return error;
+  }
+};
+
+export const submitApplicantApplication = async (
+  applicantApplicationId: string,
+) => {
+  const userSession = await getSession();
+  try {
+    const latestAcademicYear = await prisma.academicYear.findFirst({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    if (!latestAcademicYear) {
+      throw new Error("Latest Academic Year not found!");
+    }
+
+    const universityApplication = await prisma.universityApplication.findFirst({
+      where: { academicYearId: latestAcademicYear.id },
+    });
+
+    if (!universityApplication) {
+      throw new Error("University application not found!");
+    }
+
+    const now = moment().tz("Africa/Dar_es_Salaam");
+
+    if (
+      now.isBefore(
+        moment(universityApplication.startTime).tz("Africa/Dar_es_Salaam"),
+      ) ||
+      now.isAfter(
+        moment(universityApplication.endTime).tz("Africa/Dar_es_Salaam"),
+      )
+    ) {
+      throw new Error(
+        "The application window has been closed. Please navigate to 'My Applications' to open a new one.",
+      );
+    }
+    // FIXME: log security error when its not an applicant
+    if (!userSession || userSession.role !== "APPLICANT") {
+      revalidatePath(`/applicant_portal/edit_application`);
+      throw new Error("no applicant session.");
+    }
+
+    const applicant = await prisma.applicant.findUnique({
+      where: {
+        username: userSession.id,
+      },
+    });
+
+    if (!applicant) {
+      throw new Error("Applicant details not found!");
+    }
+
+    const applicantApplication = await prisma.applicantApplication.findUnique({
+      where: {
+        id: applicantApplicationId,
+        applicantUsername: applicant.username,
+      },
+    });
+
+    if (!applicantApplication) {
+      throw new Error("Applicant details not found!");
+    }
+
+    await prisma.applicantApplication.update({
+      where: {
+        id: applicantApplication.id,
+      },
+      data: {
+        status: "UNDER_REVIEW",
+      },
+    });
+
+    return "/applicant_portal/applications";
+  } catch (error) {
+    logOperationError(error, "submitApplicantApplication");
+    return error;
   }
 };
 
@@ -1093,9 +1190,7 @@ export const authorizeApplicant = async ({
 
     const data = { id: applicant.username, role: applicant.role };
 
-    const token = await createToken(data);
-
-    cookies().set("token", token);
+    await setSession(data);
 
     return { data: "/applicant_portal/applications" };
   } catch (error) {
@@ -1116,15 +1211,15 @@ export const addApplicantImageData = async (
   },
   applicantApplicationId: string,
 ) => {
-  const username = headers().get("userId");
+  const userSession = await getSession();
 
-  if (!username) {
+  if (!userSession) {
     throw new Error("Applicant details now found!");
   }
 
   const applicant = await prisma.applicant.findUnique({
     where: {
-      username,
+      username: userSession.id,
     },
   });
 
@@ -1173,15 +1268,15 @@ export const addApplicantEducationFile = async (
   fileType: string,
   applicantApplicationId: string,
 ) => {
-  const username = headers().get("userId");
+  const userSession = await getSession();
 
-  if (!username) {
+  if (!userSession) {
     throw new Error("Applicant details now found!");
   }
 
   const applicant = await prisma.applicant.findUnique({
     where: {
-      username,
+      username: userSession.id,
     },
   });
 
@@ -1231,15 +1326,15 @@ export const addApplicantAdditionalFile = async (
   fileType: string,
   applicantApplicationId: string,
 ) => {
-  const username = headers().get("userId");
+  const userSession = await getSession();
 
-  if (!username) {
+  if (!userSession) {
     throw new Error("Applicant details now found!");
   }
 
   const applicant = await prisma.applicant.findUnique({
     where: {
-      username,
+      username: userSession.id,
     },
   });
 
@@ -1280,15 +1375,15 @@ export const addApplicantAdditionalFile = async (
 export const deleteApplicantImageData = async (
   applicantApplicationId: string,
 ) => {
-  const username = headers().get("userId");
+  const userSession = await getSession();
 
-  if (!username) {
+  if (!userSession) {
     throw new Error("Applicant details now found!");
   }
 
   const applicant = await prisma.applicant.findUnique({
     where: {
-      username,
+      username: userSession.id,
     },
   });
 
@@ -1330,15 +1425,15 @@ export const deleteApplicantImageData = async (
 export const deleteApplicantEducationFileData = async (
   applicantApplicationId: string,
 ) => {
-  const username = headers().get("userId");
+  const userSession = await getSession();
 
-  if (!username) {
+  if (!userSession) {
     throw new Error("Applicant details now found!");
   }
 
   const applicant = await prisma.applicant.findUnique({
     where: {
-      username,
+      username: userSession.id,
     },
   });
 
@@ -1382,15 +1477,15 @@ export const deleteApplicantAdditionalFileData = async (
   id: string,
   applicantApplicationId: string,
 ) => {
-  const username = headers().get("userId");
+  const userSession = await getSession();
 
-  if (!username) {
+  if (!userSession) {
     throw new Error("Applicant details now found!");
   }
 
   const applicant = await prisma.applicant.findUnique({
     where: {
-      username,
+      username: userSession.id,
     },
   });
 
@@ -1412,16 +1507,16 @@ export const deleteApplicantAdditionalFileData = async (
 export const getApplicantProgrammes = async (
   applicantApplicationId: string,
 ): Promise<ApplicantProgrammesResponse> => {
-  const username = headers().get("userId");
+  const userSession = await getSession();
   try {
-    if (!username) {
+    if (!userSession) {
       throw new Error("Applicant details now found!");
     }
 
     const applicantApplication = await prisma.applicantApplication.findUnique({
       where: {
         id: applicantApplicationId,
-        applicantUsername: username,
+        applicantUsername: userSession.id,
       },
     });
 
@@ -1434,7 +1529,7 @@ export const getApplicantProgrammes = async (
 
     const applicant = await prisma.applicant.findUnique({
       where: {
-        username,
+        username: userSession.id,
       },
     });
 
@@ -1487,7 +1582,12 @@ export const getApplicantProgrammes = async (
       (programme) => programme !== null,
     ) as Programme[];
 
-    return { data: validProgrammes };
+    return {
+      data: {
+        programmes: validProgrammes,
+        status: applicantApplication.status,
+      },
+    };
   } catch (error) {
     logOperationError(error, "getApplicantProgrammes");
     return {
@@ -1544,15 +1644,15 @@ export const isApplicationPeriodOpen =
 export const generateControlNumber = async (
   applicantApplicationId: string,
 ): Promise<GenericResponse> => {
-  const username = headers().get("userId");
+  const userSession = await getSession();
   try {
-    if (!username) {
+    if (!userSession) {
       throw new Error("Applicant details now found!");
     }
 
     const applicant = await prisma.applicant.findUnique({
       where: {
-        username,
+        username: userSession.id,
       },
     });
 
