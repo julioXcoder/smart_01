@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa6";
 import { MdChecklist } from "react-icons/md";
 import Link from "next/link";
+import HeadingTwo from "../typography/headingTwo";
 
 import { Path } from "@/types";
 
@@ -31,9 +32,7 @@ const DraftSidebar = () => {
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 -translate-x-full border-r border-gray-200 bg-white pt-20 transition-transform dark:border-gray-700 dark:bg-gray-800 sm:translate-x-0">
       <div className="h-full overflow-y-auto bg-white px-3 pb-4 dark:bg-gray-800">
         <div className="text-center">
-          <h1 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
-            2023-2024
-          </h1>
+          <HeadingTwo>2023-2024</HeadingTwo>
         </div>
         <div className="-mx-2 mt-6 flex flex-col items-center">
           <div className="relative mx-2 h-24 w-24">
