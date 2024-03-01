@@ -23,8 +23,6 @@ const tabs: Tab[] = [
   { value: "contacts", icon: FaAddressBook },
   { value: "emergency", icon: FaExclamation },
   { value: "education", icon: FaGraduationCap },
-  { value: "attachment", icon: FaPaperclip },
-  { value: "payment", icon: FaCreditCard },
 ];
 
 const DraftTabs = () => {
