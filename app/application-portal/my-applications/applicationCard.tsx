@@ -4,7 +4,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ApplicationStatusName } from "@/types/application";
+import { ApplicationStatus } from "@/types/application";
 import { IconType } from "react-icons";
 import {
   AiOutlineCheckCircle,
@@ -14,8 +14,9 @@ import {
 } from "react-icons/ai";
 import { FaExclamation } from "react-icons/fa6";
 import { MdOutlineTimer } from "react-icons/md";
+import Link from "next/link";
 
-function getStatusText(applicationStatus: ApplicationStatusName): {
+function getStatusText(applicationStatus: ApplicationStatus): {
   title: string;
   description: string;
   icon: IconType;
@@ -59,11 +60,12 @@ function getStatusText(applicationStatus: ApplicationStatusName): {
 }
 
 interface Props {
-  status: ApplicationStatusName;
+  id: string;
+  status: ApplicationStatus;
   isExpired: boolean;
 }
 
-const ApplicationCard = ({ status, isExpired }: Props) => {
+const ApplicationCard = ({ id, status, isExpired }: Props) => {
   const Icon = getStatusText(status).icon;
 
   return (
@@ -86,18 +88,27 @@ const ApplicationCard = ({ status, isExpired }: Props) => {
       )}
 
       <CardDescription className="mt-auto flex divide-x divide-gray-200 overflow-hidden border-t border-gray-200 dark:divide-gray-700 dark:border-gray-700">
-        <p className="inline-flex w-full cursor-pointer items-center justify-center gap-x-2 bg-white px-4 py-3 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-slate-900 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
+        <Link
+          href={`/application-portal/view/${id}`}
+          className="inline-flex w-full cursor-pointer items-center justify-center gap-x-2 bg-white px-4 py-3 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-slate-900 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+        >
           View
-        </p>
+        </Link>
         {!isExpired && status === "DRAFT" && (
-          <p className="inline-flex w-full cursor-pointer items-center justify-center gap-x-2 bg-white px-4 py-3 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-slate-900 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
+          <Link
+            href={`/application-portal/draft/${id}`}
+            className="inline-flex w-full cursor-pointer items-center justify-center gap-x-2 bg-white px-4 py-3 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-slate-900 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+          >
             Edit
-          </p>
+          </Link>
         )}
         {status === "ACCEPTED" && (
-          <p className="inline-flex w-full cursor-pointer items-center justify-center gap-x-2 bg-white px-4 py-3 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-slate-900 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
+          <Link
+            href={`/application-portal/student-onboarding/${id}`}
+            className="inline-flex w-full cursor-pointer items-center justify-center gap-x-2 bg-white px-4 py-3 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-slate-900 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+          >
             continue
-          </p>
+          </Link>
         )}
       </CardDescription>
     </Card>

@@ -6,6 +6,13 @@ import {
   Origin,
   ApplicationStatus,
   ProgrammeLevel,
+  ApplicantProfile,
+  ApplicantImageData,
+  ApplicantEducationFileData,
+  ApplicantContacts,
+  ApplicantEmergencyContacts,
+  ApplicationPayment,
+  ApplicantAdditionalFileData,
 } from "@prisma/client";
 
 interface ApplicantNotification {
@@ -38,71 +45,6 @@ interface ApplicantEducationBackground {
   endYear: string;
 }
 
-interface ApplicantProfile {
-  nida: string;
-  firstName: string;
-  middleName: string;
-  lastName: string;
-  nationality: string;
-  gender: string;
-}
-
-interface ApplicantContacts {
-  phone: string;
-  email: string | null;
-  alternativeEmail: string | null;
-  alternativePhoneNumber: string | null;
-  streetAddress: string;
-  city: string;
-  region: string;
-  postalCode: string;
-  country: string;
-}
-
-interface ApplicantEmergencyContacts {
-  fullName: string;
-  phone: string;
-  email: string | null;
-  alternativeEmail: string | null;
-  alternativePhoneNumber: string | null;
-  streetAddress: string;
-  city: string;
-  region: string;
-  postalCode: string;
-  country: string;
-  relation: string;
-}
-
-interface ApplicantImageData {
-  imageUrl: string;
-  key: string;
-  name: string;
-  size: number;
-}
-
-interface ApplicantEducationFileData {
-  url: string;
-  key: string;
-  type: string;
-  name: string;
-  size: number;
-}
-
-interface ApplicantAdditionalFileData {
-  id: string;
-  url: string;
-  key: string;
-  type: string;
-  name: string;
-  size: number;
-}
-
-interface ApplicantControlNumber {
-  applicantApplicationId: string;
-  controlNumber: string;
-  status: PaymentStatus;
-}
-
 interface ApplicationDetails {
   applicantEducationBackground: ApplicantEducationBackground[];
   programmePriorities: ApplicantProgram[];
@@ -113,7 +55,7 @@ interface ApplicationDetails {
   applicantContacts: ApplicantContacts;
   applicantEmergencyContacts: ApplicantEmergencyContacts;
   applicantHighestEducation: EducationLevel;
-  applicantControlNumber: ApplicantControlNumber;
+  applicantControlNumber: ApplicationPayment;
   status: ApplicationStatus;
 }
 
@@ -128,6 +70,6 @@ export type {
   ApplicantImageData,
   ApplicantEducationFileData,
   ApplicantAdditionalFileData,
-  ApplicantControlNumber,
+  ApplicationPayment,
   PaymentStatus,
 };
