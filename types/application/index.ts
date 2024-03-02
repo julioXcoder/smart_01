@@ -1,22 +1,12 @@
 import z from "zod";
 
-import { ProgrammeLevelName } from "../university";
-
-type EducationLevelName =
-  | "FORM_IV"
-  | "FORM_VI"
-  | "VETA_NVA_III"
-  | "NTA_LEVEL_IV"
-  | "NTA_LEVEL_V"
-  | "DIPLOMA"
-  | "DEGREE"
-  | "MASTERS";
-
-type Origin = "NECTA" | "FOREIGN" | "NECTA1988";
-
-type ApplicationStatusName = "DRAFT" | "ACCEPTED" | "UNDER_REVIEW" | "REJECTED";
-
-type PaymentStatusName = "PENDING" | "SUCCESS" | "FAILED" | "CANCELLED";
+import {
+  EducationLevel,
+  PaymentStatus,
+  Origin,
+  ApplicationStatus,
+  ProgrammeLevel,
+} from "@prisma/client";
 
 interface ApplicantNotification {
   id: string; // Unique identifier for the notification
@@ -29,7 +19,7 @@ interface ApplicantNotification {
 interface ProgrammeDetails {
   name: string;
   language: string;
-  level: ProgrammeLevelName;
+  level: ProgrammeLevel;
 }
 
 interface ApplicantProgram {
@@ -83,12 +73,6 @@ interface ApplicantEmergencyContacts {
   relation: string;
 }
 
-interface ApplicationStatus {
-  applicationType: string;
-  applicationStatus: ApplicationStatusName;
-  programmePriorities: ApplicantProgram[];
-}
-
 interface ApplicantImageData {
   imageUrl: string;
   key: string;
@@ -116,7 +100,7 @@ interface ApplicantAdditionalFileData {
 interface ApplicantControlNumber {
   applicantApplicationId: string;
   controlNumber: string;
-  status: PaymentStatusName;
+  status: PaymentStatus;
 }
 
 interface ApplicationDetails {
@@ -128,16 +112,15 @@ interface ApplicationDetails {
   applicantAdditionalFileData: ApplicantAdditionalFileData[];
   applicantContacts: ApplicantContacts;
   applicantEmergencyContacts: ApplicantEmergencyContacts;
-  applicantHighestEducation: EducationLevelName;
+  applicantHighestEducation: EducationLevel;
   applicantControlNumber: ApplicantControlNumber;
-  status: ApplicationStatusName;
+  status: ApplicationStatus;
 }
 
 export type {
-  ProgrammeLevelName,
+  ProgrammeLevel,
   Origin,
-  EducationLevelName,
-  ApplicationStatusName,
+  EducationLevel,
   ApplicantNotification,
   ApplicationDetails,
   ApplicationStatus,
@@ -146,5 +129,5 @@ export type {
   ApplicantEducationFileData,
   ApplicantAdditionalFileData,
   ApplicantControlNumber,
-  PaymentStatusName,
+  PaymentStatus,
 };

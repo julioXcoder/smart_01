@@ -1,16 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import {
-  EyeOpenIcon,
-  EyeClosedIcon,
-  ExclamationTriangleIcon,
-  InfoCircledIcon,
-} from "@radix-ui/react-icons";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -21,8 +10,17 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  ExclamationTriangleIcon,
+  EyeClosedIcon,
+  EyeOpenIcon,
+} from "@radix-ui/react-icons";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-import { authorizeApplicant } from "@/server/actions/applicant";
+import { authorizeApplicant } from "@/server/actions/application";
 
 const FormSchema = z.object({
   username: z.string().min(1, {
@@ -34,7 +32,6 @@ const FormSchema = z.object({
 });
 
 const Page = () => {
-  const router = useRouter();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -53,15 +50,11 @@ const Page = () => {
     setIsLoading(true);
     setErrorMessage("");
 
-    const { data: redirect, error } = await authorizeApplicant(data);
+    const response = await authorizeApplicant(data);
 
-    if (error) {
-      setErrorMessage(error);
-      setIsLoading(false);
-      return;
-    } else if (redirect) {
-      router.push(redirect);
-    }
+    setErrorMessage(response.message);
+    setIsLoading(false);
+    return;
   }
 
   return (

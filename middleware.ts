@@ -21,8 +21,8 @@ const roleConfig: {
     allowedUrls: ["/staff/examination_officer"],
   },
   APPLICANT: {
-    dashboardUrl: "/applicant_portal/applications",
-    allowedUrls: ["/applicant_portal"],
+    dashboardUrl: "/application-portal/my-applications",
+    allowedUrls: ["/application-portal"],
   },
   // Add more roles and their configurations here
 };
@@ -32,7 +32,7 @@ const pathToAuthUrl: {
 } = {
   "/staff": "/auth/staff",
   "/student": "/auth/student",
-  "/applicant_portal": "/auth/applicant",
+  "/application-portal": "/auth/applicant",
   // Add more paths and their auth URLs here
 };
 
@@ -91,7 +91,7 @@ export const config = {
   matcher: [
     "/student/:path*",
     "/staff/:path*",
-    "/applicant_portal/:path*",
+    "/application-portal/:path*",
     "/auth/:path*",
   ],
 };

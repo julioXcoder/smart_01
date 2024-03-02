@@ -451,6 +451,7 @@ export const getApplicantData = async (): Promise<ApplicantDataResponse> => {
   }
 };
 
+// FIXME: Remove
 export const getApplicantDetails = async (
   applicantApplicationId: string,
 ): Promise<ApplicantDetailsResponse> => {

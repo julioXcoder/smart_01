@@ -59,11 +59,10 @@ import {
   indexFormat,
   FormSchema,
 } from "./data";
-import { newApplicantAccount } from "@/server/actions/applicant";
-import { NewApplicant } from "@/server/actions/applicant/schema";
+import { newApplicantAccount } from "@/server/actions/application";
+import { NewApplicant } from "@/server/actions/application/schema";
 
 const StepperForm = () => {
-  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedApplicationType, setSelectedApplicationType] = useState<{
@@ -276,15 +275,11 @@ const StepperForm = () => {
       formIVIndex,
     };
 
-    const { data: redirect, error } =
-      await newApplicantAccount(newApplicantData);
-    if (error) {
-      setErrorMessage(error);
-      setIsLoading(false);
-      return;
-    } else if (redirect) {
-      router.push(redirect);
-    }
+    const response = await newApplicantAccount(newApplicantData);
+
+    setErrorMessage(response.message);
+    setIsLoading(false);
+    return;
   };
 
   const isLastStep = currentStep === pages.length - 1;

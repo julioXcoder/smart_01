@@ -1,14 +1,4 @@
-type ProgrammeLevelName =
-  | "DIPLOMA"
-  | "CERTIFICATE"
-  | "BACHELOR"
-  | "MASTERS"
-  | "PHD";
-
-export enum ProgrammeTypes {
-  FULL_TIME = "FULL_TIME",
-  PART_TIME = "PART_TIME",
-}
+import { ProgrammeLevel, ProgrammeType } from "@prisma/client";
 
 type Campus = {
   id: string;
@@ -33,9 +23,9 @@ type Department = {
 type Programme = {
   code: string;
   name: string;
-  level: ProgrammeLevelName;
+  level: ProgrammeLevel;
   duration: number;
-  type: ProgrammeTypes;
+  type: ProgrammeType;
   language: string;
   departmentId: string;
   tuitionFee: number;
@@ -47,4 +37,4 @@ type Programme = {
   campus: Campus;
 };
 
-export type { Programme, Campus, ProgrammeLevelName };
+export type { Campus, Programme };

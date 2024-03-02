@@ -10,26 +10,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum RoleName {
+enum Role {
   EXAMINATION_OFFICER
   LECTURE
   STUDENT
   APPLICANT
 }
 
-enum ApplicantStatusName {
+enum ApplicationStatus {
   UNDER_REVIEW //The application is currently being reviewed by the admissions team.
   ACCEPTED //The application has been approved. The applicant can now proceed to enrollment.
   REJECTED //The application has not been approved. The applicant will not be able to enroll.
   DRAFT
 }
 
-enum ProgrammeTypeName {
+enum ProgrammeType {
   FULL_TIME
   PART_TIME
 }
 
-enum ProgrammeLevelName {
+enum ProgrammeLevel {
   DIPLOMA
   CERTIFICATE
   BACHELOR
@@ -37,7 +37,7 @@ enum ProgrammeLevelName {
   PHD
 }
 
-enum ORIGIN {
+enum Origin {
   NECTA
   FOREIGN
   NECTA1988
@@ -50,7 +50,7 @@ enum PaymentStatus {
   CANCELLED
 }
 
-enum EducationLevelName {
+enum EducationLevel {
   FORM_IV
   FORM_VI
   VETA_NVA_III
@@ -64,9 +64,9 @@ enum EducationLevelName {
 //USERS
 
 model Applicant {
-  username       String   @id @map("_id")
+  username       String @id @map("_id")
   hashedPassword String
-  role           RoleName @default(APPLICANT)
+  role           Role   @default(APPLICANT)
 }
 
 //USERS
@@ -74,16 +74,16 @@ model Applicant {
 //APPLICANT DATA
 // FIXME: ADD University application ID to check the application period
 model ApplicantApplication {
-  id                      String              @id @default(auto()) @map("_id") @db.ObjectId
+  id                      String            @id @default(auto()) @map("_id") @db.ObjectId
   applicantUsername       String
-  status                  ApplicantStatusName @default(DRAFT)
+  status                  ApplicationStatus @default(DRAFT)
   formIVIndex             String
   createdAt               DateTime
   submittedAt             DateTime?
-  type                    ProgrammeLevelName
-  origin                  ORIGIN
-  highestEducationLevel   EducationLevelName
-  universityApplicationId String              @db.ObjectId
+  type                    ProgrammeLevel
+  origin                  Origin
+  highestEducationLevel   EducationLevel
+  universityApplicationId String            @db.ObjectId
 }
 
 model ApplicantNotification {
@@ -209,18 +209,18 @@ model Department {
 }
 
 model Programme {
-  code                String             @id @map("_id")
+  code                String         @id @map("_id")
   name                String
-  level               ProgrammeLevelName
+  level               ProgrammeLevel
   duration            Int
-  type                ProgrammeTypeName
+  type                ProgrammeType
   language            String
-  departmentId        String             @db.ObjectId
+  departmentId        String         @db.ObjectId
   tuitionFee          Float
   applicationFee      Float
   qualification       String
   applicationDeadline String //FIXME: remove
-  availability        Boolean            @default(true)
+  availability        Boolean        @default(true)
 }
 
 //UNIVERSITY HIERARCHY

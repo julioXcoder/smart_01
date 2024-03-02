@@ -11,26 +11,22 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import avatarImage from "@/public/avatar.svg";
+import { logoutUser } from "@/server/actions/auth";
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { BiChevronDown, BiLayer } from "react-icons/bi";
 import { FaHeadset, FaQuestionCircle } from "react-icons/fa";
-import { useRouter } from "next/navigation";
 import { LuUser } from "react-icons/lu";
-import avatarImage from "@/public/avatar.svg";
 import { MdEvent, MdLogout } from "react-icons/md";
 import ProfileThemeChanger from "../profileThemeChanger";
-import Image from "next/image";
-import { logoutUser } from "@/server/actions/auth";
-import { useState } from "react";
-import toast from "react-hot-toast";
 
 interface Props {
-  fullName?: string;
   username: string;
-  imageUrl: string | null;
 }
 
-const Profile = ({ fullName, username, imageUrl }: Props) => {
+const Profile = ({ username }: Props) => {
   const router = useRouter();
 
   const handleNavigation = (path: string) => {
@@ -38,14 +34,7 @@ const Profile = ({ fullName, username, imageUrl }: Props) => {
   };
 
   const handleLogout = async (user: string) => {
-    // const responsePromise = logoutUser(user);
     await logoutUser(user);
-
-    // toast.promise(responsePromise, {
-    //   loading: `logging out...`,
-    //   success: <b>Logged out successfully!</b>,
-    //   error: <b>error logging out.</b>,
-    // });
   };
 
   return (
@@ -59,11 +48,11 @@ const Profile = ({ fullName, username, imageUrl }: Props) => {
               priority
               quality={100}
               className="inline-block rounded-full object-cover"
-              src={imageUrl ? imageUrl : avatarImage}
+              src={avatarImage}
             />
           </div>
           <span className="max-w-[7.5rem] truncate font-medium">
-            {fullName ? fullName.trim() : username}
+            {username}
           </span>
           <BiChevronDown size={20} />
         </Button>
@@ -85,15 +74,6 @@ const Profile = ({ fullName, username, imageUrl }: Props) => {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          {/* <DropdownMenuItem>
-            <Link
-              href="/applicant_portal/programmes"
-              className="flex w-full items-center"
-            >
-              <IoSearch className="mr-2 h-4 w-4" />
-              <span>Search Programmes</span>
-            </Link>
-          </DropdownMenuItem> */}
           <DropdownMenuItem>
             <FaQuestionCircle className="mr-2 h-4 w-4" />
             <span>How To Apply</span>
