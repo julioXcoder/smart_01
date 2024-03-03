@@ -4,12 +4,13 @@ import { ReactNode } from "react";
 
 interface Props {
   children: ReactNode;
+  params: { applicantApplicationId: string };
 }
 
-const Layout = ({ children }: Props) => {
+const Layout = ({ children, params: { applicantApplicationId } }: Props) => {
   return (
     <>
-      <DraftSidebar />
+      <DraftSidebar applicantApplicationId={applicantApplicationId} />
       <div className="p-2 sm:ml-64">
         <MainContent>{children}</MainContent>
       </div>

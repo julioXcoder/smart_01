@@ -83,10 +83,8 @@ const EditComponent = ({ data, applicantApplicationId }: Props) => {
   const [programmePriorities, setProgrammePriorities] = useState(
     data.programmePriorities,
   );
-
   const [programmePrioritiesErrorMessage, setProgrammePrioritiesErrorMessage] =
     useState("");
-
   const [applicantEducationBackground, setApplicantEducationBackground] =
     useState(data.applicantEducationBackground);
   const [applicantProfile, setApplicantProfile] = useState(

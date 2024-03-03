@@ -1,18 +1,18 @@
-import { ProgrammeTypes } from "@/server/actions/programmes/types";
-import { ProgrammeLevelName } from "@/types/application";
+import { ProgrammeLevel } from "@/types/application";
+import { ProgrammeType } from "@prisma/client";
 
-function getProgrammeType(type: ProgrammeTypes): string {
+function getProgrammeType(type: ProgrammeType): string {
   switch (type) {
-    case ProgrammeTypes.FULL_TIME:
+    case "FULL_TIME":
       return "Full Time";
-    case ProgrammeTypes.PART_TIME:
+    case "PART_TIME":
       return "Part Time";
     default:
       return "";
   }
 }
 
-function getEducationLevel(level: ProgrammeLevelName): string {
+function getEducationLevel(level: ProgrammeLevel): string {
   switch (level) {
     case "DIPLOMA":
       return "Diploma in";
@@ -29,7 +29,7 @@ function getEducationLevel(level: ProgrammeLevelName): string {
   }
 }
 
-function getLevelDisplayText(level: ProgrammeLevelName): string {
+function getLevelDisplayText(level: ProgrammeLevel): string {
   switch (level) {
     case "DIPLOMA":
       return "Diploma";

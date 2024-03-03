@@ -1,7 +1,4 @@
-import {
-  PrismaClientKnownRequestError,
-  PrismaClientUnknownRequestError,
-} from "@prisma/client/runtime/library";
+"use server";
 import { createLogFile } from "@/logger";
 
 const logError = (error: Error & { digest?: string }) => {

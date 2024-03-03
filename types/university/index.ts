@@ -37,4 +37,4 @@ type Programme = {
   campus: Campus;
 };
 
-export type { Campus, Programme };
+export type { Campus, Programme, ProgrammeType };

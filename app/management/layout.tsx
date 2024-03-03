@@ -1,3 +1,8 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+import { useRef, useEffect } from "react";
+
 import { ReactNode } from "react";
 import Sidebar from "@/components/layout/sidebar";
 import Appbar from "@/components/applicant/appbar";
@@ -14,7 +19,7 @@ const Layout = ({ children }: Props) => {
     <div>
       <Appbar username="julioXcoder" />
       {/* <Sidebar /> */}
-      <DraftSidebar />
+      {/* <DraftSidebar /> */}
       <div className="p-2 sm:ml-64">
         <MainContent>{children}</MainContent>
       </div>

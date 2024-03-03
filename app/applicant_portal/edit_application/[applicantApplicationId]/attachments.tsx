@@ -110,25 +110,6 @@ const Attachments = ({
     multipleFilesInputRef.current?.click();
   };
 
-  // const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-  //   const file = event.target.files ? event.target.files[0] : null;
-
-  //   if (file) {
-  //     setEducationCertFile(file);
-  //     const url = URL.createObjectURL(file);
-  //   }
-
-  //   event.target.value = "";
-  // };
-
-  // const handleAdditionalFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-  //   const file = event.target.files ? event.target.files[0] : null;
-  //   if (file) {
-  //     setAdditionalFiles((prevFiles) => [...prevFiles, file]);
-  //   }
-  //   event.target.value = "";
-  // };
-
   return (
     <div className="mb-6">
       <h1 className="block text-2xl font-bold text-gray-800 dark:text-white">

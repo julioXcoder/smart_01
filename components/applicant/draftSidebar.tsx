@@ -12,22 +12,45 @@ import {
 import { MdChecklist } from "react-icons/md";
 import Link from "next/link";
 import HeadingTwo from "../typography/headingTwo";
+import { usePathname } from "next/navigation";
 
 import { Path } from "@/types";
 
-const paths: Path[] = [
-  { path: "/application-portal", title: "draft", Icon: FaInbox },
-  {
-    path: "/application-portal",
-    title: "programmes",
-    Icon: FaMagnifyingGlass,
-  },
-  { path: "/application-portal", title: "checklist", Icon: MdChecklist },
-  { path: "/application-portal", title: "payments", Icon: FaCreditCard },
-  { path: "/application-portal", title: "settings", Icon: FaGear },
-];
+interface Props {
+  applicantApplicationId: string;
+}
 
-const DraftSidebar = () => {
+const DraftSidebar = ({ applicantApplicationId }: Props) => {
+  const pathname = usePathname();
+
+  const paths: Path[] = [
+    {
+      path: `/application-portal/draft/${applicantApplicationId}`,
+      title: "draft",
+      Icon: FaInbox,
+    },
+    {
+      path: `/application-portal/draft/programmes/${applicantApplicationId}`,
+      title: "programmes",
+      Icon: FaMagnifyingGlass,
+    },
+    {
+      path: `/application-portal/draft/checklist/${applicantApplicationId}`,
+      title: "checklist",
+      Icon: MdChecklist,
+    },
+    {
+      path: `/application-portal/draft/payments/${applicantApplicationId}`,
+      title: "payments",
+      Icon: FaCreditCard,
+    },
+    {
+      path: `/application-portal/draft/settings/${applicantApplicationId}`,
+      title: "settings",
+      Icon: FaGear,
+    },
+  ];
+
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 -translate-x-full border-r border-gray-200 bg-white pt-20 transition-transform dark:border-gray-700 dark:bg-gray-800 sm:translate-x-0">
       <div className="h-full overflow-y-auto bg-white px-3 pb-4 dark:bg-gray-800">
@@ -57,7 +80,11 @@ const DraftSidebar = () => {
               <Link
                 href={item.path}
                 key={index}
-                className="mt-5 flex transform items-center rounded-lg px-4 py-2 text-gray-600 transition-colors duration-300 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-900 dark:hover:text-gray-200"
+                className={`mt-5 flex transform items-center rounded-lg px-4 py-2 text-gray-600 transition-colors duration-300 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-900 dark:hover:text-gray-200 ${
+                  pathname.startsWith(item.path)
+                    ? "bg-gray-100 dark:bg-gray-900"
+                    : ""
+                }`}
               >
                 {item.Icon && <item.Icon className="size-5 shrink-0" />}
                 <span className="mx-4 font-medium">{item.title}</span>

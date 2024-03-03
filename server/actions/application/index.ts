@@ -7,6 +7,8 @@ import { revalidatePath } from "next/cache";
 import { getSession, setSession } from "@/lib";
 import { ApplicantApplication, NewApplicant } from "./schema";
 import { redirect } from "next/navigation";
+import { ApplicantProgram } from "@/types/application";
+import { ApplicantFormData } from "@/components/applicant/data";
 
 // HELPER
 
@@ -33,6 +35,25 @@ const getApplicant = async () => {
     );
 
   return applicant;
+};
+
+const getApplicantApplication = async (applicantApplicationId: string) => {
+  const applicant = await getApplicant();
+
+  const applicantApplication = await prisma.applicantApplication.findUnique({
+    where: {
+      id: applicantApplicationId,
+      applicantUsername: applicant.username,
+    },
+  });
+
+  if (!applicantApplication) {
+    throw new Error(
+      `We’re sorry, but we couldn’t find an application for the applicant with the username ${applicant.username} and the application ID ${applicantApplicationId}. Please verify the details.`,
+    );
+  }
+
+  return applicantApplication;
 };
 
 const getProgrammePriorities = async (applicantApplicationId: string) => {
@@ -443,6 +464,301 @@ export const getApplicationDetails = async (applicantApplicationId: string) => {
     applicantControlNumber,
     status: applicantApplication.status,
   };
+};
+
+export const deleteApplicantProgramme = async (
+  priorityProgramme: ApplicantProgram,
+  applicantApplicationId: string,
+) => {
+  const applicantApplication = await getApplicantApplication(
+    applicantApplicationId,
+  );
+
+  await prisma.applicantProgrammes.delete({
+    where: {
+      id: priorityProgramme.id,
+      applicantApplicationId: applicantApplication.id,
+    },
+  });
+
+  revalidatePath(`/application-portal/draft/${applicantApplication.id}`);
+};
+
+export const addApplicantImageData = async (
+  applicantImageData: {
+    key: string;
+    url: string;
+    name: string;
+    size: number;
+  },
+  applicantApplicationId: string,
+) => {
+  const applicantApplication = await getApplicantApplication(
+    applicantApplicationId,
+  );
+
+  await prisma.applicantImageData.update({
+    where: {
+      applicantApplicationId: applicantApplication.id,
+    },
+    data: {
+      imageUrl: applicantImageData.url,
+      key: applicantImageData.key,
+      name: applicantImageData.name,
+      size: applicantImageData.size,
+    },
+  });
+
+  revalidatePath(`/application-portal/draft/${applicantApplication.id}`);
+};
+
+export const deleteApplicantImageData = async (
+  applicantApplicationId: string,
+) => {
+  const applicantApplication = await getApplicantApplication(
+    applicantApplicationId,
+  );
+
+  await prisma.applicantImageData.update({
+    where: {
+      applicantApplicationId: applicantApplication.id,
+    },
+    data: {
+      imageUrl: "",
+      key: "",
+      name: "",
+      size: 0,
+    },
+  });
+
+  revalidatePath(`/application-portal/draft/${applicantApplication.id}`);
+};
+
+export const deleteApplicantEducationFileData = async (
+  applicantApplicationId: string,
+) => {
+  const applicantApplication = await getApplicantApplication(
+    applicantApplicationId,
+  );
+
+  await prisma.applicantEducationFileData.update({
+    where: {
+      applicantApplicationId: applicantApplication.id,
+    },
+    data: {
+      url: "",
+      key: "",
+      name: "",
+      type: "",
+      size: 0,
+    },
+  });
+
+  revalidatePath(`/application-portal/draft/${applicantApplication.id}`);
+};
+
+export const addApplicantEducationFile = async (
+  applicantEducationFileData: {
+    key: string;
+    url: string;
+    name: string;
+    size: number;
+  },
+  fileType: string,
+  applicantApplicationId: string,
+) => {
+  const applicantApplication = await getApplicantApplication(
+    applicantApplicationId,
+  );
+
+  await prisma.applicantEducationFileData.update({
+    where: {
+      applicantApplicationId: applicantApplication.id,
+    },
+    data: {
+      url: applicantEducationFileData.url,
+      key: applicantEducationFileData.key,
+      name: applicantEducationFileData.name,
+      size: applicantEducationFileData.size,
+      type: fileType,
+    },
+  });
+
+  revalidatePath(`/application-portal/draft/${applicantApplication.id}`);
+};
+
+export const deleteApplicantAdditionalFileData = async (
+  id: string,
+  applicantApplicationId: string,
+) => {
+  await prisma.applicantAdditionalFileData.delete({
+    where: {
+      id,
+    },
+  });
+
+  revalidatePath(`/application-portal/draft/${applicantApplicationId}`);
+};
+
+export const addApplicantAdditionalFile = async (
+  applicantEducationFileData: {
+    key: string;
+    url: string;
+    name: string;
+    size: number;
+  },
+  fileType: string,
+  applicantApplicationId: string,
+) => {
+  const applicantApplication = await getApplicantApplication(
+    applicantApplicationId,
+  );
+
+  await prisma.applicantAdditionalFileData.create({
+    data: {
+      applicantApplicationId: applicantApplication.id,
+      url: applicantEducationFileData.url,
+      key: applicantEducationFileData.key,
+      name: applicantEducationFileData.name,
+      size: applicantEducationFileData.size,
+      type: fileType,
+    },
+  });
+
+  revalidatePath(`/application-portal/draft/${applicantApplication.id}`);
+};
+
+export const saveApplicationData = async (
+  applicantFormData: ApplicantFormData,
+  applicantApplicationId: string,
+) => {
+  const {
+    firstName,
+    middleName,
+    lastName,
+    nida,
+    applicantEmail,
+    applicantPhoneNumber,
+    citizenship,
+    country,
+    emergencyContactCity,
+    emergencyContactCountry,
+    emergencyContactEmail,
+    emergencyContactPhoneNumber,
+    emergencyContactPostalCode,
+    emergencyContactRegion,
+    emergencyContactRelation,
+    emergencyContactStreetAddress,
+    city,
+    gender,
+    region,
+    postalCode,
+    streetAddress,
+    emergencyContactFullName,
+    applicantAlternativeEmail,
+    applicantAlternativePhoneNumber,
+    emergencyContactAlternativeEmail,
+    emergencyContactAlternativePhoneNumber,
+    education,
+  } = applicantFormData.formData;
+
+  const applicantApplication = await getApplicantApplication(
+    applicantApplicationId,
+  );
+
+  await prisma.applicantProfile.update({
+    where: {
+      applicantApplicationId: applicantApplication.id,
+    },
+    data: {
+      nida,
+      firstName,
+      middleName,
+      lastName,
+      nationality: citizenship,
+      gender,
+    },
+  });
+
+  await prisma.applicantContacts.update({
+    where: {
+      applicantApplicationId: applicantApplication.id,
+    },
+    data: {
+      phone: applicantPhoneNumber,
+      email: applicantEmail,
+      alternativeEmail: applicantAlternativeEmail,
+      alternativePhoneNumber: applicantAlternativePhoneNumber,
+      streetAddress,
+      city,
+      region,
+      postalCode,
+      country,
+    },
+  });
+
+  await prisma.applicantEmergencyContacts.update({
+    where: {
+      applicantApplicationId: applicantApplication.id,
+    },
+    data: {
+      fullName: emergencyContactFullName,
+      phone: emergencyContactPhoneNumber,
+      email: emergencyContactEmail,
+      alternativeEmail: emergencyContactAlternativeEmail,
+      alternativePhoneNumber: emergencyContactAlternativePhoneNumber,
+      streetAddress: emergencyContactStreetAddress,
+      city: emergencyContactCity,
+      region: emergencyContactRegion,
+      postalCode: emergencyContactPostalCode,
+      country: emergencyContactCountry,
+      relation: emergencyContactRelation,
+    },
+  });
+
+  for (const educationBackground of education) {
+    await prisma.applicantEducationBackground.update({
+      where: { id: educationBackground._id },
+      data: {
+        position: educationBackground.position,
+        level: educationBackground.level,
+        schoolName: educationBackground.schoolName,
+        startYear: educationBackground.startYear,
+        endYear: educationBackground.endYear,
+      },
+    });
+  }
+
+  for (const programme of applicantFormData.applicantProgrammes) {
+    await prisma.applicantProgrammes.update({
+      where: { id: programme.id },
+      data: {
+        priority: programme.priority,
+        programmeCode: programme.programmeCode,
+      },
+    });
+  }
+
+  revalidatePath(`/application-portal/draft/${applicantApplication.id}`);
+};
+
+export const submitApplicantApplication = async (
+  applicantApplicationId: string,
+) => {
+  const applicantApplication = await getApplicantApplication(
+    applicantApplicationId,
+  );
+
+  await prisma.applicantApplication.update({
+    where: {
+      id: applicantApplication.id,
+    },
+    data: {
+      status: "UNDER_REVIEW",
+    },
+  });
+
+  redirect("/application-portal/my-applications");
 };
 
 // SERVER ////////////////////////////////////////////////////
