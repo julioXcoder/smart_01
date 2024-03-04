@@ -1,4 +1,5 @@
 import { getApplicationDetails } from "@/server/actions/application";
+import Draft from "@/components/applicant/draft";
 
 interface Props {
   params: { applicantApplicationId: string };
@@ -7,7 +8,7 @@ interface Props {
 const Page = async ({ params: { applicantApplicationId } }: Props) => {
   const data = await getApplicationDetails(applicantApplicationId);
 
-  return <div>Page</div>;
+  return <Draft data={data} applicantApplicationId={applicantApplicationId} />;
 };
 
 export default Page;

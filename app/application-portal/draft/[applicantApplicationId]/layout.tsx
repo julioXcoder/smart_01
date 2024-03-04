@@ -1,16 +1,29 @@
 import DraftSidebar from "@/components/applicant/draftSidebar";
 import MainContent from "@/components/layout/mainContent";
 import { ReactNode } from "react";
+import { getApplicantDetails } from "@/server/actions/application";
 
 interface Props {
   children: ReactNode;
   params: { applicantApplicationId: string };
 }
 
-const Layout = ({ children, params: { applicantApplicationId } }: Props) => {
+const Layout = async ({
+  children,
+  params: { applicantApplicationId },
+}: Props) => {
+  const { firstName, lastName, username, imageUrl, academicYearName } =
+    await getApplicantDetails(applicantApplicationId);
+
   return (
     <>
-      <DraftSidebar applicantApplicationId={applicantApplicationId} />
+      <DraftSidebar
+        academicYearName={academicYearName}
+        username={username}
+        imageUrl={imageUrl}
+        fullName={`${firstName} ${lastName}`}
+        applicantApplicationId={applicantApplicationId}
+      />
       <div className="p-2 sm:ml-64">
         <MainContent>{children}</MainContent>
       </div>

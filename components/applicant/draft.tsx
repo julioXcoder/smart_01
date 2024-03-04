@@ -356,13 +356,14 @@ const Draft = ({ data, applicantApplicationId }: Props) => {
 
       toast.promise(responsePromise, {
         loading: `${method === "PUT" ? "Updating" : "Uploading"} image...`,
-        success: <b>Image processed successfully!</b>,
+        success: <b>Image processed!</b>,
         error: <b>Could not process the image.</b>,
       });
 
       const response = await responsePromise;
 
       if (!response.ok) {
+        toast.error("failed to process the image", { duration: 6000 });
         return false;
       }
 
@@ -446,13 +447,14 @@ const Draft = ({ data, applicantApplicationId }: Props) => {
 
       toast.promise(responsePromise, {
         loading: "Removing image...",
-        success: <b>Image removed successfully!</b>,
+        success: <b>Image processed!</b>,
         error: <b>Could not remove the image.</b>,
       });
 
       const response = await responsePromise;
 
       if (!response.ok) {
+        toast.error("failed to process the image", { duration: 6000 });
         return false;
       }
 
@@ -507,13 +509,14 @@ const Draft = ({ data, applicantApplicationId }: Props) => {
 
       toast.promise(responsePromise, {
         loading: "Removing file...",
-        success: <b>File removed successfully!</b>,
+        success: <b>File processed!</b>,
         error: <b>Could not remove the file.</b>,
       });
 
       const response = await responsePromise;
 
       if (!response.ok) {
+        toast.error("failed to process the file", { duration: 6000 });
         return false;
       }
 
@@ -584,13 +587,14 @@ const Draft = ({ data, applicantApplicationId }: Props) => {
 
       toast.promise(responsePromise, {
         loading: `${method === "PUT" ? "Updating" : "Uploading"} file...`,
-        success: <b>File processed successfully!</b>,
+        success: <b>File processed!</b>,
         error: <b>Could not process the file.</b>,
       });
 
       const response = await responsePromise;
 
       if (!response.ok) {
+        toast.error("failed to process the file", { duration: 6000 });
         return false;
       }
 
@@ -671,13 +675,14 @@ const Draft = ({ data, applicantApplicationId }: Props) => {
 
       toast.promise(responsePromise, {
         loading: "Removing file...",
-        success: <b>File removed successfully!</b>,
+        success: <b>File processed!</b>,
         error: <b>Could not remove the file.</b>,
       });
 
       const response = await responsePromise;
 
       if (!response.ok) {
+        toast.error("failed to process the file", { duration: 6000 });
         setIsUploadingFile(false);
         return;
       }
@@ -728,13 +733,14 @@ const Draft = ({ data, applicantApplicationId }: Props) => {
 
         toast.promise(responsePromise, {
           loading: "Uploading file...",
-          success: <b>File processed successfully!</b>,
+          success: <b>File processed!</b>,
           error: <b>Could not process the file.</b>,
         });
 
         const response = await responsePromise;
 
         if (!response.ok) {
+          toast.error("failed to process the image", { duration: 6000 });
           event.target.value = "";
           setIsUploadingFile(false);
           return;
@@ -983,51 +989,53 @@ const Draft = ({ data, applicantApplicationId }: Props) => {
   ];
 
   return (
-    <Form {...form}>
-      <DraftTabs tabs={tabs} />
+    <div className="w-full">
+      <Form {...form}>
+        <DraftTabs tabs={tabs} />
 
-      <Button
-        className="mt-2 w-full"
-        variant="secondary"
-        onClick={() => handleSaveAsDraft({})}
-        disabled={isSubmitting || draftSaving}
-      >
-        <span className="flex items-center gap-2">
-          <MdOutlineAccessTime className="h-4 w-4 shrink-0" />
-          Save as Draft
-        </span>
-      </Button>
+        <Button
+          className="mt-2 w-full"
+          variant="secondary"
+          onClick={() => handleSaveAsDraft({})}
+          disabled={isSubmitting || draftSaving}
+        >
+          <span className="flex items-center gap-2">
+            <MdOutlineAccessTime className="h-4 w-4 shrink-0" />
+            Save as Draft
+          </span>
+        </Button>
 
-      {data.applicantControlNumber.status === "SUCCESS" && (
-        <AlertDialog>
-          <AlertDialogTrigger disabled={isSubmitting || draftSaving} asChild>
-            <Button className="mt-2 w-full">
-              <span className="flex items-center gap-2">
-                <FaPaperPlane className="h-4 w-4 shrink-0" />
-                Submit Application
-              </span>
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                Application Submission Confirmation
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                Please review your information carefully before submitting. Are
-                you sure all the information is correct?
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Review Again</AlertDialogCancel>
-              <AlertDialogAction onClick={handleSubmitApplication}>
-                Confirm and Submit
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
-    </Form>
+        {data.applicantControlNumber.status === "SUCCESS" && (
+          <AlertDialog>
+            <AlertDialogTrigger disabled={isSubmitting || draftSaving} asChild>
+              <Button className="mt-2 w-full">
+                <span className="flex items-center gap-2">
+                  <FaPaperPlane className="h-4 w-4 shrink-0" />
+                  Submit Application
+                </span>
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Application Submission Confirmation
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Please review your information carefully before submitting.
+                  Are you sure all the information is correct?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Review Again</AlertDialogCancel>
+                <AlertDialogAction onClick={handleSubmitApplication}>
+                  Confirm and Submit
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+      </Form>
+    </div>
   );
 };
 

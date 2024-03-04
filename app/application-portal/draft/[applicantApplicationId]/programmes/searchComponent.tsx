@@ -1,30 +1,21 @@
 "use client";
 
-import { useState, ChangeEvent } from "react";
-import { Programme, Campus } from "@/server/actions/programmes/types";
-import { ProgrammeLevelName } from "@/types/application";
-import ProgrammeCard from "./programmeCard";
-import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
-import { MdArrowBack } from "react-icons/md";
-import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
 import { Button } from "@/components/ui/button";
-import toast from "react-hot-toast";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useRouter } from "next/navigation";
-import { getLevelDisplayText } from "@/utils/programme";
+import { addApplicantProgrammePriority } from "@/server/actions/application";
+import { ProgrammeLevel } from "@/types/application";
+import { Campus, Programme } from "@/types/university";
+import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
+import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
-import { addApplicantProgrammePriority } from "@/server/actions/applicant";
+import { useRouter } from "next/navigation";
+import { ChangeEvent, useState } from "react";
+import toast from "react-hot-toast";
+import { MdArrowBack } from "react-icons/md";
+import ProgrammeCard from "./programmeCard";
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 
-const levels: ProgrammeLevelName[] = [
+const levels: ProgrammeLevel[] = [
   "CERTIFICATE",
   "DIPLOMA",
   "BACHELOR",
@@ -40,9 +31,7 @@ interface Props {
 const SearchComponent = ({ programmes, applicantApplicationId }: Props) => {
   const router = useRouter();
   const [loading, setIsLoading] = useState(false);
-  const [selectedLevels, setSelectedLevels] = useState<ProgrammeLevelName[]>(
-    [],
-  );
+  const [selectedLevels, setSelectedLevels] = useState<ProgrammeLevel[]>([]);
   const [selectedCampuses, setSelectedCampuses] = useState<Campus[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filteredProgrammes, setFilteredProgrammes] = useState<
@@ -139,7 +128,7 @@ const SearchComponent = ({ programmes, applicantApplicationId }: Props) => {
 
   const handleAddApplicantProgramme = async (programmeCode: string) => {
     setIsLoading(true);
-    const { data: redirect, error } = await addApplicantProgrammePriority(
+    const { redirect, error } = await addApplicantProgrammePriority(
       programmeCode,
       applicantApplicationId,
     );
@@ -197,7 +186,7 @@ const SearchComponent = ({ programmes, applicantApplicationId }: Props) => {
                 </DropdownMenu>
               </div> */}
               <Link
-                href={`/applicant_portal/edit_application/${applicantApplicationId}`}
+                href={`/application-portal/draft/${applicantApplicationId}`}
               >
                 <Button variant={"outline"}>
                   <MdArrowBack className="mr-1 h-4 w-4 shrink-0" />

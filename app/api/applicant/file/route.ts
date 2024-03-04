@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { utapi } from "@/server/uploadthing";
 import { getSession } from "@/lib";
+import { logError } from "@/utils/logger";
 
-// Add new image
+// Add new File
 export async function POST(req: NextRequest) {
   const authUser = await getSession();
   try {
@@ -28,7 +29,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(response, { status: 200 });
   } catch (ex) {
-    // TODO: Log the console.error();
+    if (ex instanceof Error) {
+      logError(ex);
+    }
 
     return NextResponse.json(
       { error: "An error occurred while processing your request" },
@@ -37,7 +40,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// update image
+// update File
 export async function PUT(req: NextRequest) {
   const authUser = await getSession();
   try {
@@ -62,7 +65,7 @@ export async function PUT(req: NextRequest) {
 
     if (!key)
       return NextResponse.json(
-        { error: "No image data key found in the request." },
+        { error: "No file data key found in the request." },
         { status: 400 },
       );
 
@@ -70,7 +73,7 @@ export async function PUT(req: NextRequest) {
 
     if (!success)
       return NextResponse.json(
-        { error: "Failed to delete the image. Please try again later." },
+        { error: "Failed to delete the file. Please try again later." },
         { status: 500 },
       );
 
@@ -78,7 +81,9 @@ export async function PUT(req: NextRequest) {
 
     return NextResponse.json(response, { status: 201 });
   } catch (ex) {
-    // TODO: Log the console.error();
+    if (ex instanceof Error) {
+      logError(ex);
+    }
 
     return NextResponse.json(
       {
@@ -122,7 +127,9 @@ export async function DELETE(req: NextRequest) {
 
     return NextResponse.json(success, { status: 201 });
   } catch (ex) {
-    // TODO: Log the console.error();
+    if (ex instanceof Error) {
+      logError(ex);
+    }
 
     return NextResponse.json(
       {

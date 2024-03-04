@@ -1,22 +1,16 @@
 "use client";
 
-// import { getFormIVData, newApplicantAccount } from "@/server/actions/applicant";
 import { Button } from "@/components/ui/button";
-import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState, ChangeEvent } from "react";
 import {
-  EyeOpenIcon,
-  EyeClosedIcon,
-  ExclamationTriangleIcon,
-  InfoCircledIcon,
-} from "@radix-ui/react-icons";
-import { Label } from "@/components/ui/label";
-import { useForm } from "react-hook-form";
-import z from "zod";
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -26,48 +20,48 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { getFormIVData } from "@/server/actions/applicant";
-import door from "@/public/online_application/welcome5.png";
+import completion from "@/public/online_application/completion2.png";
+import education from "@/public/online_application/education3.png";
+import globe from "@/public/online_application/globe2.png";
 import payment from "@/public/online_application/payment3.png";
 import select from "@/public/online_application/select3.png";
-import completion from "@/public/online_application/completion2.png";
-import globe from "@/public/online_application/globe2.png";
-import education from "@/public/online_application/education3.png";
+import door from "@/public/online_application/welcome5.png";
+import { getFormIVData } from "@/server/actions/necta";
+import { EducationLevel, Origin, ProgrammeLevel } from "@/types/application";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  ProgrammeLevelName,
-  Origin,
-  EducationLevelName,
-} from "@/types/application";
+  EyeClosedIcon,
+  EyeOpenIcon,
+  InfoCircledIcon,
+} from "@radix-ui/react-icons";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import z from "zod";
 
-import {
-  applicationTypes,
-  applicantOrigins,
-  certificateEducationLevels,
-  diplomaEducationLevels,
-  postgraduateDiplomaEducationLevels,
-  mastersEducationLevels,
-  phdEducationLevels,
-  indexFormat,
-  FormSchema,
-} from "./data";
 import { newApplicantAccount } from "@/server/actions/application";
 import { NewApplicant } from "@/server/actions/application/schema";
+import {
+  FormSchema,
+  applicantOrigins,
+  applicationTypes,
+  certificateEducationLevels,
+  diplomaEducationLevels,
+  indexFormat,
+  mastersEducationLevels,
+  phdEducationLevels,
+  postgraduateDiplomaEducationLevels,
+} from "./data";
 
 const StepperForm = () => {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedApplicationType, setSelectedApplicationType] = useState<{
     label: string;
-    value: ProgrammeLevelName;
+    value: ProgrammeLevel;
   } | null>(null);
   const [selectedApplicantOrigin, setSelectedApplicantOrigin] = useState<{
     label: string;
@@ -75,7 +69,7 @@ const StepperForm = () => {
   } | null>(null);
   const [selectedEducationLevel, setSelectedEducationLevel] = useState<{
     label: string;
-    value: EducationLevelName;
+    value: EducationLevel;
   } | null>(null);
   const [completedOLevel, setCompletedOLevel] = useState<"yes" | "no" | "">("");
   const [formIVIndex, setFormIVIndex] = useState("");
@@ -117,12 +111,12 @@ const StepperForm = () => {
   };
 
   const handleEducationChange = (
-    applicationType: ProgrammeLevelName,
-    selectedOption: EducationLevelName,
+    applicationType: ProgrammeLevel,
+    selectedOption: EducationLevel,
   ) => {
     let selectedEducationLevelObject: {
       label: string;
-      value: EducationLevelName;
+      value: EducationLevel;
     } | null = null;
 
     if (applicationType == "CERTIFICATE") {
@@ -158,7 +152,7 @@ const StepperForm = () => {
     setSelectedEducationLevel(selectedEducationLevelObject);
   };
 
-  const getEducationLevels = (applicationType: ProgrammeLevelName | "") => {
+  const getEducationLevels = (applicationType: ProgrammeLevel | "") => {
     switch (applicationType) {
       case "CERTIFICATE":
         return certificateEducationLevels;
@@ -277,9 +271,12 @@ const StepperForm = () => {
 
     const response = await newApplicantAccount(newApplicantData);
 
-    setErrorMessage(response.message);
-    setIsLoading(false);
-    return;
+    if (response.redirect) {
+      router.push(response.redirect);
+    } else if (response.message) {
+      setErrorMessage(response.message);
+      setIsLoading(false);
+    }
   };
 
   const isLastStep = currentStep === pages.length - 1;
@@ -518,7 +515,7 @@ const StepperForm = () => {
                 </p>
                 <div className="my-3">
                   <Select
-                    onValueChange={(value: EducationLevelName) => {
+                    onValueChange={(value: EducationLevel) => {
                       if (selectedApplicationType) {
                         handleEducationChange(
                           selectedApplicationType.value,

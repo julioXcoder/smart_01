@@ -9,6 +9,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -32,6 +33,7 @@ const FormSchema = z.object({
 });
 
 const Page = () => {
+  const router = useRouter();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -52,9 +54,12 @@ const Page = () => {
 
     const response = await authorizeApplicant(data);
 
-    setErrorMessage(response.message);
-    setIsLoading(false);
-    return;
+    if (response.redirect) {
+      router.push(response.redirect);
+    } else if (response.message) {
+      setErrorMessage(response.message);
+      setIsLoading(false);
+    }
   }
 
   return (

@@ -66,7 +66,9 @@ const Profile = ({ username }: Props) => {
             <span>Profile</span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => handleNavigation("/applicant_portal/applications")}
+            onClick={() =>
+              handleNavigation("/application-portal/my-applications")
+            }
           >
             <BiLayer className="mr-2 h-4 w-4" />
             <span>My Applications</span>

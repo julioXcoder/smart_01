@@ -1,11 +1,11 @@
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import mustLogo from "@/public/logo/must.svg";
-import { InfoCircledIcon } from "@radix-ui/react-icons";
-import { Programme } from "@/server/actions/programmes/types";
+import { Programme } from "@/types/university";
 import { getEducationLevel, getProgrammeType } from "@/utils/programme";
+import { InfoCircledIcon } from "@radix-ui/react-icons";
+import Image from "next/image";
 
-import { MdEventNote, MdBook } from "react-icons/md";
+import { MdBook, MdEventNote } from "react-icons/md";
 
 interface Props {
   programme: Programme;

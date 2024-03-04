@@ -9,6 +9,7 @@ import { ApplicantApplication, NewApplicant } from "./schema";
 import { redirect } from "next/navigation";
 import { ApplicantProgram } from "@/types/application";
 import { ApplicantFormData } from "@/components/applicant/data";
+import { Programme } from "@/types/university";
 
 // HELPER
 
@@ -220,13 +221,16 @@ export const newApplicantAccount = async (newApplicantData: NewApplicant) => {
     const data = { id: newApplicant.username, role: newApplicant.role };
 
     await setSession(data);
+
+    return {
+      redirect: "/application-portal/my-applications",
+    };
   } catch (error) {
     return {
       message:
         "We’re sorry, but we were unable to create your account at this time. Please try again later, and if the problem persists, reach out to our support team for assistance.",
     };
   }
-  redirect("/application-portal/my-applications");
 };
 
 export const authorizeApplicant = async ({
@@ -252,13 +256,80 @@ export const authorizeApplicant = async ({
     const payload = { id: applicant.username, role: applicant.role };
 
     await setSession(payload);
+
+    return {
+      redirect: "/application-portal/my-applications",
+    };
   } catch (error) {
     return {
       message:
         "We’re sorry, but an issue arose while signing in. Please try again later. For further assistance, please don’t hesitate to reach out to our dedicated support team.",
     };
   }
-  redirect("/application-portal/my-applications");
+};
+
+export const addApplicantProgrammePriority = async (
+  programmeCode: string,
+  applicantApplicationId: string,
+) => {
+  try {
+    const applicantApplication = await getApplicantApplication(
+      applicantApplicationId,
+    );
+
+    const programmePriorities = await getProgrammePriorities(
+      applicantApplication.id,
+    );
+
+    const hasDuplicateProgrammeCode = programmePriorities.some(
+      (programme) => programme.programmeCode === programmeCode,
+    );
+
+    if (hasDuplicateProgrammeCode) {
+      return {
+        error: "Programme already added. Please pick a different one.",
+      };
+    }
+
+    const programmesLength = programmePriorities.length;
+
+    if (programmesLength >= 5) {
+      return {
+        error: "Max programmes reached you cant add anymore programmes.",
+      };
+    }
+
+    // Find the programme by its code
+    const programme = await prisma.programme.findUnique({
+      where: {
+        code: programmeCode,
+      },
+    });
+
+    if (!programme) {
+      return {
+        error: "The programme code you provided does not exist.",
+      };
+    }
+
+    await prisma.applicantProgrammes.create({
+      data: {
+        applicantApplicationId: applicantApplication.id,
+        programmeCode: programme.code,
+        priority: programmesLength + 1,
+      },
+    });
+
+    revalidatePath(`/application-portal/draft/${applicantApplication.id}`);
+    return {
+      redirect: `/application-portal/draft/${applicantApplication.id}`,
+    };
+  } catch (error) {
+    return {
+      error:
+        "We’re sorry, but an issue arose while adding applicant programme priority.",
+    };
+  }
 };
 
 // CLIENT ////////////////////////////////////////////////////
@@ -759,6 +830,168 @@ export const submitApplicantApplication = async (
   });
 
   redirect("/application-portal/my-applications");
+};
+
+export const isApplicationPeriodOpen = async () => {
+  const latestAcademicYear = await prisma.academicYear.findFirst({
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  if (!latestAcademicYear) {
+    throw new Error("Latest Academic Year not found!");
+  }
+
+  const universityApplication = await prisma.universityApplication.findFirst({
+    where: { academicYearId: latestAcademicYear.id },
+  });
+
+  if (!universityApplication) {
+    throw new Error("University application not found!");
+  }
+
+  const now = moment().tz("Africa/Dar_es_Salaam");
+
+  if (
+    now.isBefore(
+      moment(universityApplication.startTime).tz("Africa/Dar_es_Salaam"),
+    ) ||
+    now.isAfter(
+      moment(universityApplication.endTime).tz("Africa/Dar_es_Salaam"),
+    )
+  )
+    return "CLOSED";
+
+  return "OPEN";
+};
+
+export const generateControlNumber = async (applicantApplicationId: string) => {
+  const applicantApplication = await getApplicantApplication(
+    applicantApplicationId,
+  );
+
+  // FIXME: use api to get control number
+  const controlNumber = Math.floor(Math.random() * 900000000000) + 100000000000;
+
+  const controlNumberString = controlNumber.toString();
+
+  await prisma.applicationPayment.update({
+    where: { applicantApplicationId: applicantApplication.id },
+    data: {
+      controlNumber: controlNumberString,
+    },
+  });
+
+  revalidatePath(`/applicant-portal/draft/finance/${applicantApplication.id}`);
+};
+
+export const getApplicantDetails = async (applicantApplicationId: string) => {
+  const applicantApplication = await getApplicantApplication(
+    applicantApplicationId,
+  );
+
+  const applicantProfile = await prisma.applicantProfile.findUnique({
+    where: {
+      applicantApplicationId: applicantApplication.id,
+    },
+  });
+
+  const applicantImageData = await prisma.applicantImageData.findUnique({
+    where: {
+      applicantApplicationId: applicantApplication.id,
+    },
+  });
+
+  const universityApplication = await prisma.universityApplication.findUnique({
+    where: {
+      id: applicantApplication.universityApplicationId,
+    },
+  });
+
+  if (!universityApplication) {
+    throw new Error(
+      `Unable to locate university application with the id : ${applicantApplication.universityApplicationId}.`,
+    );
+  }
+
+  const academicYear = await prisma.academicYear.findUnique({
+    where: {
+      id: universityApplication.academicYearId,
+    },
+  });
+
+  if (!applicantProfile || !applicantImageData || !academicYear) {
+    throw new Error(
+      `Unable to locate the applicant details for the applicant with the username: ${applicantApplication.applicantUsername}.`,
+    );
+  }
+
+  return {
+    username: applicantApplication.applicantUsername,
+    imageUrl: applicantImageData.imageUrl,
+    firstName: applicantProfile.firstName,
+    lastName: applicantProfile.lastName,
+    academicYearName: academicYear.name,
+  };
+};
+
+export const getApplicantProgrammes = async (
+  applicantApplicationId: string,
+) => {
+  const applicantApplication = await getApplicantApplication(
+    applicantApplicationId,
+  );
+
+  const programmes = await prisma.programme.findMany({
+    where: {
+      level: applicantApplication.type,
+    },
+  });
+  const result = await Promise.all(
+    programmes.map(async (programme) => {
+      const department = await prisma.department.findUnique({
+        where: { id: programme.departmentId },
+      });
+
+      if (!department) {
+        return null;
+      }
+
+      const college = await prisma.college.findUnique({
+        where: { id: department.collegeId },
+      });
+
+      if (!college) {
+        return null;
+      }
+
+      const campus = await prisma.campus.findUnique({
+        where: { id: college.campusId },
+      });
+
+      if (!campus) {
+        return null;
+      }
+
+      return {
+        ...programme,
+        department: department,
+        college: college,
+        campus: campus,
+      };
+    }),
+  );
+
+  // Filter out the null values
+  const validProgrammes = result.filter(
+    (programme) => programme !== null,
+  ) as Programme[];
+
+  return {
+    programmes: validProgrammes,
+    status: applicantApplication.status,
+  };
 };
 
 // SERVER ////////////////////////////////////////////////////

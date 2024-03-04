@@ -178,7 +178,7 @@ const Priorities = ({
           className="bg-green-500 hover:bg-green-600"
           onClick={() =>
             handleNavigation(
-              `/application-portal/draft/programmes/${applicantApplicationId}`,
+              `/application-portal/draft/${applicantApplicationId}/programmes`,
             )
           }
         >
