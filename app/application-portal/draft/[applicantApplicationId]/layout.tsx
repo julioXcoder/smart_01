@@ -2,6 +2,7 @@ import DraftSidebar from "@/components/applicant/draftSidebar";
 import MainContent from "@/components/layout/mainContent";
 import { ReactNode } from "react";
 import { getApplicantDetails } from "@/server/actions/application";
+import MenuDropdown from "@/components/applicant/menuDropdown";
 
 interface Props {
   children: ReactNode;
@@ -25,6 +26,7 @@ const Layout = async ({
         applicantApplicationId={applicantApplicationId}
       />
       <div className="p-2 sm:ml-64">
+        <MenuDropdown />
         <MainContent>{children}</MainContent>
       </div>
     </>
