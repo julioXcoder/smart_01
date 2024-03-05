@@ -1,30 +1,53 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { useRef, useEffect } from "react";
+import BottomNavigation from "@/components/bottomNavigation";
+import { Path } from "@/types";
+import { useState } from "react";
+import {
+  FaInbox,
+  FaCreditCard,
+  FaGear,
+  FaMagnifyingGlass,
+} from "react-icons/fa6";
+import { MdChecklist } from "react-icons/md";
+
+const paths: Path[] = [
+  {
+    path: ``,
+    title: "draft",
+    Icon: FaInbox,
+  },
+  {
+    path: ``,
+    title: "programmes",
+    Icon: FaMagnifyingGlass,
+  },
+  {
+    path: ``,
+    title: "payments",
+    Icon: FaCreditCard,
+  },
+  {
+    path: ``,
+    title: "settings",
+    Icon: FaGear,
+  },
+];
 
 const Page = () => {
-  const pathname = usePathname();
+  const [step, setStep] = useState(0);
 
-  // Create a ref to store the previous pathname
-  const ref = useRef(pathname);
+  const handleGoToStep = (stepIndex: number) => {
+    setStep(stepIndex);
+  };
 
-  useEffect(() => {
-    // Check if the pathname has changed and if the previous pathname was '/about'
-    if (ref.current !== pathname) {
-      // Do something before the page changes
-      // For example, you could show a confirmation dialog or save some data
-      console.log("Changed!");
-    }
-
-    // Update the ref to store the current pathname
-    ref.current = pathname;
-  }, [pathname]);
+  const currentStep = paths[step];
 
   return (
     <div>
-      {/* <DraftTabs /> */}
-      <button>Do something</button>
+      {currentStep.title}
+
+      {/* <BottomNavigation onGotoItem={handleGoToStep} index={step} items={paths} /> */}
     </div>
   );
 };

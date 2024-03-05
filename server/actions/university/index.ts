@@ -2,10 +2,7 @@
 
 import prisma from "@/prisma/db";
 import moment from "moment-timezone";
-import { logOperationError } from "@/utils/logger";
 import { revalidatePath } from "next/cache";
-
-import type { GenericResponse } from "./schema";
 
 export const createNewAcademicYear = async ({
   name,
@@ -15,50 +12,29 @@ export const createNewAcademicYear = async ({
   name: string;
   startTime: Date;
   endTime: Date;
-}): Promise<GenericResponse> => {
-  try {
-    const now = new Date();
+}) => {
+  const now = new Date();
 
-    const newAcademicYear = await prisma.academicYear.create({
-      data: {
-        createdAt: now,
-        name,
-      },
-    });
+  await prisma.academicYear.create({
+    data: {
+      createdAt: now,
+      name,
+      applicationStartTime: startTime,
+      applicationEndTime: endTime,
+    },
+  });
 
-    const universityApplication = await prisma.universityApplication.create({
-      data: {
-        academicYearId: newAcademicYear.id,
-        startTime,
-        endTime,
-      },
-    });
-
-    revalidatePath("/management/new_academic_year");
-    return { data: "OK" };
-  } catch (error) {
-    logOperationError(error);
-    return {
-      error:
-        "Oops! We couldn’t create the new academic year. Please try again or reach out to our support team for further assistance.",
-    };
-  }
+  revalidatePath("/management/new_academic_year");
 };
 
-export const getCurrentYear = async (): Promise<GenericResponse> => {
-  try {
-    const latestAcademicYear = await prisma.academicYear.findFirst({
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+export const getCurrentYear = async () => {
+  const latestAcademicYear = await prisma.academicYear.findFirst({
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
-    if (!latestAcademicYear) {
-      return { data: "Latest Academic Year not found!" };
-    }
+  if (!latestAcademicYear) throw new Error("Latest Academic Year not found!");
 
-    return { data: latestAcademicYear.name };
-  } catch (error) {
-    return { error: "error" };
-  }
+  return latestAcademicYear.name;
 };

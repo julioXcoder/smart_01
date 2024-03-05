@@ -28,8 +28,8 @@ interface Props {
   onMoveUp: (index: number) => void;
   onMoveDown: (index: number) => void;
   onDelete: (index: number) => void;
+  onGotoItem: (itemIndex: number) => void;
   programmePrioritiesErrorMessage: string;
-  applicantApplicationId: string;
   draftSaving: boolean;
   isSubmitting: boolean;
 }
@@ -40,7 +40,7 @@ const Priorities = ({
   onMoveDown,
   onDelete,
   programmePrioritiesErrorMessage,
-  applicantApplicationId,
+  onGotoItem,
   draftSaving,
   isSubmitting,
 }: Props) => {
@@ -176,11 +176,7 @@ const Priorities = ({
         <Button
           disabled={isSubmitting || draftSaving}
           className="bg-green-500 hover:bg-green-600"
-          onClick={() =>
-            handleNavigation(
-              `/application-portal/draft/${applicantApplicationId}/programmes`,
-            )
-          }
+          onClick={() => onGotoItem(1)}
         >
           <IoSearch className="mr-2 h-4 w-4 shrink-0" /> search{" "}
           <span

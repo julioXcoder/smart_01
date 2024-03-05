@@ -40,7 +40,7 @@ import pdf_icon from "@/public/pdf2.svg";
 import {
   addApplicantEducationBackground,
   deleteApplicantEducationBackground,
-} from "@/server/actions/applicant";
+} from "@/server/actions/application";
 import { ChangeEvent, useRef, useState } from "react";
 import {
   ApplicantAdditionalFileData,
@@ -152,26 +152,30 @@ const Education = ({
   const handleAddItem = async () => {
     if (fields.length < maxItems) {
       setIsLoading(true);
-      const { data, error } = await addApplicantEducationBackground(
+
+      const responsePromise = addApplicantEducationBackground(
         fields.length,
         applicantApplicationId,
       );
-      setIsLoading(false);
 
-      if (error) {
-        toast.error(error, { duration: 6000 });
-      }
+      toast.promise(responsePromise, {
+        loading: "adding education card...",
+        success: <b>Education card added!</b>,
+        error: <b>Unfortunately, the education card could not be added.</b>,
+      });
 
-      if (data) {
-        append({
-          _id: data,
-          position: fields.length,
-          level: "",
-          schoolName: "",
-          startYear: "",
-          endYear: "",
-        });
-      }
+      await responsePromise
+        .then((value) =>
+          append({
+            _id: value,
+            position: fields.length,
+            level: "",
+            schoolName: "",
+            startYear: "",
+            endYear: "",
+          }),
+        )
+        .finally(() => setIsLoading(false));
     }
   };
 
@@ -195,16 +199,21 @@ const Education = ({
     const removeItemId = fields[index]._id;
 
     setIsLoading(true);
-    const { error } = await deleteApplicantEducationBackground(
+
+    const responsePromise = deleteApplicantEducationBackground(
       removeItemId,
       applicantApplicationId,
     );
-    setIsLoading(false);
 
-    if (error) {
-      toast.error(error, { duration: 6000 });
-      remove(fields.length);
-    }
+    toast.promise(responsePromise, {
+      loading: "deleting education card...",
+      success: <b>Education card deleted!</b>,
+      error: <b>Unfortunately, the education card could not be deleted.</b>,
+    });
+
+    await responsePromise.catch((error) => remove(fields.length));
+
+    setIsLoading(false);
   };
 
   const handleButtonClick = () => {

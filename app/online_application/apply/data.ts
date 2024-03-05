@@ -1,11 +1,7 @@
 import z from "zod";
-import {
-  ProgrammeLevelName,
-  Origin,
-  EducationLevelName,
-} from "@/types/application";
+import { ProgrammeLevel, Origin, EducationLevel } from "@/types/application";
 
-const applicationTypes: { label: string; value: ProgrammeLevelName }[] = [
+const applicationTypes: { label: string; value: ProgrammeLevel }[] = [
   { label: "Certificate", value: "CERTIFICATE" },
   { label: "Diploma", value: "DIPLOMA" },
   { label: "Postgraduate Diploma", value: "BACHELOR" },
@@ -21,13 +17,13 @@ const applicantOrigins: { label: string; value: Origin }[] = [
 
 const certificateEducationLevels: {
   label: string;
-  value: EducationLevelName;
+  value: EducationLevel;
 }[] = [
   { label: "Form IV", value: "FORM_IV" },
   { label: "Veta NVA III", value: "VETA_NVA_III" },
 ];
 
-const diplomaEducationLevels: { label: string; value: EducationLevelName }[] = [
+const diplomaEducationLevels: { label: string; value: EducationLevel }[] = [
   { label: "Form IV", value: "FORM_IV" },
   { label: "Veta NVA III", value: "VETA_NVA_III" },
   { label: "NTA Level 4", value: "NTA_LEVEL_IV" },
@@ -37,15 +33,15 @@ const diplomaEducationLevels: { label: string; value: EducationLevelName }[] = [
 
 const postgraduateDiplomaEducationLevels: {
   label: string;
-  value: EducationLevelName;
+  value: EducationLevel;
 }[] = [{ label: "Degree", value: "DEGREE" }];
 
-const mastersEducationLevels: { label: string; value: EducationLevelName }[] = [
+const mastersEducationLevels: { label: string; value: EducationLevel }[] = [
   { label: "Degree", value: "DEGREE" },
   { label: "Postgraduate Diploma", value: "DIPLOMA" },
 ];
 
-const phdEducationLevels: { label: string; value: EducationLevelName }[] = [
+const phdEducationLevels: { label: string; value: EducationLevel }[] = [
   { label: "Masters", value: "MASTERS" },
 ];
 

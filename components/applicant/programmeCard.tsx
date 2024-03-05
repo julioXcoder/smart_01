@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import mustLogo from "@/public/logo/must.svg";
-import { Programme } from "@/types/university";
+import { Programme } from "@/types/draftProgrammes";
 import { getEducationLevel, getProgrammeType } from "@/utils/programme";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import Image from "next/image";

@@ -56,7 +56,6 @@ interface ApplicationDetails {
   applicantEmergencyContacts: ApplicantEmergencyContacts;
   applicantHighestEducation: EducationLevel;
   applicantControlNumber: ApplicationPayment;
-  status: ApplicationStatus;
 }
 
 export type {

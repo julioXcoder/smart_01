@@ -9,7 +9,7 @@ import { ApplicantApplication, NewApplicant } from "./schema";
 import { redirect } from "next/navigation";
 import { ApplicantProgram } from "@/types/application";
 import { ApplicantFormData } from "@/components/applicant/data";
-import { Programme } from "@/types/university";
+import { Programme } from "@/types/draftProgrammes";
 
 // HELPER
 
@@ -130,14 +130,6 @@ export const newApplicantAccount = async (newApplicantData: NewApplicant) => {
       throw new Error("Latest Academic Year not found!");
     }
 
-    const universityApplication = await prisma.universityApplication.findFirst({
-      where: { academicYearId: latestAcademicYear.id },
-    });
-
-    if (!universityApplication) {
-      throw new Error("University application not found!");
-    }
-
     const applicant = await prisma.applicant.findUnique({
       where: {
         username,
@@ -167,7 +159,7 @@ export const newApplicantAccount = async (newApplicantData: NewApplicant) => {
         origin,
         highestEducationLevel,
         applicantUsername: newApplicant.username,
-        universityApplicationId: universityApplication.id,
+        academicYearId: latestAcademicYear.id,
         createdAt: now,
       },
     });
@@ -286,17 +278,13 @@ export const addApplicantProgrammePriority = async (
     );
 
     if (hasDuplicateProgrammeCode) {
-      return {
-        error: "Programme already added. Please pick a different one.",
-      };
+      return "Programme already added. Please pick a different one.";
     }
 
     const programmesLength = programmePriorities.length;
 
     if (programmesLength >= 5) {
-      return {
-        error: "Max programmes reached you cant add anymore programmes.",
-      };
+      return "Max programmes reached you cant add anymore programmes.";
     }
 
     // Find the programme by its code
@@ -307,9 +295,7 @@ export const addApplicantProgrammePriority = async (
     });
 
     if (!programme) {
-      return {
-        error: "The programme code you provided does not exist.",
-      };
+      return "The programme code you provided does not exist.";
     }
 
     await prisma.applicantProgrammes.create({
@@ -321,14 +307,8 @@ export const addApplicantProgrammePriority = async (
     });
 
     revalidatePath(`/application-portal/draft/${applicantApplication.id}`);
-    return {
-      redirect: `/application-portal/draft/${applicantApplication.id}`,
-    };
   } catch (error) {
-    return {
-      error:
-        "We’re sorry, but an issue arose while adding applicant programme priority.",
-    };
+    return "We’re sorry, but an issue arose while adding applicant programme priority.";
   }
 };
 
@@ -359,37 +339,16 @@ export const getApplications = async () => {
       "It appears that an academic year has not yet been established. Please proceed with creating a new academic year.",
     );
 
-  const universityApplication = await prisma.universityApplication.findFirst({
-    where: { academicYearId: latestAcademicYear.id },
-  });
-
-  if (!universityApplication)
-    throw new Error(
-      `Unfortunately, we could not find a university application associated with the academic year ID: ${latestAcademicYear.id}. Please verify the ID.`,
-    );
-
   const canCreateApp = applicantApplications.some(
-    (application) =>
-      application.universityApplicationId === universityApplication.id,
+    (application) => application.academicYearId === latestAcademicYear.id,
   );
 
   const applications = await Promise.all(
     applicantApplications.map(async (application) => {
       let isExpired = false;
 
-      const universityApplication =
-        await prisma.universityApplication.findUnique({
-          where: {
-            id: application.universityApplicationId,
-          },
-        });
-
-      if (!universityApplication) {
-        return null;
-      }
-
       const academicYear = await prisma.academicYear.findUnique({
-        where: { id: universityApplication.academicYearId },
+        where: { id: application.academicYearId },
       });
 
       if (!academicYear) {
@@ -400,7 +359,7 @@ export const getApplications = async () => {
 
       if (
         now.isAfter(
-          moment(universityApplication.endTime).tz("Africa/Dar_es_Salaam"),
+          moment(academicYear.applicationEndTime).tz("Africa/Dar_es_Salaam"),
         )
       ) {
         isExpired = true;
@@ -411,7 +370,7 @@ export const getApplications = async () => {
         status: application.status,
         academicYearName: academicYear.name,
         createdAt: academicYear.createdAt,
-        end: universityApplication.endTime,
+        end: academicYear.applicationEndTime,
         isExpired,
       };
     }),
@@ -508,13 +467,65 @@ export const getApplicationDetails = async (applicantApplicationId: string) => {
     },
   });
 
+  const academicYear = await prisma.academicYear.findUnique({
+    where: {
+      id: applicantApplication.academicYearId,
+    },
+  });
+
+  const programmes = await prisma.programme.findMany({
+    where: {
+      level: applicantApplication.type,
+    },
+  });
+  const result = await Promise.all(
+    programmes.map(async (programme) => {
+      const department = await prisma.department.findUnique({
+        where: { id: programme.departmentId },
+      });
+
+      if (!department) {
+        return null;
+      }
+
+      const college = await prisma.college.findUnique({
+        where: { id: department.collegeId },
+      });
+
+      if (!college) {
+        return null;
+      }
+
+      const campus = await prisma.campus.findUnique({
+        where: { id: college.campusId },
+      });
+
+      if (!campus) {
+        return null;
+      }
+
+      return {
+        ...programme,
+        department: department,
+        college: college,
+        campus: campus,
+      };
+    }),
+  );
+
+  // Filter out the null values
+  const validProgrammes = result.filter(
+    (programme) => programme !== null,
+  ) as Programme[];
+
   if (
     !applicantProfile ||
     !applicantContacts ||
     !applicantEmergencyContacts ||
     !applicantImageData ||
     !applicantEducationFileData ||
-    !applicantControlNumber
+    !applicantControlNumber ||
+    !academicYear
   ) {
     throw new Error(
       `Unable to locate the applicant details for the applicant with the username: ${applicant.username}.`,
@@ -523,17 +534,21 @@ export const getApplicationDetails = async (applicantApplicationId: string) => {
 
   return {
     username: applicant.username,
-    programmePriorities,
-    applicantEducationBackground,
-    applicantProfile,
-    applicantImageData,
-    applicantContacts,
-    applicantEmergencyContacts,
-    applicantHighestEducation: applicantApplication.highestEducationLevel,
-    applicantEducationFileData,
-    applicantAdditionalFileData,
-    applicantControlNumber,
+    academicYearName: academicYear.name,
+    programmes: validProgrammes,
     status: applicantApplication.status,
+    applicationData: {
+      programmePriorities,
+      applicantEducationBackground,
+      applicantProfile,
+      applicantImageData,
+      applicantContacts,
+      applicantEmergencyContacts,
+      applicantHighestEducation: applicantApplication.highestEducationLevel,
+      applicantEducationFileData,
+      applicantAdditionalFileData,
+      applicantControlNumber,
+    },
   };
 };
 
@@ -843,22 +858,16 @@ export const isApplicationPeriodOpen = async () => {
     throw new Error("Latest Academic Year not found!");
   }
 
-  const universityApplication = await prisma.universityApplication.findFirst({
-    where: { academicYearId: latestAcademicYear.id },
-  });
-
-  if (!universityApplication) {
-    throw new Error("University application not found!");
-  }
-
   const now = moment().tz("Africa/Dar_es_Salaam");
 
   if (
     now.isBefore(
-      moment(universityApplication.startTime).tz("Africa/Dar_es_Salaam"),
+      moment(latestAcademicYear.applicationStartTime).tz(
+        "Africa/Dar_es_Salaam",
+      ),
     ) ||
     now.isAfter(
-      moment(universityApplication.endTime).tz("Africa/Dar_es_Salaam"),
+      moment(latestAcademicYear.applicationEndTime).tz("Africa/Dar_es_Salaam"),
     )
   )
     return "CLOSED";
@@ -886,112 +895,38 @@ export const generateControlNumber = async (applicantApplicationId: string) => {
   revalidatePath(`/applicant-portal/draft/finance/${applicantApplication.id}`);
 };
 
-export const getApplicantDetails = async (applicantApplicationId: string) => {
-  const applicantApplication = await getApplicantApplication(
-    applicantApplicationId,
-  );
-
-  const applicantProfile = await prisma.applicantProfile.findUnique({
-    where: {
-      applicantApplicationId: applicantApplication.id,
-    },
-  });
-
-  const applicantImageData = await prisma.applicantImageData.findUnique({
-    where: {
-      applicantApplicationId: applicantApplication.id,
-    },
-  });
-
-  const universityApplication = await prisma.universityApplication.findUnique({
-    where: {
-      id: applicantApplication.universityApplicationId,
-    },
-  });
-
-  if (!universityApplication) {
-    throw new Error(
-      `Unable to locate university application with the id : ${applicantApplication.universityApplicationId}.`,
-    );
-  }
-
-  const academicYear = await prisma.academicYear.findUnique({
-    where: {
-      id: universityApplication.academicYearId,
-    },
-  });
-
-  if (!applicantProfile || !applicantImageData || !academicYear) {
-    throw new Error(
-      `Unable to locate the applicant details for the applicant with the username: ${applicantApplication.applicantUsername}.`,
-    );
-  }
-
-  return {
-    username: applicantApplication.applicantUsername,
-    imageUrl: applicantImageData.imageUrl,
-    firstName: applicantProfile.firstName,
-    lastName: applicantProfile.lastName,
-    academicYearName: academicYear.name,
-  };
-};
-
-export const getApplicantProgrammes = async (
+export const addApplicantEducationBackground = async (
+  position: number,
   applicantApplicationId: string,
 ) => {
+  if (position < 0 || position > 5)
+    throw new Error("The provided position is invalid.");
+
   const applicantApplication = await getApplicantApplication(
     applicantApplicationId,
   );
 
-  const programmes = await prisma.programme.findMany({
-    where: {
-      level: applicantApplication.type,
+  const newEducation = await prisma.applicantEducationBackground.create({
+    data: {
+      applicantApplicationId: applicantApplication.id,
+      position,
     },
   });
-  const result = await Promise.all(
-    programmes.map(async (programme) => {
-      const department = await prisma.department.findUnique({
-        where: { id: programme.departmentId },
-      });
 
-      if (!department) {
-        return null;
-      }
+  return newEducation.id;
+};
 
-      const college = await prisma.college.findUnique({
-        where: { id: department.collegeId },
-      });
+export const deleteApplicantEducationBackground = async (
+  itemId: string,
+  applicantApplicationId: string,
+) => {
+  await prisma.applicantEducationBackground.delete({
+    where: {
+      id: itemId,
+    },
+  });
 
-      if (!college) {
-        return null;
-      }
-
-      const campus = await prisma.campus.findUnique({
-        where: { id: college.campusId },
-      });
-
-      if (!campus) {
-        return null;
-      }
-
-      return {
-        ...programme,
-        department: department,
-        college: college,
-        campus: campus,
-      };
-    }),
-  );
-
-  // Filter out the null values
-  const validProgrammes = result.filter(
-    (programme) => programme !== null,
-  ) as Programme[];
-
-  return {
-    programmes: validProgrammes,
-    status: applicantApplication.status,
-  };
+  revalidatePath(`/application-portal/draft/${applicantApplicationId}`);
 };
 
 // SERVER ////////////////////////////////////////////////////

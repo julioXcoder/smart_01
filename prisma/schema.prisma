@@ -74,16 +74,16 @@ model Applicant {
 //APPLICANT DATA
 // FIXME: ADD University application ID to check the application period
 model ApplicantApplication {
-  id                      String            @id @default(auto()) @map("_id") @db.ObjectId
-  applicantUsername       String
-  status                  ApplicationStatus @default(DRAFT)
-  formIVIndex             String
-  createdAt               DateTime
-  submittedAt             DateTime?
-  type                    ProgrammeLevel
-  origin                  Origin
-  highestEducationLevel   EducationLevel
-  universityApplicationId String            @db.ObjectId
+  id                    String            @id @default(auto()) @map("_id") @db.ObjectId
+  applicantUsername     String
+  status                ApplicationStatus @default(DRAFT)
+  formIVIndex           String
+  createdAt             DateTime
+  submittedAt           DateTime?
+  type                  ProgrammeLevel
+  origin                Origin
+  highestEducationLevel EducationLevel
+  academicYearId        String            @db.ObjectId
 }
 
 model ApplicantNotification {
@@ -209,18 +209,17 @@ model Department {
 }
 
 model Programme {
-  code                String         @id @map("_id")
-  name                String
-  level               ProgrammeLevel
-  duration            Int
-  type                ProgrammeType
-  language            String
-  departmentId        String         @db.ObjectId
-  tuitionFee          Float
-  applicationFee      Float
-  qualification       String
-  applicationDeadline String //FIXME: remove
-  availability        Boolean        @default(true)
+  code           String         @id @map("_id")
+  name           String
+  level          ProgrammeLevel
+  duration       Int
+  type           ProgrammeType
+  language       String
+  departmentId   String         @db.ObjectId
+  tuitionFee     Float
+  applicationFee Float
+  qualification  String
+  availability   Boolean        @default(true)
 }
 
 //UNIVERSITY HIERARCHY
@@ -231,14 +230,9 @@ model AcademicYear {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   createdAt DateTime
   name      String   @unique
-}
 
-model UniversityApplication {
-  id             String @id @default(auto()) @map("_id") @db.ObjectId
-  academicYearId String @db.ObjectId
-
-  startTime DateTime // Start time of the application
-  endTime   DateTime // End time of the application
+  applicationStartTime DateTime // Start time of the application
+  applicationEndTime   DateTime // End time of the application
 }
 
 //UNIVERSITY ANUAL EVENTS

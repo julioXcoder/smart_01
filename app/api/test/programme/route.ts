@@ -23,7 +23,6 @@ const schema = z.object({
   tuitionFee: z.number(),
   applicationFee: z.number(),
   qualification: z.string(),
-  applicationDeadline: z.string(),
 });
 
 type Body = z.infer<typeof schema>;
@@ -41,7 +40,6 @@ export async function POST(request: NextRequest) {
       name,
       code,
       level,
-      applicationDeadline,
       applicationFee,
       language,
       duration,
@@ -65,7 +63,6 @@ export async function POST(request: NextRequest) {
         name,
         code,
         level,
-        applicationDeadline,
         applicationFee,
         language,
         duration,
@@ -80,7 +77,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     return NextResponse.json(
       { error: "An error occurred while processing your request" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

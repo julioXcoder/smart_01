@@ -1,11 +1,10 @@
 import { IconType } from "react-icons";
 import { ReactNode } from "react";
 
-interface Step {
+interface Tab {
   label: string;
-  stepContent: ReactNode;
-  Icon?: IconType;
-  errors?: number;
+  Icon: IconType;
+  content: ReactNode;
 }
 
 interface Path {
@@ -14,4 +13,4 @@ interface Path {
   Icon?: IconType;
 }
 
-export type { Step ,Path};
+export type { Path, Tab };

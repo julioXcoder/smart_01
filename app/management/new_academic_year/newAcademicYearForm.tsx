@@ -71,7 +71,7 @@ const NewAcademicYearForm = () => {
             <FormItem>
               <FormLabel>name</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Input placeholder="2023-2024" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
