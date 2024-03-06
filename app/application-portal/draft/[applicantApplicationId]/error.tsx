@@ -17,12 +17,14 @@ export default function Error({
 }) {
   useEffect(() => {
     // Log the error to an error reporting service
-    logError(error);
+    // logError(error);
+    console.log(error);
+    console.error(error);
   }, [error]);
   const router = useRouter();
 
   return (
-    <div className="mx-auto max-w-[85rem] px-4 sm:px-6 lg:px-8">
+    <div className="mx-auto mt-10 max-w-[85rem] px-4 sm:px-6 lg:px-8">
       <div className="grid lg:grid-cols-7 lg:items-center lg:gap-x-8 xl:gap-x-12">
         <div className="mt-10 lg:col-span-4 lg:mt-0">
           <Image

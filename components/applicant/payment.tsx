@@ -54,25 +54,39 @@ const Payment = ({
         <div>
           <ol className="relative max-w-sm border-s border-gray-200 text-gray-500 dark:border-gray-700 dark:text-gray-400">
             <li className="mb-10 ms-6">
-              {applicantControlNumber.controlNumber ? (
-                <span className="absolute -start-4 flex h-8 w-8 items-center justify-center rounded-full bg-green-200 ring-4 ring-white dark:bg-green-900 dark:ring-gray-900">
+              <span
+                className={`absolute -start-4 flex h-8 w-8 items-center justify-center rounded-full ring-4 ring-white dark:ring-gray-900 ${
+                  applicantControlNumber.controlNumber
+                    ? "bg-green-200 dark:bg-green-900"
+                    : "bg-gray-100 dark:bg-gray-700"
+                }`}
+              >
+                {applicantControlNumber.controlNumber ? (
                   <IoCheckmark className="h-3.5 w-3.5 text-green-500 dark:text-green-400" />
-                </span>
-              ) : (
-                <span className="absolute -start-4 flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 ring-4 ring-white dark:bg-gray-700 dark:ring-gray-900">
+                ) : (
                   <BsCreditCard2BackFill className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400" />
-                </span>
-              )}
-              <h3 className="p-1 font-medium leading-tight">Application Fee</h3>
+                )}
+              </span>
+
+              <h3 className="p-1 font-medium leading-tight">
+                Generate Control Number
+              </h3>
               <div className="p-3">
                 <p className="mt-3 text-sm leading-relaxed text-gray-700 dark:text-gray-400">
-                  To proceed with your application, a fee of 10,000 Tanzanian
-                  Shillings is required.
+                  {!applicantControlNumber.controlNumber ? (
+                    <>
+                      To proceed with your application, a fee of 10,000
+                      Tanzanian Shillings is required.
+                    </>
+                  ) : (
+                    <>Thank you for generating your control number</>
+                  )}
                 </p>
                 {!applicantControlNumber.controlNumber && (
                   <div className="mt-4">
                     <p className="mb-2 text-sm text-gray-700 dark:text-gray-400">
-                      Click the button below to generate the control number:
+                      Please click the button below to generate your unique
+                      control number:
                     </p>
 
                     <Button
@@ -88,8 +102,18 @@ const Payment = ({
               </div>
             </li>
             <li className="ms-6">
-              <span className="absolute -start-4 flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 ring-4 ring-white dark:bg-gray-700 dark:ring-gray-900">
-                <IoKeyOutline className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400" />
+              <span
+                className={`absolute -start-4 flex h-8 w-8 items-center justify-center rounded-full ring-4 ring-white dark:ring-gray-900 ${
+                  applicantControlNumber.status === "SUCCESS"
+                    ? "bg-green-200 dark:bg-green-900"
+                    : "bg-gray-100 dark:bg-gray-700"
+                }`}
+              >
+                {applicantControlNumber.status === "SUCCESS" ? (
+                  <IoCheckmark className="h-3.5 w-3.5 text-green-500 dark:text-green-400" />
+                ) : (
+                  <IoKeyOutline className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400" />
+                )}
               </span>
               <h3 className="p-1 font-medium leading-tight">Control Number</h3>
               {applicantControlNumber.controlNumber && (

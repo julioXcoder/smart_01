@@ -6,11 +6,13 @@ interface Props {
   params: { applicantApplicationId: string };
 }
 
-const Page = async ({ params: { applicantApplicationId } }: Props) => {
+export default async function Page({
+  params: { applicantApplicationId },
+}: Props) {
   const data = await getApplicationDetails(applicantApplicationId);
 
   if (data.status !== "DRAFT") {
-    return <ErrorPage errorMessage={`Application status: ${status}.`} />;
+    return <ErrorPage errorMessage={`Application status: ${data.status}.`} />;
   } else {
     return (
       <DraftContainer
@@ -22,6 +24,4 @@ const Page = async ({ params: { applicantApplicationId } }: Props) => {
       />
     );
   }
-};
-
-export default Page;
+}

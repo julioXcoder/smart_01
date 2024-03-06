@@ -10,6 +10,8 @@ import { redirect } from "next/navigation";
 import { ApplicantProgram } from "@/types/application";
 import { ApplicantFormData } from "@/components/applicant/data";
 import { Programme } from "@/types/draftProgrammes";
+import { utapi } from "@/server/uploadthing";
+import { logError } from "@/utils/logger";
 
 // HELPER
 
@@ -38,7 +40,15 @@ const getApplicant = async () => {
   return applicant;
 };
 
+function isValidObjectId(id: string) {
+  return /^[0-9a-fA-F]{24}$/.test(id);
+}
+
 const getApplicantApplication = async (applicantApplicationId: string) => {
+  if (!isValidObjectId(applicantApplicationId)) {
+    throw new Error("Invalid ObjectId");
+  }
+
   const applicant = await getApplicant();
 
   const applicantApplication = await prisma.applicantApplication.findUnique({
@@ -388,20 +398,9 @@ export const getApplications = async () => {
 };
 
 export const getApplicationDetails = async (applicantApplicationId: string) => {
-  const applicant = await getApplicant();
-
-  const applicantApplication = await prisma.applicantApplication.findUnique({
-    where: {
-      id: applicantApplicationId,
-      applicantUsername: applicant.username,
-    },
-  });
-
-  if (!applicantApplication) {
-    throw new Error(
-      `We’re sorry, but we couldn’t find an application for the applicant with the username ${applicant.username} and the application ID ${applicantApplicationId}. Please verify the details.`,
-    );
-  }
+  const applicantApplication = await getApplicantApplication(
+    applicantApplicationId,
+  );
 
   const programmePriorities = await getProgrammePriorities(
     applicantApplication.id,
@@ -528,12 +527,12 @@ export const getApplicationDetails = async (applicantApplicationId: string) => {
     !academicYear
   ) {
     throw new Error(
-      `Unable to locate the applicant details for the applicant with the username: ${applicant.username}.`,
+      `Unable to locate the applicant details for the applicant with the username: ${applicantApplication.applicantUsername}.`,
     );
   }
 
   return {
-    username: applicant.username,
+    username: applicantApplication.applicantUsername,
     academicYearName: academicYear.name,
     programmes: validProgrammes,
     status: applicantApplication.status,

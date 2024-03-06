@@ -70,35 +70,55 @@ const Draft = ({
           </span>
         </Button>
 
-        {data.applicantControlNumber.status === "SUCCESS" && (
-          <AlertDialog>
-            <AlertDialogTrigger disabled={isSubmitting || draftSaving} asChild>
-              <Button className="mt-2 w-full">
-                <span className="flex items-center gap-2">
-                  <FaPaperPlane className="h-4 w-4 shrink-0" />
-                  Submit Application
-                </span>
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  Application Submission Confirmation
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  Please review your information carefully before submitting.
-                  Are you sure all the information is correct?
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Review Again</AlertDialogCancel>
+        <AlertDialog>
+          <AlertDialogTrigger disabled={isSubmitting || draftSaving} asChild>
+            <Button className="mt-2 w-full">
+              <span className="flex items-center gap-2">
+                <FaPaperPlane className="h-4 w-4 shrink-0" />
+                Submit Application
+              </span>
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {data.applicantControlNumber.status === "SUCCESS" ? (
+                  <>Application Submission Confirmation</>
+                ) : (
+                  <> Payment Required</>
+                )}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {data.applicantControlNumber.status === "SUCCESS" ? (
+                  <>
+                    {" "}
+                    Please review your information carefully before submitting.
+                    Are you sure all the information is correct?
+                  </>
+                ) : (
+                  <>
+                    Please complete your payment of 10,000 Tanzanian Shillings
+                    before proceeding with your application. Thank you.
+                  </>
+                )}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>
+                {data.applicantControlNumber.status === "SUCCESS" ? (
+                  <>Review Again</>
+                ) : (
+                  <>Close</>
+                )}
+              </AlertDialogCancel>
+              {data.applicantControlNumber.status === "SUCCESS" && (
                 <AlertDialogAction onClick={onApplicationSubmit}>
                   Confirm and Submit
                 </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        )}
+              )}
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

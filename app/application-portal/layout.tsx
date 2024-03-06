@@ -5,7 +5,6 @@ import { ReactNode } from "react";
 interface Props {
   children: ReactNode;
 }
-
 const Layout = async ({ children }: Props) => {
   const user = await getPayload();
 

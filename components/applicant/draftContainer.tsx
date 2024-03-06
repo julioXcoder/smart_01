@@ -801,8 +801,6 @@ const DraftContainer = ({
     [applicantApplicationId],
   );
 
-  // Education
-
   const reorderPriorities = () => {
     const prevProgrammes = [...programmePriorities];
 
