@@ -888,7 +888,7 @@ const DraftContainer = ({
       error: <b>{errorText}</b>,
     });
 
-    responsePromise.catch((error) => {
+    await responsePromise.catch((error) => {
       logError(error);
 
       throw error;
@@ -1022,7 +1022,17 @@ const DraftContainer = ({
 
   const navs: Tab[] = [
     {
-      content: <Draft form={form} tabs={tabs} />,
+      content: (
+        <Draft
+          onDraftSave={handleSaveAsDraft}
+          onApplicationSubmit={handleSubmitApplication}
+          draftSaving={draftSaving}
+          isSubmitting={isSubmitting}
+          form={form}
+          tabs={tabs}
+          data={data}
+        />
+      ),
       label: "draft",
       Icon: FaInbox,
     },
@@ -1038,7 +1048,14 @@ const DraftContainer = ({
       Icon: FaMagnifyingGlass,
     },
     {
-      content: <Payment />,
+      content: (
+        <Payment
+          draftSaving={draftSaving}
+          isSubmitting={isSubmitting}
+          applicantControlNumber={data.applicantControlNumber}
+          applicantApplicationId={applicantApplicationId}
+        />
+      ),
       label: "payments",
       Icon: FaCreditCard,
     },
@@ -1068,56 +1085,8 @@ const DraftContainer = ({
         items={navs}
         onGotoItem={handleGoToNav}
       />
-      <div className="p-2 sm:ml-64">
-        <MainContent>
-          {currentNav.content}
-          <div className="w-full">
-            <Button
-              className="mt-2 w-full"
-              variant="secondary"
-              onClick={() => handleSaveAsDraft({})}
-              disabled={isSubmitting || draftSaving}
-            >
-              <span className="flex items-center gap-2">
-                <MdOutlineAccessTime className="h-4 w-4 shrink-0" />
-                Save as Draft
-              </span>
-            </Button>
-
-            {data.applicantControlNumber.status === "SUCCESS" && (
-              <AlertDialog>
-                <AlertDialogTrigger
-                  disabled={isSubmitting || draftSaving}
-                  asChild
-                >
-                  <Button className="mt-2 w-full">
-                    <span className="flex items-center gap-2">
-                      <FaPaperPlane className="h-4 w-4 shrink-0" />
-                      Submit Application
-                    </span>
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Application Submission Confirmation
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Please review your information carefully before
-                      submitting. Are you sure all the information is correct?
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Review Again</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleSubmitApplication}>
-                      Confirm and Submit
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
-          </div>
-        </MainContent>
+      <div className="mb-16 p-2 sm:ml-64 md:mb-0">
+        <MainContent>{currentNav.content}</MainContent>
       </div>
     </>
   );

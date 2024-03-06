@@ -892,7 +892,7 @@ export const generateControlNumber = async (applicantApplicationId: string) => {
     },
   });
 
-  revalidatePath(`/applicant-portal/draft/finance/${applicantApplication.id}`);
+  revalidatePath(`/applicant-portal/draft/${applicantApplication.id}`);
 };
 
 export const addApplicantEducationBackground = async (
