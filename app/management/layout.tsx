@@ -11,7 +11,9 @@ const Layout = ({ children }: Props) => {
     <div>
       <Appbar username="julioXcoder" />
 
-      <MainContent>{children}</MainContent>
+      <div className="p-4">
+        <MainContent>{children}</MainContent>
+      </div>
     </div>
   );
 };
