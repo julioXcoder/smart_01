@@ -17,9 +17,7 @@ export default function Error({
 }) {
   useEffect(() => {
     // Log the error to an error reporting service
-    // logError(error);
-    console.log(error);
-    console.error(error);
+    logError(error);
   }, [error]);
   const router = useRouter();
 

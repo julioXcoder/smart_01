@@ -1,14 +1,6 @@
-"use client";
-
-import { usePathname } from "next/navigation";
-import { useRef, useEffect } from "react";
-
-import { ReactNode } from "react";
-import Sidebar from "@/components/layout/sidebar";
 import Appbar from "@/components/applicant/appbar";
-import Navbar from "@/components/layout/navbar";
 import MainContent from "@/components/layout/mainContent";
-import DraftSidebar from "@/components/applicant/draftSidebar";
+import { ReactNode } from "react";
 
 interface Props {
   children: ReactNode;
@@ -18,11 +10,8 @@ const Layout = ({ children }: Props) => {
   return (
     <div>
       <Appbar username="julioXcoder" />
-      {/* <Sidebar /> */}
-      {/* <DraftSidebar /> */}
-      <div className="p-2 sm:ml-64">
-        <MainContent>{children}</MainContent>
-      </div>
+
+      <MainContent>{children}</MainContent>
     </div>
   );
 };
