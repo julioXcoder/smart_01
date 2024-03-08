@@ -9,12 +9,15 @@ import Small from "@/components/typography/small";
 import Muted from "@/components/typography/muted";
 import HeadingOne from "@/components/typography/headingOne";
 import { Separator } from "@/components/ui/separator";
+import { IoArrowBack, IoArrowForward } from "react-icons/io5";
+import { FiUser } from "react-icons/fi";
 
 import Register from "@/components/student-onboarding/steps/register";
 import Verify from "@/components/student-onboarding/steps/verify";
 import Prepare from "@/components/student-onboarding/steps/prepare";
 import Settle from "@/components/student-onboarding/steps/settle";
 import Arrive from "@/components/student-onboarding/steps/arrive";
+import Account from "@/components/student-onboarding/steps/account";
 
 const Page = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -44,6 +47,7 @@ const Page = () => {
       content: <Register />,
     },
     { label: "Settling In", Icon: FaHome, content: <Settle /> },
+    { label: "Account Setup", Icon: FiUser, content: <Account /> },
   ];
 
   const currentTab = tabs[activeTab].content;
@@ -52,7 +56,7 @@ const Page = () => {
     <div className="px-2 md:px-10 xl:px-36">
       <div className="grid gap-4 md:grid-cols-5">
         <div className="hidden justify-between md:col-span-2 md:flex">
-          <div className="flex flex-col justify-between px-5 py-16">
+          <div className="flex flex-col space-y-14 px-8 py-16">
             <div className="space-y-1">
               <HeadingOne>2023-2024</HeadingOne>
               <Muted>New Student Onboarding</Muted>
@@ -97,6 +101,7 @@ const Page = () => {
               disabled={activeTab === 0}
               className="mr-2"
             >
+              <IoArrowBack className="mr-2 size-4 shrink-0" />
               Previous step
             </Button>
             <Button
@@ -104,6 +109,7 @@ const Page = () => {
               disabled={activeTab === tabs.length - 1}
             >
               Next step
+              <IoArrowForward className="ml-2 size-4 shrink-0" />
             </Button>
           </div>
         </div>
