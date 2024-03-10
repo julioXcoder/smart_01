@@ -91,6 +91,10 @@ const Prepare = () => {
         university.
       </Muted>
       <div className="mt-5 ps-5">
+        <FormLabel className="text-base">
+          📋 Gather Original Documents:
+        </FormLabel>
+        <FormDescription>Required for enrollment process.</FormDescription>
         <Form {...form}>
           <form
             className="my-5 space-y-6"
@@ -139,9 +143,9 @@ const Prepare = () => {
                             </FormControl>
                             <FormLabel className="text-sm font-normal">
                               {item.label}
-                              <FormDescription>
+                              {/* <FormDescription>
                                 {item.description}
-                              </FormDescription>
+                              </FormDescription> */}
                             </FormLabel>
                           </FormItem>
                         );

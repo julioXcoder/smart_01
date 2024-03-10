@@ -124,7 +124,9 @@ const DraftContainer = ({
 
   useEffect(() => {
     setProgrammePriorities(data.programmePriorities);
+  }, [data.programmePriorities]);
 
+  useEffect(() => {
     const initialState = {
       programmePriorities: data.programmePriorities,
     };
@@ -138,7 +140,7 @@ const DraftContainer = ({
     } else {
       setIsSaved(false);
     }
-  }, [programmePriorities, data.programmePriorities]);
+  }, [data.programmePriorities, programmePriorities]);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {

@@ -1,47 +1,9 @@
-"use client";
-
-import { Checkbox } from "@/components/ui/checkbox";
-import BottomNavigation from "@/components/bottomNavigation";
-import { Path } from "@/types";
-import { useState } from "react";
-import {
-  FaInbox,
-  FaCreditCard,
-  FaGear,
-  FaMagnifyingGlass,
-} from "react-icons/fa6";
-import { MdChecklist } from "react-icons/md";
-
-const paths: Path[] = [
-  {
-    path: ``,
-    title: "draft",
-    Icon: FaInbox,
-  },
-  {
-    path: ``,
-    title: "programmes",
-    Icon: FaMagnifyingGlass,
-  },
-  {
-    path: ``,
-    title: "payments",
-    Icon: FaCreditCard,
-  },
-  {
-    path: ``,
-    title: "settings",
-    Icon: FaGear,
-  },
-];
-
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -51,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -59,28 +22,19 @@ import { z } from "zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
 
 const FormSchema = z.object({
-  check: z.boolean().refine((value) => value === true, {
+  acceptedRegulations: z.boolean().refine((value) => value === true, {
     message:
       "You must agree to abide by the University regulations and by-laws.",
   }),
 });
 
-const Page = () => {
-  const [step, setStep] = useState(0);
-
-  const handleGoToStep = (stepIndex: number) => {
-    setStep(stepIndex);
-  };
-
-  const currentStep = paths[step];
-
+const RegulationsAgreementForm = () => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   });
@@ -185,10 +139,6 @@ const Page = () => {
 
   return (
     <div className="mx-auto w-full max-w-[45rem]">
-      {/* {currentStep.title} */}
-
-      {/* <BottomNavigation onGotoItem={handleGoToStep} index={step} items={paths} /> */}
-
       <Card className="">
         <CardHeader className="flex items-center">
           <CardTitle>University Regulations and By-Laws</CardTitle>
@@ -238,7 +188,7 @@ const Page = () => {
             <form>
               <FormField
                 control={form.control}
-                name="check"
+                name="acceptedRegulations"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                     <FormControl>
@@ -261,11 +211,11 @@ const Page = () => {
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
           <Button variant="outline">Cancel</Button>
-          <Button className="w-44">Continue</Button>
+          <Button className="w-36">Continue</Button>
         </CardFooter>
       </Card>
     </div>
   );
 };
 
-export default Page;
+export default RegulationsAgreementForm;
