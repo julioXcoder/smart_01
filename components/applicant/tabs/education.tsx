@@ -41,7 +41,7 @@ import {
   addApplicantEducationBackground,
   deleteApplicantEducationBackground,
 } from "@/server/actions/application";
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import {
   ApplicantAdditionalFileData,
   ApplicantEducationFileData,
@@ -151,31 +151,36 @@ const Education = ({
 
   const handleAddItem = async () => {
     if (fields.length < maxItems) {
-      setIsLoading(true);
-
-      const responsePromise = addApplicantEducationBackground(
-        fields.length,
-        applicantApplicationId,
-      );
-
-      toast.promise(responsePromise, {
-        loading: "adding education card...",
-        success: <b>Education card added!</b>,
-        error: <b>Unfortunately, the education card could not be added.</b>,
+      // Optimistically update the state
+      const tempId = (fields.length + 1).toString(); // Generate a temporary ID based on the length of the array
+      append({
+        _id: tempId,
+        position: fields.length,
+        level: "",
+        schoolName: "",
+        startYear: "",
+        endYear: "",
       });
 
-      await responsePromise
-        .then((value) =>
-          append({
-            _id: value,
-            position: fields.length,
-            level: "",
-            schoolName: "",
-            startYear: "",
-            endYear: "",
-          }),
-        )
-        .finally(() => setIsLoading(false));
+      const educationFields = form.getValues("education");
+
+      setIsLoading(true);
+
+      await addApplicantEducationBackground(
+        educationFields.length,
+        applicantApplicationId,
+      )
+        .then((value) => {
+          educationFields[educationFields.length - 1]._id = value;
+        })
+        .catch((error) => {
+          remove(educationFields.length);
+          toast.error("Unfortunately, the education card could not be added.", {
+            duration: 6000,
+          });
+        });
+
+      setIsLoading(false);
     }
   };
 
@@ -193,27 +198,33 @@ const Education = ({
 
   const handleDelete = async (index: number) => {
     if (fields.length > 1) {
+      const educationFields = form.getValues("education");
+      const removedItem = fields[index]; // Store the removed item
+
       remove(index);
+
+      const removeItemId = educationFields[index]._id;
+
+      setIsLoading(true);
+
+      const responsePromise = deleteApplicantEducationBackground(
+        removeItemId,
+        applicantApplicationId,
+      );
+
+      toast.promise(responsePromise, {
+        loading: "Deleting education card...",
+        success: <b>Education card deleted!</b>,
+        error: <b>Unfortunately, the education card could not be deleted.</b>,
+      });
+
+      await responsePromise.catch((error) => {
+        // If the server operation fails, revert the optimistic update
+        fields.splice(index, 0, removedItem); // Add the removed item back to its original position
+      });
+
+      setIsLoading(false);
     }
-
-    const removeItemId = fields[index]._id;
-
-    setIsLoading(true);
-
-    const responsePromise = deleteApplicantEducationBackground(
-      removeItemId,
-      applicantApplicationId,
-    );
-
-    toast.promise(responsePromise, {
-      loading: "deleting education card...",
-      success: <b>Education card deleted!</b>,
-      error: <b>Unfortunately, the education card could not be deleted.</b>,
-    });
-
-    await responsePromise.catch((error) => remove(fields.length));
-
-    setIsLoading(false);
   };
 
   const handleButtonClick = () => {

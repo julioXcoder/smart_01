@@ -22,12 +22,14 @@ interface Props {
   programmes: Programme[] | null;
   applicantApplicationId: string;
   onGotoItem: (itemIndex: number) => void;
+  handleAddApplicantProgramme: (programme: Programme) => Promise<void>;
 }
 
 const Programmes = ({
   programmes,
   applicantApplicationId,
   onGotoItem,
+  handleAddApplicantProgramme,
 }: Props) => {
   const [loading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -48,23 +50,6 @@ const Programmes = ({
     } else {
       setFilteredProgrammes(programmes);
     }
-  };
-
-  const handleAddApplicantProgramme = async (programmeCode: string) => {
-    setIsLoading(true);
-
-    const errorMessage = await addApplicantProgrammePriority(
-      programmeCode,
-      applicantApplicationId,
-    );
-
-    if (errorMessage) {
-      toast.error(errorMessage, { duration: 6000 });
-      setIsLoading(false);
-      return;
-    }
-
-    onGotoItem(0);
   };
 
   if (programmes) {

@@ -9,7 +9,7 @@ import { MdBook, MdEventNote } from "react-icons/md";
 
 interface Props {
   programme: Programme;
-  addProgramme: (programmeCode: string) => void;
+  addProgramme: (programme: Programme) => Promise<void>;
   loading: boolean;
 }
 
@@ -104,7 +104,7 @@ const ProgrammeCard = ({ programme, addProgramme, loading }: Props) => {
                   More Information
                 </Button>
                 <Button
-                  onClick={() => addProgramme(programme.code)}
+                  onClick={() => addProgramme(programme)}
                   disabled={loading}
                   className="mt-2 w-full"
                 >

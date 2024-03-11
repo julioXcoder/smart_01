@@ -76,6 +76,7 @@ import {
   addApplicantAdditionalFile,
   saveApplicationData,
   submitApplicantApplication,
+  addApplicantProgrammePriority,
 } from "@/server/actions/application";
 
 import Priorities from "./tabs/priorities";
@@ -119,12 +120,9 @@ const DraftContainer = ({
   );
   const [draftSaving, setDraftSaving] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAddingProgramme, setIsAddingProgramme] = useState(false);
   const [uploadingImage, setIsUploadingImage] = useState(false);
   const [uploadingFile, setIsUploadingFile] = useState(false);
-
-  useEffect(() => {
-    setProgrammePriorities(data.programmePriorities);
-  }, [data.programmePriorities]);
 
   useEffect(() => {
     const initialState = {
@@ -271,6 +269,86 @@ const DraftContainer = ({
   }, [currentFormValues, data]);
 
   // Priorities
+
+  const addProgramme = useCallback(
+    async (programme: Programme) => {
+      const hasDuplicateProgrammeCode = programmePriorities.some(
+        (programmePriority) =>
+          programmePriority.programmeCode === programme.code,
+      );
+
+      if (hasDuplicateProgrammeCode) {
+        toast.error("Programme already added. Please pick a different one.", {
+          duration: 6000,
+        });
+        return;
+      }
+
+      const programmesLength = programmePriorities.length;
+
+      if (programmesLength >= 5) {
+        toast.error("Max programmes reached you cant add anymore programmes.", {
+          duration: 6000,
+        });
+        return;
+      }
+
+      setIsAddingProgramme(true);
+
+      // Optimistically update the state
+      const tempId = (programmePriorities.length + 1).toString(); // Generate a temporary ID based on the
+
+      setProgrammePriorities((prevProgrammes) => [
+        ...prevProgrammes,
+        {
+          id: tempId,
+          programmeCode: programme.code,
+          priority: prevProgrammes.length + 1,
+          programmeDetails: {
+            name: programme.name,
+            language: programme.language,
+            level: programme.level,
+          },
+        },
+      ]);
+
+      // Then perform the server operation
+      const responsePromise = addApplicantProgrammePriority(
+        programme.code,
+        applicantApplicationId,
+        programmesLength + 1,
+      );
+
+      toast.promise(responsePromise, {
+        loading: "Adding programme...",
+        success: <b>Programme added!</b>,
+        error: <b>Unfortunately, the programme could not be added.</b>,
+      });
+
+      handleGoToNav(0);
+
+      const newProgramme = await responsePromise.catch((error) => {
+        // If the server operation fails, revert the optimistic update
+        setProgrammePriorities((prevProgrammes) =>
+          prevProgrammes.filter((programme) => programme.id !== tempId),
+        );
+        logError(error);
+      });
+
+      if (newProgramme) {
+        setProgrammePriorities((prevProgrammes) =>
+          prevProgrammes.map((programme) =>
+            programme.id === tempId
+              ? { ...programme, id: newProgramme.id }
+              : programme,
+          ),
+        );
+      }
+
+      setIsAddingProgramme(false);
+    },
+    [applicantApplicationId, programmePriorities],
+  );
 
   const moveUp = useCallback(
     (index: number) => {
@@ -1042,6 +1120,7 @@ const DraftContainer = ({
           applicantApplicationId={applicantApplicationId}
           programmes={programmes}
           onGotoItem={handleGoToNav}
+          handleAddApplicantProgramme={addProgramme}
         />
       ),
       label: "programmes",

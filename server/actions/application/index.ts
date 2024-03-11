@@ -273,53 +273,31 @@ export const authorizeApplicant = async ({
 export const addApplicantProgrammePriority = async (
   programmeCode: string,
   applicantApplicationId: string,
+  priority: number,
 ) => {
-  try {
-    const applicantApplication = await getApplicantApplication(
-      applicantApplicationId,
-    );
+  const applicantApplication = await getApplicantApplication(
+    applicantApplicationId,
+  );
 
-    const programmePriorities = await getProgrammePriorities(
-      applicantApplication.id,
-    );
+  // Find the programme by its code
+  const programme = await prisma.programme.findUnique({
+    where: {
+      code: programmeCode,
+    },
+  });
 
-    const hasDuplicateProgrammeCode = programmePriorities.some(
-      (programme) => programme.programmeCode === programmeCode,
-    );
+  if (!programme)
+    throw new Error("The programme code you provided does not exist.");
 
-    if (hasDuplicateProgrammeCode) {
-      return "Programme already added. Please pick a different one.";
-    }
+  const newProgramme = await prisma.applicantProgrammes.create({
+    data: {
+      applicantApplicationId: applicantApplication.id,
+      programmeCode: programme.code,
+      priority,
+    },
+  });
 
-    const programmesLength = programmePriorities.length;
-
-    if (programmesLength >= 5) {
-      return "Max programmes reached you cant add anymore programmes.";
-    }
-
-    // Find the programme by its code
-    const programme = await prisma.programme.findUnique({
-      where: {
-        code: programmeCode,
-      },
-    });
-
-    if (!programme) {
-      return "The programme code you provided does not exist.";
-    }
-
-    await prisma.applicantProgrammes.create({
-      data: {
-        applicantApplicationId: applicantApplication.id,
-        programmeCode: programme.code,
-        priority: programmesLength + 1,
-      },
-    });
-
-    revalidatePath(`/application-portal/draft/${applicantApplication.id}`);
-  } catch (error) {
-    return "We’re sorry, but an issue arose while adding applicant programme priority.";
-  }
+  return newProgramme;
 };
 
 // CLIENT ////////////////////////////////////////////////////
