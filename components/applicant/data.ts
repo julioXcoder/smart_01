@@ -448,6 +448,14 @@ const educationLevel: SelectableOption[] = [
   { value: "phd", label: "PhD" },
 ];
 
+const maritalStatusOptions: SelectableOption[] = [
+  { value: "single", label: "Single" },
+  { value: "married", label: "Married" },
+  { value: "divorced", label: "Divorced" },
+  { value: "widowed", label: "Widowed" },
+  { value: "separated", label: "Separated" },
+];
+
 const EducationSchema = z.object({
   _id: z.string(),
   position: z.number(),
@@ -469,6 +477,18 @@ const FormSchema = z.object({
   lastName: z.string().min(1, { message: "Last name is required" }),
   nida: z.string().min(1, { message: "NIDA number is required" }),
   gender: z.string().min(1, { message: "Please select your gender." }),
+  maritalStatus: z
+    .string()
+    .min(1, { message: "Please select your marital status." }),
+  dateOfBirth: z
+    .string()
+    .min(1, { message: "Please provide your date of birth." }),
+  placeOfBirth: z
+    .string()
+    .min(1, { message: "Please provide your place of birth." }),
+  disability: z
+    .string()
+    .min(1, { message: "Please specify if you have any disabilities." }),
   citizenship: z
     .string()
     .min(1, { message: "Please select your nationality." }),
@@ -628,4 +648,5 @@ export {
   FormSchema,
   ImageSchema,
   EducationFileSchema,
+  maritalStatusOptions,
 };

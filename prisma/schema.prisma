@@ -121,6 +121,10 @@ model ApplicantProfile {
   lastName               String @default("")
   nationality            String @default("")
   gender                 String @default("")
+  dateOfBirth            String @default("")
+  maritalStatus          String @default("")
+  placeOfBirth           String @default("")
+  disability             String @default("")
 }
 
 model ApplicantImageData {

@@ -700,6 +700,10 @@ export const saveApplicationData = async (
     middleName,
     lastName,
     nida,
+    disability,
+    placeOfBirth,
+    dateOfBirth,
+    maritalStatus,
     applicantEmail,
     applicantPhoneNumber,
     citizenship,
@@ -740,6 +744,10 @@ export const saveApplicationData = async (
       lastName,
       nationality: citizenship,
       gender,
+      disability,
+      placeOfBirth,
+      dateOfBirth,
+      maritalStatus,
     },
   });
 

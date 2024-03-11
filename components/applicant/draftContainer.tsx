@@ -55,6 +55,7 @@ import {
   FaUser,
   FaHouse,
 } from "react-icons/fa6";
+import { FaHeadset, FaQuestionCircle } from "react-icons/fa";
 import { MdOutlineAccessTime } from "react-icons/md";
 import z from "zod";
 import { EducationFileSchema, FormSchema, ImageSchema } from "./data";
@@ -203,6 +204,10 @@ const DraftContainer = ({
         nida,
         nationality: citizenship,
         gender,
+        disability,
+        placeOfBirth,
+        dateOfBirth,
+        maritalStatus,
       },
       applicantContacts: {
         email: applicantEmail = "",
@@ -240,6 +245,10 @@ const DraftContainer = ({
       applicantPhoneNumber,
       citizenship,
       country,
+      disability,
+      placeOfBirth,
+      dateOfBirth,
+      maritalStatus,
       emergencyContactCity,
       emergencyContactCountry,
       emergencyContactEmail,
@@ -514,6 +523,7 @@ const DraftContainer = ({
         const url = URL.createObjectURL(file);
         setImagePreview(url);
         setIsUploadingImage(true);
+        const prevImage = imagePreview;
 
         let success;
         if (data.applicantImageData.key) {
@@ -527,14 +537,14 @@ const DraftContainer = ({
         }
 
         if (!success) {
-          setImagePreview(null);
+          setImagePreview(prevImage);
         }
       }
 
       event.target.value = "";
       setIsUploadingImage(false);
     },
-    [data.applicantImageData, handleImageUpload],
+    [data.applicantImageData, handleImageUpload, imagePreview],
   );
 
   const handleImageRemoval = useCallback(
@@ -1096,6 +1106,18 @@ const DraftContainer = ({
         />
       ),
     },
+    {
+      content: (
+        <Payment
+          draftSaving={draftSaving}
+          isSubmitting={isSubmitting}
+          applicantControlNumber={data.applicantControlNumber}
+          applicantApplicationId={applicantApplicationId}
+        />
+      ),
+      label: "payments",
+      Icon: FaCreditCard,
+    },
   ];
 
   const navs: Tab[] = [
@@ -1127,16 +1149,9 @@ const DraftContainer = ({
       Icon: FaMagnifyingGlass,
     },
     {
-      content: (
-        <Payment
-          draftSaving={draftSaving}
-          isSubmitting={isSubmitting}
-          applicantControlNumber={data.applicantControlNumber}
-          applicantApplicationId={applicantApplicationId}
-        />
-      ),
-      label: "payments",
-      Icon: FaCreditCard,
+      content: <>support: How to apply and contact support tab and faq</>,
+      label: "support",
+      Icon: FaHeadset,
     },
     {
       content: <Settings />,
@@ -1159,6 +1174,7 @@ const DraftContainer = ({
         items={navs}
         onGotoItem={handleGoToNav}
       />
+
       <BottomNavigation
         itemIndex={nav}
         items={navs}

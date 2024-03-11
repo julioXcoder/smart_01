@@ -17,9 +17,8 @@ import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { BiChevronDown, BiLayer } from "react-icons/bi";
-import { FaHeadset, FaQuestionCircle } from "react-icons/fa";
 import { LuUser } from "react-icons/lu";
-import { MdEvent, MdLogout } from "react-icons/md";
+import { MdLogout } from "react-icons/md";
 import ProfileThemeChanger from "../profileThemeChanger";
 
 interface Props {
@@ -72,24 +71,6 @@ const Profile = ({ username }: Props) => {
           >
             <BiLayer className="mr-2 h-4 w-4" />
             <span>My Applications</span>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <FaQuestionCircle className="mr-2 h-4 w-4" />
-            <span>How To Apply</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <FaHeadset className="mr-2 h-4 w-4" />
-            <span>Contact Support</span>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem onClick={() => console.log("Events")}>
-            <MdEvent className="mr-2 h-4 w-4" />
-            <span>Events</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

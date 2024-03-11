@@ -40,7 +40,12 @@ import { AiOutlineCloudUpload } from "react-icons/ai";
 import { BiCheck, BiChevronDown } from "react-icons/bi";
 import { IoMdTrash } from "react-icons/io";
 import z from "zod";
-import { FormSchema, genders, nationalities } from "../data";
+import {
+  FormSchema,
+  genders,
+  nationalities,
+  maritalStatusOptions,
+} from "../data";
 
 interface Props {
   form: UseFormReturn<z.infer<typeof FormSchema>>;
@@ -133,8 +138,6 @@ const Profile = ({
               </FormItem>
             )}
           />
-        </div>
-        <div className="space-y-5">
           <FormField
             control={form.control}
             name="gender"
@@ -162,6 +165,21 @@ const Profile = ({
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="dateOfBirth"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Date Of Birth</FormLabel>
+                <FormControl>
+                  <Input type="date" id="Date Of Birth" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="space-y-5">
           <FormField
             control={form.control}
             name="citizenship"
@@ -222,6 +240,67 @@ const Profile = ({
                     </Command>
                   </PopoverContent>
                 </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="placeOfBirth"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Place Of birth</FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isSubmitting || draftSaving}
+                    placeholder="Place of birth"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="maritalStatus"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Marital Status</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger disabled={isSubmitting || draftSaving}>
+                      <SelectValue placeholder="Select your marital status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {maritalStatusOptions.map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="disability"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Disability</FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isSubmitting || draftSaving}
+                    placeholder="Enter any disabilities (optional)"
+                    {...field}
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
