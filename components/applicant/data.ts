@@ -455,8 +455,12 @@ const EducationSchema = z.object({
   schoolName: z
     .string()
     .min(1, { message: "Official name of school / university is required" }),
-  startYear: z.string().min(1, { message: "Level of education is required" }),
-  endYear: z.string().min(1, { message: "Level of education is required" }),
+  startYear: z
+    .string()
+    .min(1, { message: "Issue date/Start date is required" }),
+  endYear: z
+    .string()
+    .min(1, { message: "(Expected) graduation date is required" }),
 });
 
 const FormSchema = z.object({

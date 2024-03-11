@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import moment from "moment-timezone";
 import { UseFormReturn, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
 import { FiArrowDown, FiArrowUp, FiTrash2 } from "react-icons/fi";
@@ -127,6 +128,8 @@ const renderFilePreview = (
   return null;
 };
 
+const today = moment().tz("Africa/Dar_es_Salaam").format("YYYY-MM-DDTHH:mm");
+
 const Education = ({
   form,
   applicantApplicationId,
@@ -158,8 +161,8 @@ const Education = ({
         position: fields.length,
         level: "",
         schoolName: "",
-        startYear: "",
-        endYear: "",
+        startYear: today,
+        endYear: today,
       });
 
       const educationFields = form.getValues("education");
@@ -358,24 +361,19 @@ const Education = ({
                 name={`education.${index}.startYear`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Start Year</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger disabled={isSubmitting || draftSaving}>
-                          <SelectValue placeholder="Select your start year" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {years.map((year) => (
-                          <SelectItem key={year.value} value={year.value}>
-                            {year.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Issue date/Start date</FormLabel>
+                    <FormControl>
+                      <Input
+                        className="w-40 px-2"
+                        type="month"
+                        id="Issue date/Start date"
+                        // min={minDate}
+                        // max={maxDate}
+                        // value={field.value.toISOString().slice(0, 16)}
+                        // onChange={field.onChange}
+                        {...field}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -385,24 +383,19 @@ const Education = ({
                 name={`education.${index}.endYear`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>End Year (Graduation)</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger disabled={isSubmitting || draftSaving}>
-                          <SelectValue placeholder="Select your end year" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {years.map((year) => (
-                          <SelectItem key={year.value} value={year.value}>
-                            {year.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>(Expected) graduation date</FormLabel>
+                    <FormControl>
+                      <Input
+                        className="w-40 px-2"
+                        type="month"
+                        id="(Expected) graduation"
+                        // min={minDate}
+                        // max={maxDate}
+                        // value={field.value.toISOString().slice(0, 16)}
+                        // onChange={field.onChange}
+                        {...field}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
