@@ -486,9 +486,7 @@ const FormSchema = z.object({
   placeOfBirth: z
     .string()
     .min(1, { message: "Please provide your place of birth." }),
-  disability: z
-    .string()
-    .min(1, { message: "Please specify if you have any disabilities." }),
+  disability: z.string().optional(),
   citizenship: z
     .string()
     .min(1, { message: "Please select your nationality." }),
