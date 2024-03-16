@@ -1,5 +1,3 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const documents = [
@@ -54,10 +52,4 @@ const DocumentsSchema = z.object({
   }),
 });
 
-const AccommodationSchema = z.object({
-  accommodation: z.enum(["on-campus", "off-campus", "already-secured"], {
-    required_error: "You need to select an accommodation option.",
-  }),
-});
-
-export { documents, medicalCheckUp, DocumentsSchema, AccommodationSchema };
+export { DocumentsSchema, documents, medicalCheckUp };

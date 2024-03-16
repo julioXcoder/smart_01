@@ -12,10 +12,12 @@ import {
   FaMapMarkerAlt,
   FaUserEdit,
 } from "react-icons/fa";
-import { FiBookOpen } from "react-icons/fi";
+import { FiBookOpen, FiList } from "react-icons/fi";
+import { RiDashboardLine } from "react-icons/ri";
 import Stepper from "@/components/stepper";
-import { FaCheck, FaClipboardList } from "react-icons/fa6";
+import { FaCheck, FaClipboardList, FaHotel } from "react-icons/fa6";
 import { FiUser } from "react-icons/fi";
+import { MdHotel } from "react-icons/md";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -27,10 +29,9 @@ import Register from "@/components/student-onboarding/steps/register";
 import Settle from "@/components/student-onboarding/steps/settle";
 import Verify from "@/components/student-onboarding/steps/verify";
 import Home from "@/components/student-onboarding/home";
-import {
-  DocumentsSchema,
-  AccommodationSchema,
-} from "@/components/student-onboarding/data";
+import Accommodation from "@/components/student-onboarding/accommodation";
+
+import { DocumentsSchema } from "@/components/student-onboarding/data";
 
 const Page = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -40,15 +41,7 @@ const Page = () => {
     resolver: zodResolver(DocumentsSchema),
   });
 
-  const settleForm = useForm<z.infer<typeof AccommodationSchema>>({
-    resolver: zodResolver(AccommodationSchema),
-  });
-
   function onPrepareFormSubmit(data: z.infer<typeof DocumentsSchema>) {
-    console.log(data);
-  }
-
-  function onSettleFormSubmit(data: z.infer<typeof AccommodationSchema>) {
     console.log(data);
   }
 
@@ -73,12 +66,12 @@ const Page = () => {
 
   const tabs: Tab[] = [
     { label: "Verify", Icon: FaCheck, content: <Verify /> },
-    { label: "Settle", Icon: FaHome, content: <Settle form={settleForm} /> },
     {
       label: "Prepare",
       Icon: FaClipboardList,
       content: <Prepare form={prepareForm} />,
     },
+    { label: "Settle", Icon: FaHome, content: <Settle /> },
     { label: "Arrive", Icon: FaMapMarkerAlt, content: <Arrive /> },
     { label: "Register", Icon: FaUserEdit, content: <Register /> },
     { label: "setup", Icon: FiUser, content: <Account /> },
@@ -94,8 +87,13 @@ const Page = () => {
           onPrevTab={handleBack}
         />
       ),
-      label: "home",
-      Icon: FaHome,
+      label: "Overview",
+      Icon: FiList,
+    },
+    {
+      content: <Accommodation />,
+      label: "accommodation",
+      Icon: MdHotel,
     },
     {
       content: <>Events</>,
@@ -106,11 +104,6 @@ const Page = () => {
       content: <>Resources</>,
       label: "resources",
       Icon: FiBookOpen,
-    },
-    {
-      content: <>support: How to apply and contact support tab and faq</>,
-      label: "support",
-      Icon: FaHeadset,
     },
   ];
 

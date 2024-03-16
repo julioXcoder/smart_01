@@ -27,6 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MdFilterList } from "react-icons/md";
+import RoomList from "../roomList";
 import { getLevelDisplayText } from "@/utils/programme";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -41,11 +42,12 @@ import Image from "next/image";
 import Muted from "@/components/typography/muted";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import Paragraph from "@/components/typography/paragraph";
+import RoomDetails from "../roomDetails";
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 
 // Define the Room type
-type Room = {
+export type Room = {
   type: "single" | "self";
   amenities: string[];
   price: number;
@@ -159,6 +161,18 @@ const studentResidences: StudentResidence[] = [
 const OffCampus = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isLiked, setIsLiked] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState<null | {
+    location: string;
+    room: Room;
+  }>(null);
+
+  const handleRoomClick = (room: { location: string; room: Room }) => {
+    setSelectedRoom(room);
+  };
+
+  const handleGoBack = () => {
+    setSelectedRoom(null);
+  };
 
   const shuffledRooms = studentResidences.flatMap((residence) =>
     residence.rooms.map((room) => ({ location: residence.location, room })),
@@ -166,125 +180,80 @@ const OffCampus = () => {
 
   return (
     <div>
-      {/* HEADER */}
-      <div className="grid gap-3 border-b border-gray-200 py-4 dark:border-gray-700 md:flex md:items-center md:justify-between">
+      {selectedRoom ? (
+        <RoomDetails room={selectedRoom} goBack={handleGoBack} />
+      ) : (
         <div>
-          <div className="relative">
-            <input
-              type="text"
-              // value={searchTerm}
-              // onChange={handleSearchChange}
-              className="block w-full rounded-lg border-gray-200 px-3 py-2 ps-11 text-sm focus:border-blue-500 focus:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-400 dark:focus:ring-gray-600"
-              placeholder="Search"
-            />
-            <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-4">
-              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
-            </div>
-          </div>
-        </div>
-        <div>
-          <div className="inline-flex gap-x-2">
+          {/* HEADER */}
+          <div className="grid gap-3 border-b border-gray-200 py-4 dark:border-gray-700 md:flex md:items-center md:justify-between">
             <div>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button size="lg" variant="outline">
-                    <MdFilterList className="mr-3 size-4 shrink-0" />
-                    Filter
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle className="text-center">
-                      Filter Options
-                    </DialogTitle>
-                    <DialogDescription className="text-center">
-                      Use the filters below to refine your search:
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div>
-                    <div className="inline-flex rounded-lg shadow-sm">
-                      <button
-                        type="button"
-                        className="-ms-px inline-flex items-center gap-x-2 border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-800 shadow-sm first:ms-0 first:rounded-s-lg last:rounded-e-lg hover:bg-gray-50 focus:z-10 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
-                      >
-                        Self
-                      </button>
-                      <button
-                        type="button"
-                        className="-ms-px inline-flex items-center gap-x-2 border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-800 shadow-sm first:ms-0 first:rounded-s-lg last:rounded-e-lg hover:bg-gray-50 focus:z-10 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
-                      >
-                        Single
-                      </button>
-                      <button
-                        type="button"
-                        className="-ms-px inline-flex items-center gap-x-2 border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-800 shadow-sm first:ms-0 first:rounded-s-lg last:rounded-e-lg hover:bg-gray-50 focus:z-10 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
-                      >
-                        Double
-                      </button>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* HEADER */}
-      OffCampus
-      <div className="m-20 grid grid-cols-3">
-        {shuffledRooms.map((item, index) => (
-          <div key={index} className="m-4 cursor-pointer">
-            <Carousel className="group relative w-full max-w-xs">
-              {/* FIXME: Go to card component */}
-              <CarouselContent onClick={() => alert("clicked!!!")}>
-                {item.room.images.map((image, index) => (
-                  <CarouselItem key={index}>
-                    <div className="p-1">
-                      <Card className="overflow-hidden ">
-                        <CardContent className="relative aspect-square">
-                          <Image
-                            src={image}
-                            className="object-cover"
-                            alt=""
-                            fill
-                            quality={100}
-                          />
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-
-              <span
-                className={`absolute right-4 top-4 inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-xs font-medium ${
-                  item.room.availability
-                    ? "bg-teal-100 text-teal-800 dark:bg-teal-500/10 dark:text-teal-500"
-                    : "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-500"
-                }`}
-              >
-                {item.room.availability ? (
-                  <BsPatchCheckFill className="size-3 flex-shrink-0 animate-pulse" />
-                ) : (
-                  <IoIosCloseCircle className="size-3 flex-shrink-0" />
-                )}
-
-                {item.room.availability ? "Available" : "Booked"}
-              </span>
-
-              <CarouselPrevious className="absolute left-4 top-1/2 hidden group-hover:flex" />
-              <CarouselNext className="absolute right-4 top-1/2 hidden group-hover:flex" />
-            </Carousel>
-            <div className="mt-2 flex w-full items-start justify-between">
-              <div className="max-w-[40%]">
-                <Paragraph>{item.location} Lorem ipsum</Paragraph>
-                {item.room.type}
+              <div className="relative">
+                <input
+                  type="text"
+                  // value={searchTerm}
+                  // onChange={handleSearchChange}
+                  className="block w-full rounded-lg border-gray-200 px-3 py-2 ps-11 text-sm focus:border-blue-500 focus:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-400 dark:focus:ring-gray-600"
+                  placeholder="Search"
+                />
+                <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-4">
+                  <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+                </div>
               </div>
-              <Muted>{item.room.price}000 TZS/month</Muted>
+            </div>
+            <div>
+              <div className="inline-flex gap-x-2">
+                <div>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button size="lg" variant="outline">
+                        <MdFilterList className="mr-3 size-4 shrink-0" />
+                        Filter
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle className="text-center">
+                          Filter Options
+                        </DialogTitle>
+                        <DialogDescription className="text-center">
+                          Use the filters below to refine your search:
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div>
+                        <div className="inline-flex rounded-lg shadow-sm">
+                          <button
+                            type="button"
+                            className="-ms-px inline-flex items-center gap-x-2 border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-800 shadow-sm first:ms-0 first:rounded-s-lg last:rounded-e-lg hover:bg-gray-50 focus:z-10 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                          >
+                            Self
+                          </button>
+                          <button
+                            type="button"
+                            className="-ms-px inline-flex items-center gap-x-2 border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-800 shadow-sm first:ms-0 first:rounded-s-lg last:rounded-e-lg hover:bg-gray-50 focus:z-10 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                          >
+                            Single
+                          </button>
+                          <button
+                            type="button"
+                            className="-ms-px inline-flex items-center gap-x-2 border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-800 shadow-sm first:ms-0 first:rounded-s-lg last:rounded-e-lg hover:bg-gray-50 focus:z-10 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                          >
+                            Double
+                          </button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </div>
             </div>
           </div>
-        ))}
-      </div>
+          {/* HEADER */}
+          <RoomList
+            onRoomSelect={handleRoomClick}
+            shuffledRooms={shuffledRooms}
+          />
+        </div>
+      )}
     </div>
   );
 };
