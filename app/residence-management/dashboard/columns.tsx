@@ -1,8 +1,17 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa6";
-import { Button } from "@/components/ui/button";
+import { MdOutlineMoreHoriz } from "react-icons/md";
 
 export type User = {
   id: string;
@@ -66,7 +75,11 @@ export const columns: ColumnDef<User>[] = [
           role="button"
         >
           Payment
-          <FaArrowDown className="ml-2 size-3" />
+          {column.getIsSorted() === "asc" ? (
+            <FaArrowUp className="ml-2 size-3" />
+          ) : (
+            <FaArrowDown className="ml-2 size-3" />
+          )}
         </div>
       );
     },
@@ -87,6 +100,34 @@ export const columns: ColumnDef<User>[] = [
   //   accessorKey: "arrive",
   //   header: "Arrival Date",
   // },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const user = row.original;
+
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MdOutlineMoreHoriz className="size-4 shrink-0" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem
+              onClick={() => navigator.clipboard.writeText(user.id)}
+            >
+              Copy payment ID
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>View customer</DropdownMenuItem>
+            <DropdownMenuItem>View payment details</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
+  },
 ];
 
 export const users: User[] = [

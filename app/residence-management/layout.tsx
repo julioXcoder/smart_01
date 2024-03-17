@@ -10,7 +10,7 @@ const Layout = ({ children }: Props) => {
   return (
     <div>
       <Appbar username="julioXcoder" />
-      <div className="p-2">
+      <div className="p-2 md:ml-64">
         <MainContent>{children}</MainContent>
       </div>
     </div>
