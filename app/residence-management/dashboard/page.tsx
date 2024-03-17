@@ -3,24 +3,21 @@ import Rooms from "@/components/residence-management/cards/rooms";
 import Booking from "@/components/residence-management/cards/booking";
 import StudentNumber from "@/components/residence-management/cards/studentNumber";
 import CalendarCard from "@/components/residence-management/cards/calendarCard";
-import DataTable from "@/components/dataTable";
-import { columns, users } from "./columns";
+import NewCustomerCard from "./newCustomerCard";
+import RecentActivitiesCard from "./recentActivitiesCard";
 
 const Page = () => {
   return (
     <div>
-      Dashboard
-      {/* <TinyBarChart /> */}
-      <div className="flex justify-between ">
-        <div className="flex space-x-4">
-          <Rooms />
-          <Booking />
-          <StudentNumber />
-        </div>
-        {/* <CalendarCard /> */}
+      <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+        <Rooms />
+        <Booking />
+        <StudentNumber />
       </div>
-      <div className="container mx-auto py-10">
-        <DataTable columns={columns} data={users} />
+      {/* <div className="mt-6 grid grid-cols-2 gap-4"> */}
+      <div className="mt-6 flex flex-col gap-5 md:flex-row">
+        <NewCustomerCard />
+        <RecentActivitiesCard />
       </div>
     </div>
   );
