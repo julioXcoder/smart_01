@@ -5,4 +5,21 @@ function formatBytes(bytes: number): string {
   else return (bytes / 1073741824).toFixed(2) + " GB";
 }
 
-export { formatBytes };
+function getUserInitials(fullName: string): string {
+  // Split the full name into an array of words
+  const words = fullName.split(" ");
+
+  // Initialize an empty string to hold the initials
+  let initials = "";
+
+  // Loop through each word in the array
+  for (const word of words) {
+    // Append the first character of each word to the initials string
+    initials += word.charAt(0).toUpperCase();
+  }
+
+  // Return the initials
+  return initials;
+}
+
+export { formatBytes, getUserInitials };

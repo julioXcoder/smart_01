@@ -16,14 +16,14 @@ import { MdOutlineMoreHoriz } from "react-icons/md";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getUserInitials } from "@/utils";
 
-export type User = {
-  student: { studentId: string; name: string; imageUrl: string };
-  plan: string;
-  phone: string;
-  email: string;
+export type Room = {
+  name: string;
+  type: "DOUBLE" | "SINGLE" | "SELF";
+  status: "OCCUPIED" | "VACANT" | "RESERVED" | "MAINTENANCE";
+  rent: number;
 };
 
-export const columns: ColumnDef<User>[] = [
+export const columns: ColumnDef<Room>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -47,43 +47,21 @@ export const columns: ColumnDef<User>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "student",
-    header: "Student",
-    cell: ({ row }) => {
-      const { studentId, imageUrl, name } = row.original.student;
-      const initials = getUserInitials(name);
-
-      return (
-        <div className="flex items-center space-x-4 rtl:space-x-reverse">
-          <div className="flex-shrink-0">
-            <Avatar>
-              <AvatarImage src={imageUrl} alt="student image" />
-              <AvatarFallback>{initials}</AvatarFallback>
-            </Avatar>
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-              {name}
-            </p>
-            <p className="truncate text-xs text-gray-500 dark:text-gray-400">
-              {studentId}
-            </p>
-          </div>
-        </div>
-      );
-    },
+    accessorKey: "name",
+    header: "Room Name",
   },
   {
-    accessorKey: "plan",
-    header: "Plan",
+    accessorKey: "type",
+    header: "Room Type",
+  },
+  // FIXME: Add currency
+  {
+    accessorKey: "rent",
+    header: "Rent",
   },
   {
-    accessorKey: "phone",
-    header: "Phone",
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
+    accessorKey: "status",
+    header: "Status",
   },
   {
     id: "actions",
@@ -100,13 +78,7 @@ export const columns: ColumnDef<User>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() =>
-                navigator.clipboard.writeText(user.student.studentId)
-              }
-            >
-              Copy payment ID
-            </DropdownMenuItem>
+
             <DropdownMenuSeparator />
             <DropdownMenuItem>View customer</DropdownMenuItem>
             <DropdownMenuItem>View payment details</DropdownMenuItem>
@@ -117,15 +89,29 @@ export const columns: ColumnDef<User>[] = [
   },
 ];
 
-export const users: User[] = [
+export const rooms: Room[] = [
   {
-    student: {
-      studentId: "julioXcoder",
-      imageUrl: "https://github.com/shadcn.png",
-      name: "Julio Njeza",
-    },
-    plan: "1Mo",
-    phone: "1234567890",
-    email: "Kkmba@example.com",
+    name: "101",
+    type: "DOUBLE",
+    rent: 200000,
+    status: "VACANT",
+  },
+  {
+    name: "102",
+    type: "SINGLE",
+    rent: 100000,
+    status: "VACANT",
+  },
+  {
+    name: "103",
+    type: "DOUBLE",
+    rent: 250000,
+    status: "VACANT",
+  },
+  {
+    name: "104",
+    type: "DOUBLE",
+    rent: 200000,
+    status: "VACANT",
   },
 ];

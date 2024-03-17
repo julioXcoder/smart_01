@@ -16,14 +16,15 @@ import { MdOutlineMoreHoriz } from "react-icons/md";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getUserInitials } from "@/utils";
 
-export type User = {
+export type Booking = {
   student: { studentId: string; name: string; imageUrl: string };
+  status: "ACTIVE" | "PENDING" | "RESERVE";
   plan: string;
-  phone: string;
-  email: string;
+  roomName: string;
+  payment: "DUE" | "PAID";
 };
 
-export const columns: ColumnDef<User>[] = [
+export const columns: ColumnDef<Booking>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -78,12 +79,16 @@ export const columns: ColumnDef<User>[] = [
     header: "Plan",
   },
   {
-    accessorKey: "phone",
-    header: "Phone",
+    accessorKey: "status",
+    header: "Booking",
   },
   {
-    accessorKey: "email",
-    header: "Email",
+    accessorKey: "roomName",
+    header: "Room Name",
+  },
+  {
+    accessorKey: "payment",
+    header: "Payment",
   },
   {
     id: "actions",
@@ -117,7 +122,7 @@ export const columns: ColumnDef<User>[] = [
   },
 ];
 
-export const users: User[] = [
+export const bookings: Booking[] = [
   {
     student: {
       studentId: "julioXcoder",
@@ -125,7 +130,8 @@ export const users: User[] = [
       name: "Julio Njeza",
     },
     plan: "1Mo",
-    phone: "1234567890",
-    email: "Kkmba@example.com",
+    payment: "DUE",
+    status: "PENDING",
+    roomName: "101",
   },
 ];
