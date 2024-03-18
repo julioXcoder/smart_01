@@ -7,6 +7,7 @@ import { BsGridFill } from "react-icons/bs";
 import { FaBed } from "react-icons/fa6";
 import { HiUserGroup } from "react-icons/hi2";
 import { LuCalendarPlus } from "react-icons/lu";
+import { FaCoins } from "react-icons/fa6";
 
 const links: Path[] = [
   {
@@ -28,6 +29,11 @@ const links: Path[] = [
     title: "students",
     path: "/residence-management/students",
     Icon: HiUserGroup,
+  },
+  {
+    title: "payment",
+    path: "/residence-management/payment",
+    Icon: FaCoins,
   },
 ];
 

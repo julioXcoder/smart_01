@@ -9,24 +9,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import moment from "moment";
 import { ColumnDef } from "@tanstack/react-table";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa6";
-import moment from "moment";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MdOutlineMoreHoriz } from "react-icons/md";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getUserInitials } from "@/utils";
 
-export type Booking = {
+export type Invoice = {
   student: { studentId: string; name: string; imageUrl: string };
-  status: "ACTIVE" | "PENDING" | "RESERVE";
-  plan: string;
-  roomName: string;
-  payment: "DUE" | "PAID";
-  dueDate: string;
+  date: string;
+  amount: number;
+  plan: "1Mo" | "3Mo";
 };
 
-export const columns: ColumnDef<Booking>[] = [
+export const columns: ColumnDef<Invoice>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -77,24 +75,17 @@ export const columns: ColumnDef<Booking>[] = [
     },
   },
   {
+    accessorKey: "date",
+    header: "Date",
+  },
+  {
+    accessorKey: "amount",
+    header: "Amount",
+  },
+
+  {
     accessorKey: "plan",
     header: "Plan",
-  },
-  {
-    accessorKey: "status",
-    header: "Booking",
-  },
-  {
-    accessorKey: "roomName",
-    header: "Room Name",
-  },
-  {
-    accessorKey: "payment",
-    header: "Payment",
-  },
-  {
-    accessorKey: "dueDate",
-    header: "Due Date",
   },
   {
     id: "actions",
@@ -129,9 +120,9 @@ export const columns: ColumnDef<Booking>[] = [
 ];
 
 const date = new Date(); // Use your date here
-const formattedDate = moment(date).format("DD MMM YYYY");
+const formattedDate = moment(date).format("DD MMM YYYY, hh:mm A");
 
-export const bookings: Booking[] = [
+export const invoices: Invoice[] = [
   {
     student: {
       studentId: "julioXcoder",
@@ -139,9 +130,7 @@ export const bookings: Booking[] = [
       name: "Julio Njeza",
     },
     plan: "1Mo",
-    payment: "DUE",
-    status: "PENDING",
-    roomName: "101",
-    dueDate: formattedDate,
+    amount: 100000,
+    date: formattedDate,
   },
 ];
