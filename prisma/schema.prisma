@@ -15,6 +15,7 @@ enum Role {
   LECTURE
   STUDENT
   APPLICANT
+  RESIDENCE_MANAGER
 }
 
 enum ApplicationStatus {
@@ -61,12 +62,46 @@ enum EducationLevel {
   MASTERS
 }
 
+enum ResidenceRoomType {
+  DOUBLE
+  SINGLE
+  SELF
+}
+
+enum ResidenceRoomStatus {
+  OCCUPIED
+  VACANT
+  RESERVED
+}
+
+enum ResidencePlan {
+  SHORT_TERM // Referring to the 1-month option.
+  QUARTERLY // Indicating the 3-month choice.
+}
+
 //USERS
 
 model Applicant {
   username       String @id @map("_id")
   hashedPassword String
   role           Role   @default(APPLICANT)
+}
+
+model ResidenceManager {
+  username               String  @id @map("_id")
+  hashedPassword         String
+  role                   Role    @default(RESIDENCE_MANAGER)
+  residenceName          String
+  phone                  String  @default("")
+  email                  String? @default("")
+  alternativeEmail       String? @default("")
+  alternativePhoneNumber String? @default("")
+  streetAddress          String  @default("")
+  city                   String  @default("")
+  region                 String  @default("")
+  postalCode             String  @default("")
+  country                String  @default("")
+  uniDistance            String  @default("")
 }
 
 //USERS
@@ -189,6 +224,42 @@ model ApplicationPayment {
 }
 
 //APPLICANT DATA
+
+// RESIDENCE MANAGEMENT
+
+model ResidenceRoom {
+  id                 String              @id @default(auto()) @map("_id") @db.ObjectId
+  amenities          String[]
+  type               ResidenceRoomType
+  status             ResidenceRoomStatus
+  maintenance        Boolean
+  residenceManagerId String
+}
+
+model ResidenceRoomImageData {
+  key             String @id @map("_id")
+  residenceRoomId String
+  imageUrl        String @default("")
+  name            String @default("")
+  size            Int    @default(0)
+}
+
+model ResidenceBooking {
+  id         String        @id @default(auto()) @map("_id") @db.ObjectId
+  customerId String
+  roomId     String        @db.ObjectId
+  paymentId  String        @db.ObjectId
+  plan       ResidencePlan
+}
+
+model ResidencePayment {
+  id     String        @id @default(auto()) @map("_id") @db.ObjectId
+  date   DateTime
+  amount String
+  status PaymentStatus
+}
+
+// RESIDENCE MANAGEMENT
 
 //UNIVERSITY HIERARCHY
 
