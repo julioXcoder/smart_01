@@ -89,6 +89,9 @@ model Applicant {
 
 model ResidenceManager {
   username               String  @id @map("_id")
+  firstName              String  @default("")
+  middleName             String  @default("")
+  lastName               String  @default("")
   hashedPassword         String
   role                   Role    @default(RESIDENCE_MANAGER)
   residenceName          String
@@ -109,16 +112,52 @@ model ResidenceManager {
 //APPLICANT DATA
 // FIXME: ADD University application ID to check the application period
 model ApplicantApplication {
-  id                    String            @id @default(auto()) @map("_id") @db.ObjectId
-  applicantUsername     String
-  status                ApplicationStatus @default(DRAFT)
-  formIVIndex           String
-  createdAt             DateTime
-  submittedAt           DateTime?
-  type                  ProgrammeLevel
-  origin                Origin
-  highestEducationLevel EducationLevel
-  academicYearId        String            @db.ObjectId
+  id                              String            @id @default(auto()) @map("_id") @db.ObjectId
+  applicantUsername               String
+  status                          ApplicationStatus @default(DRAFT)
+  formIVIndex                     String
+  createdAt                       DateTime
+  submittedAt                     DateTime?
+  type                            ProgrammeLevel
+  origin                          Origin
+  highestEducationLevel           EducationLevel
+  academicYearId                  String            @db.ObjectId
+  // Properties from ApplicantProfile
+  nida                            String            @default("")
+  firstName                       String            @default("")
+  middleName                      String            @default("")
+  lastName                        String            @default("")
+  nationality                     String            @default("")
+  gender                          String            @default("")
+  dateOfBirth                     String            @default("")
+  maritalStatus                   String            @default("")
+  placeOfBirth                    String            @default("")
+  disability                      String            @default("")
+  // Properties from ApplicantContacts
+  phone                           String            @default("")
+  email                           String?           @default("")
+  alternativeEmail                String?           @default("")
+  alternativePhoneNumber          String?           @default("")
+  streetAddress                   String            @default("")
+  city                            String            @default("")
+  region                          String            @default("")
+  postalCode                      String            @default("")
+  country                         String            @default("")
+  // Properties from ApplicantEmergencyContacts
+  emergencyFullName               String            @default("")
+  emergencyPhone                  String            @default("")
+  emergencyEmail                  String?           @default("")
+  emergencyAlternativeEmail       String?           @default("")
+  emergencyAlternativePhoneNumber String?           @default("")
+  emergencyStreetAddress          String            @default("")
+  emergencyCity                   String            @default("")
+  emergencyRegion                 String            @default("")
+  emergencyPostalCode             String            @default("")
+  emergencyCountry                String            @default("")
+  emergencyRelation               String            @default("")
+  // Properties from ApplicationPayment
+  controlNumber                   String            @default("")
+  paymentStatus                   PaymentStatus     @default(PENDING)
 }
 
 model ApplicantNotification {
@@ -148,20 +187,6 @@ model ApplicantEducationBackground {
   endYear                String @default("")
 }
 
-model ApplicantProfile {
-  applicantApplicationId String @id @map("_id") @db.ObjectId
-  nida                   String @default("")
-  firstName              String @default("")
-  middleName             String @default("")
-  lastName               String @default("")
-  nationality            String @default("")
-  gender                 String @default("")
-  dateOfBirth            String @default("")
-  maritalStatus          String @default("")
-  placeOfBirth           String @default("")
-  disability             String @default("")
-}
-
 model ApplicantImageData {
   applicantApplicationId String @id @map("_id") @db.ObjectId
   imageUrl               String @default("")
@@ -187,40 +212,6 @@ model ApplicantAdditionalFileData {
   key                    String
   name                   String
   size                   Int
-}
-
-model ApplicantContacts {
-  applicantApplicationId String  @id @map("_id") @db.ObjectId
-  phone                  String  @default("")
-  email                  String? @default("")
-  alternativeEmail       String? @default("")
-  alternativePhoneNumber String? @default("")
-  streetAddress          String  @default("")
-  city                   String  @default("")
-  region                 String  @default("")
-  postalCode             String  @default("")
-  country                String  @default("")
-}
-
-model ApplicantEmergencyContacts {
-  applicantApplicationId String  @id @map("_id") @db.ObjectId
-  fullName               String  @default("")
-  phone                  String  @default("")
-  email                  String? @default("")
-  alternativeEmail       String? @default("")
-  alternativePhoneNumber String? @default("")
-  streetAddress          String  @default("")
-  city                   String  @default("")
-  region                 String  @default("")
-  postalCode             String  @default("")
-  country                String  @default("")
-  relation               String  @default("")
-}
-
-model ApplicationPayment {
-  applicantApplicationId String        @id @map("_id") @db.ObjectId
-  controlNumber          String        @default("")
-  status                 PaymentStatus @default(PENDING)
 }
 
 //APPLICANT DATA

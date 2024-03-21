@@ -473,7 +473,7 @@ const EducationSchema = z.object({
 
 const FormSchema = z.object({
   firstName: z.string().min(1, { message: "First name is required" }),
-  middleName: z.string().min(1, { message: "Last name is required" }),
+  middleName: z.string().min(1, { message: "Middle name is required" }),
   lastName: z.string().min(1, { message: "Last name is required" }),
   nida: z.string().min(1, { message: "NIDA number is required" }),
   gender: z.string().min(1, { message: "Please select your gender." }),
@@ -491,7 +491,7 @@ const FormSchema = z.object({
     .string()
     .min(1, { message: "Please select your nationality." }),
 
-  applicantEmail: z
+  email: z
     .string()
     .email({
       message: "Applicant's email must be in a valid format.",
@@ -499,7 +499,7 @@ const FormSchema = z.object({
     .optional()
     .or(z.literal("")),
 
-  applicantAlternativeEmail: z
+  alternativeEmail: z
     .string()
     .email({
       message: "Applicant's alternative email must be in a valid format.",
@@ -507,11 +507,11 @@ const FormSchema = z.object({
     .optional()
     .or(z.literal("")),
 
-  applicantPhoneNumber: z.string().refine((value) => phoneRegex.test(value), {
+  phone: z.string().refine((value) => phoneRegex.test(value), {
     message: "Applicant's phone number must be in a valid format.",
   }),
 
-  applicantAlternativePhoneNumber: z
+  alternativePhone: z
     .string()
     .refine((value) => phoneRegex.test(value), {
       message:
@@ -530,7 +530,7 @@ const FormSchema = z.object({
 
   country: z.string().min(1, { message: "Country is required." }),
 
-  emergencyContactEmail: z
+  emergencyEmail: z
     .string()
     .email({
       message: "Emergency contact's email must be in a valid format.",
@@ -538,7 +538,7 @@ const FormSchema = z.object({
     .optional()
     .or(z.literal("")),
 
-  emergencyContactAlternativeEmail: z
+  emergencyAlternativeEmail: z
     .string()
     .email({
       message:
@@ -547,17 +547,15 @@ const FormSchema = z.object({
     .optional()
     .or(z.literal("")),
 
-  emergencyContactFullName: z
+  emergencyFullName: z
     .string()
     .min(1, { message: "Emergency contact full name is required" }),
 
-  emergencyContactPhoneNumber: z
-    .string()
-    .refine((value) => phoneRegex.test(value), {
-      message: "Emergency contact's phone number must be in a valid format.",
-    }),
+  emergencyPhone: z.string().refine((value) => phoneRegex.test(value), {
+    message: "Emergency contact's phone number must be in a valid format.",
+  }),
 
-  emergencyContactAlternativePhoneNumber: z
+  emergencyAlternativePhone: z
     .string()
     .refine((value) => phoneRegex.test(value), {
       message:
@@ -566,23 +564,27 @@ const FormSchema = z.object({
     .optional()
     .or(z.literal("")),
 
-  emergencyContactStreetAddress: z
+  emergencyStreetAddress: z
     .string()
-    .min(1, { message: "Street address is required." }),
+    .min(1, { message: "Emergency contact street address is required." }),
 
-  emergencyContactCity: z.string().min(1, { message: "City is required." }),
-
-  emergencyContactRegion: z.string().min(1, { message: "Region is required." }),
-
-  emergencyContactPostalCode: z
+  emergencyCity: z
     .string()
-    .min(1, { message: "Postal code is required." }),
+    .min(1, { message: "Emergency contact city is required." }),
 
-  emergencyContactCountry: z
+  emergencyRegion: z
     .string()
-    .min(1, { message: "Country is required." }),
+    .min(1, { message: "Emergency contact region is required." }),
 
-  emergencyContactRelation: z
+  emergencyPostalCode: z
+    .string()
+    .min(1, { message: "Emergency contact postal code is required." }),
+
+  emergencyCountry: z
+    .string()
+    .min(1, { message: "Emergency contact country is required." }),
+
+  emergencyRelation: z
     .string()
     .min(1, { message: "Relationship to the emergency contact is required." }),
 
@@ -631,17 +633,10 @@ const EducationFileSchema = z.object({
     ),
 });
 
-const currentYear = new Date().getFullYear();
-const years = Array.from({ length: currentYear - 1970 + 1 }, (_, i) => {
-  const year = i + 1970;
-  return { value: year.toString(), label: year.toString() };
-});
-
 export {
   countries,
   genders,
   nationalities,
-  years,
   educationLevel,
   FormSchema,
   ImageSchema,
