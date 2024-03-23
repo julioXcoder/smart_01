@@ -14,18 +14,21 @@ import {
 import avatarImage from "@/public/avatar.svg";
 import { logoutUser } from "@/server/actions/auth";
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { BiChevronDown, BiLayer } from "react-icons/bi";
 import { LuUser } from "react-icons/lu";
+import { getUserInitials } from "@/utils";
 import { MdLogout } from "react-icons/md";
 import ProfileThemeChanger from "@/components/profileThemeChanger";
 
 interface Props {
   username: string;
+  fullName?: string;
 }
 
-const Profile = ({ username }: Props) => {
+const Profile = ({ username, fullName }: Props) => {
   const router = useRouter();
 
   const handleNavigation = (path: string) => {
@@ -40,7 +43,7 @@ const Profile = ({ username }: Props) => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button className="inline-flex items-center justify-center gap-2 rounded-full bg-white py-1 pl-1 pr-2 align-middle text-sm font-medium text-gray-700 shadow-sm ring-gray-300 transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 dark:border-gray-900 dark:bg-slate-950 dark:text-gray-100 dark:ring-gray-700 dark:hover:bg-gray-800 dark:hover:text-white">
-          <div className="relative h-8 w-8">
+          {/* <div className="relative h-8 w-8">
             <Image
               alt="Applicant Image"
               fill
@@ -49,9 +52,18 @@ const Profile = ({ username }: Props) => {
               className="inline-block rounded-full object-cover"
               src={avatarImage}
             />
-          </div>
+          </div> */}
+          <Avatar className="h-8 w-8">
+            <AvatarImage
+              src="https://github.com/shadcn.png"
+              alt="Applicant Image"
+            />
+            <AvatarFallback>
+              {getUserInitials(fullName ? fullName : username)}
+            </AvatarFallback>
+          </Avatar>
           <span className="max-w-[7.5rem] truncate font-medium">
-            {username}
+            {fullName ? fullName : username}
           </span>
           <BiChevronDown size={20} />
         </Button>

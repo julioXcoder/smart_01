@@ -1,5 +1,6 @@
 import MainContent from "@/components/layout/mainContent";
 import { ReactNode } from "react";
+import Appbar from "./appbar";
 import NavigationBar from "./navigationBar";
 
 interface Props {
@@ -9,7 +10,8 @@ interface Props {
 const Layout = ({ children }: Props) => {
   return (
     <div>
-      <NavigationBar status="ACCEPTED" />
+      <Appbar username="julioxcoder" fullName="julio njeza" />
+      <NavigationBar status="DRAFT" />
       <div className="p-2 md:ml-64">
         <MainContent>{children}</MainContent>
       </div>

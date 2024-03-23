@@ -88,23 +88,12 @@ model Applicant {
 }
 
 model ResidenceManager {
-  username               String  @id @map("_id")
-  firstName              String  @default("")
-  middleName             String  @default("")
-  lastName               String  @default("")
-  hashedPassword         String
-  role                   Role    @default(RESIDENCE_MANAGER)
-  residenceName          String
-  phone                  String  @default("")
-  email                  String? @default("")
-  alternativeEmail       String? @default("")
-  alternativePhoneNumber String? @default("")
-  streetAddress          String  @default("")
-  city                   String  @default("")
-  region                 String  @default("")
-  postalCode             String  @default("")
-  country                String  @default("")
-  uniDistance            String  @default("")
+  username       String @id @map("_id")
+  firstName      String @default("")
+  middleName     String @default("")
+  lastName       String @default("")
+  hashedPassword String
+  role           Role   @default(RESIDENCE_MANAGER)
 }
 
 //USERS
@@ -171,16 +160,18 @@ model ApplicantNotification {
   read      Boolean // Whether the notification has been read
   timestamp DateTime // When the notification was created
 
-  applicantId      String           @map("applicantId")
+  applicantId      String
   applicantDetails ApplicantDetails @relation(fields: [applicantId], references: [applicantUsername])
 }
 
 model ApplicantProgrammes {
   id               String           @id @default(auto()) @map("_id") @db.ObjectId
-  programmeCode    String
   priority         Int
-  applicantId      String           @map("applicantId")
+  applicantId      String
   applicantDetails ApplicantDetails @relation(fields: [applicantId], references: [applicantUsername])
+
+  programmeCode String
+  programme     Programme @relation(fields: [programmeCode], references: [code])
 }
 
 model ApplicantEducationBackground {
@@ -191,7 +182,7 @@ model ApplicantEducationBackground {
   startYear  String @default("")
   endYear    String @default("")
 
-  applicantId      String           @map("applicantId")
+  applicantId      String
   applicantDetails ApplicantDetails @relation(fields: [applicantId], references: [applicantUsername])
 }
 
@@ -221,7 +212,7 @@ model ApplicantAdditionalFileData {
   name              String
   size              Int
 
-  applicantId      String           @map("applicantId")
+  applicantId      String
   applicantDetails ApplicantDetails @relation(fields: [applicantId], references: [applicantUsername])
 }
 
@@ -229,13 +220,49 @@ model ApplicantAdditionalFileData {
 
 // RESIDENCE MANAGEMENT
 
+model ResidenceManagerDetails {
+  username               String          @id @map("_id")
+  residenceName          String
+  phone                  String          @default("")
+  email                  String?         @default("")
+  alternativeEmail       String?         @default("")
+  alternativePhoneNumber String?         @default("")
+  streetAddress          String          @default("")
+  city                   String          @default("")
+  region                 String          @default("")
+  postalCode             String          @default("")
+  country                String          @default("")
+  uniDistance            String          @default("")
+  rooms                  ResidenceRoom[]
+}
+
 model ResidenceRoom {
-  id                 String              @id @default(auto()) @map("_id") @db.ObjectId
+  id                 String                  @id @default(auto()) @map("_id") @db.ObjectId
   amenities          String[]
   type               ResidenceRoomType
   status             ResidenceRoomStatus
   maintenance        Boolean
   residenceManagerId String
+  managerDetails     ResidenceManagerDetails @relation(fields: [residenceManagerId], references: [username])
+  bookings           ResidenceBooking[]
+}
+
+model ResidenceBooking {
+  id         String           @id @default(auto()) @map("_id") @db.ObjectId
+  customerId String
+  roomId     String           @db.ObjectId
+  room       ResidenceRoom    @relation(fields: [roomId], references: [id])
+  paymentId  String           @unique @db.ObjectId
+  payment    ResidencePayment @relation(fields: [paymentId], references: [id])
+  plan       ResidencePlan
+}
+
+model ResidencePayment {
+  id      String            @id @default(auto()) @map("_id") @db.ObjectId
+  date    DateTime
+  amount  String
+  status  PaymentStatus
+  booking ResidenceBooking?
 }
 
 model ResidenceRoomImageData {
@@ -246,57 +273,49 @@ model ResidenceRoomImageData {
   size            Int    @default(0)
 }
 
-model ResidenceBooking {
-  id         String        @id @default(auto()) @map("_id") @db.ObjectId
-  customerId String
-  roomId     String        @db.ObjectId
-  paymentId  String        @db.ObjectId
-  plan       ResidencePlan
-}
-
-model ResidencePayment {
-  id     String        @id @default(auto()) @map("_id") @db.ObjectId
-  date   DateTime
-  amount String
-  status PaymentStatus
-}
-
 // RESIDENCE MANAGEMENT
 
 //UNIVERSITY HIERARCHY
 
 model Campus {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   location  String
   shortHand String
   country   String
+  colleges  College[]
 }
 
 model College {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
-  name     String
-  campusId String @db.ObjectId
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  campusId    String       @db.ObjectId
+  campus      Campus       @relation(fields: [campusId], references: [id])
+  departments Department[]
 }
 
 model Department {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  name      String @unique
-  collegeId String @db.ObjectId
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  collegeId  String      @db.ObjectId
+  college    College     @relation(fields: [collegeId], references: [id])
+  programmes Programme[]
 }
 
 model Programme {
-  code           String         @id @map("_id")
-  name           String
-  level          ProgrammeLevel
-  duration       Int
-  type           ProgrammeType
-  language       String
-  departmentId   String         @db.ObjectId
-  tuitionFee     Float
-  applicationFee Float
-  qualification  String
-  availability   Boolean        @default(true)
+  code                String                @id @map("_id")
+  name                String
+  level               ProgrammeLevel
+  duration            Int
+  type                ProgrammeType
+  language            String
+  departmentId        String                @db.ObjectId
+  department          Department            @relation(fields: [departmentId], references: [id])
+  tuitionFee          Float
+  applicationFee      Float
+  qualification       String
+  availability        Boolean               @default(true)
+  applicantProgrammes ApplicantProgrammes[]
 }
 
 //UNIVERSITY HIERARCHY

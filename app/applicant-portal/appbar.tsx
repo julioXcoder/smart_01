@@ -9,9 +9,10 @@ import { ApplicantNotification } from "@/types/application";
 interface Props {
   username: string;
   notifications?: ApplicantNotification[];
+  fullName?: string;
 }
 
-const Appbar = ({ notifications, username }: Props) => {
+const Appbar = ({ notifications, username, fullName }: Props) => {
   const [show, setShow] = useState(true);
   const [scrollPos, setScrollPos] = useState(0);
 
@@ -48,7 +49,7 @@ const Appbar = ({ notifications, username }: Props) => {
                 {notifications && (
                   <Notifications value={notifications.length} />
                 )}
-                <Profile username={username} />
+                <Profile fullName={fullName} username={username} />
               </div>
             </div>
           </div>
