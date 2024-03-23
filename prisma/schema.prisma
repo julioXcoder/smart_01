@@ -111,9 +111,8 @@ model ResidenceManager {
 
 //APPLICANT DATA
 // FIXME: ADD University application ID to check the application period
-model ApplicantApplication {
-  id                              String            @id @default(auto()) @map("_id") @db.ObjectId
-  applicantUsername               String
+model ApplicantDetails {
+  applicantUsername               String            @id @map("_id")
   status                          ApplicationStatus @default(DRAFT)
   formIVIndex                     String
   createdAt                       DateTime
@@ -158,60 +157,72 @@ model ApplicantApplication {
   // Properties from ApplicationPayment
   controlNumber                   String            @default("")
   paymentStatus                   PaymentStatus     @default(PENDING)
+
+  applicantProgrammes          ApplicantProgrammes[]
+  applicantNotification        ApplicantNotification[]
+  applicantEducationBackground ApplicantEducationBackground[]
+  applicantAdditionalFileData  ApplicantAdditionalFileData[]
 }
 
 model ApplicantNotification {
-  id                     String   @id @default(auto()) @map("_id") @db.ObjectId
-  applicantUsername      String
-  applicantApplicationId String   @db.ObjectId
-  title                  String // Title of the notification
-  message                String // The actual notification message
-  read                   Boolean // Whether the notification has been read
-  timestamp              DateTime // When the notification was created
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String // Title of the notification
+  message   String // The actual notification message
+  read      Boolean // Whether the notification has been read
+  timestamp DateTime // When the notification was created
+
+  applicantId      String           @map("applicantId")
+  applicantDetails ApplicantDetails @relation(fields: [applicantId], references: [applicantUsername])
 }
 
 model ApplicantProgrammes {
-  id                     String @id @default(auto()) @map("_id") @db.ObjectId
-  applicantApplicationId String @db.ObjectId
-  programmeCode          String
-  priority               Int
+  id               String           @id @default(auto()) @map("_id") @db.ObjectId
+  programmeCode    String
+  priority         Int
+  applicantId      String           @map("applicantId")
+  applicantDetails ApplicantDetails @relation(fields: [applicantId], references: [applicantUsername])
 }
 
 model ApplicantEducationBackground {
-  id                     String @id @default(auto()) @map("_id") @db.ObjectId
-  applicantApplicationId String @db.ObjectId
-  position               Int
-  level                  String @default("")
-  schoolName             String @default("")
-  startYear              String @default("")
-  endYear                String @default("")
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  position   Int
+  level      String @default("")
+  schoolName String @default("")
+  startYear  String @default("")
+  endYear    String @default("")
+
+  applicantId      String           @map("applicantId")
+  applicantDetails ApplicantDetails @relation(fields: [applicantId], references: [applicantUsername])
 }
 
 model ApplicantImageData {
-  applicantApplicationId String @id @map("_id") @db.ObjectId
-  imageUrl               String @default("")
-  key                    String @default("")
-  name                   String @default("")
-  size                   Int    @default(0)
+  applicantUsername String @id @map("_id")
+  imageUrl          String @default("")
+  key               String @default("")
+  name              String @default("")
+  size              Int    @default(0)
 }
 
 model ApplicantEducationFileData {
-  applicantApplicationId String @id @map("_id") @db.ObjectId
-  url                    String @default("")
-  key                    String @default("")
-  type                   String @default("")
-  name                   String @default("")
-  size                   Int    @default(0)
+  applicantUsername String @id @map("_id")
+  url               String @default("")
+  key               String @default("")
+  type              String @default("")
+  name              String @default("")
+  size              Int    @default(0)
 }
 
 model ApplicantAdditionalFileData {
-  id                     String @id @default(auto()) @map("_id") @db.ObjectId
-  applicantApplicationId String @db.ObjectId
-  url                    String
-  type                   String
-  key                    String
-  name                   String
-  size                   Int
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
+  applicantUsername String
+  url               String
+  type              String
+  key               String
+  name              String
+  size              Int
+
+  applicantId      String           @map("applicantId")
+  applicantDetails ApplicantDetails @relation(fields: [applicantId], references: [applicantUsername])
 }
 
 //APPLICANT DATA
