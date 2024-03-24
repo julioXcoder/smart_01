@@ -65,7 +65,7 @@ const Contacts = ({ form, draftSaving, isSubmitting }: Props) => {
             />
             <FormField
               control={form.control}
-              name="applicantPhoneNumber"
+              name="phone"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Phone Number</FormLabel>
@@ -82,7 +82,7 @@ const Contacts = ({ form, draftSaving, isSubmitting }: Props) => {
             />
             <FormField
               control={form.control}
-              name="applicantAlternativeEmail"
+              name="alternativeEmail"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
@@ -100,7 +100,7 @@ const Contacts = ({ form, draftSaving, isSubmitting }: Props) => {
             />
             <FormField
               control={form.control}
-              name="applicantAlternativePhoneNumber"
+              name="alternativePhone"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>

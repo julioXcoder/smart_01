@@ -1,16 +1,15 @@
-import ErrorPage from "@/components/errorPage";
-import { cookies } from "next/headers";
+import { getApplicationDetails } from "./actions";
+import Draft from "./draft";
 
-const Page = () => {
-  const cookieStore = cookies();
-  const theme = cookieStore.get("session");
+const Page = async () => {
+  const data = await getApplicationDetails();
+  const {
+    details: { status },
+  } = data;
 
-  return (
-    <div>
-      Dashboard page
-      <ErrorPage errorMessage="Cant access this page" />
-    </div>
-  );
+  if (status === "DRAFT") {
+    return <Draft data={data} />;
+  }
 };
 
 export default Page;

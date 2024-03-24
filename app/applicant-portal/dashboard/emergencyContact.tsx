@@ -49,7 +49,7 @@ const EmergencyContact = ({ form, draftSaving, isSubmitting }: Props) => {
           <div className="space-y-6">
             <FormField
               control={form.control}
-              name="emergencyContactFullName"
+              name="emergencyFullName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Emergency Contact Full Name</FormLabel>
@@ -62,7 +62,7 @@ const EmergencyContact = ({ form, draftSaving, isSubmitting }: Props) => {
             />
             <FormField
               control={form.control}
-              name="emergencyContactEmail"
+              name="emergencyEmail"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
@@ -80,7 +80,7 @@ const EmergencyContact = ({ form, draftSaving, isSubmitting }: Props) => {
             />
             <FormField
               control={form.control}
-              name="emergencyContactPhoneNumber"
+              name="emergencyPhone"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Emergency contact Phone Number</FormLabel>
@@ -97,7 +97,7 @@ const EmergencyContact = ({ form, draftSaving, isSubmitting }: Props) => {
             />
             <FormField
               control={form.control}
-              name="emergencyContactAlternativeEmail"
+              name="emergencyAlternativeEmail"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
@@ -115,7 +115,7 @@ const EmergencyContact = ({ form, draftSaving, isSubmitting }: Props) => {
             />
             <FormField
               control={form.control}
-              name="emergencyContactAlternativePhoneNumber"
+              name="emergencyAlternativePhone"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
@@ -141,7 +141,7 @@ const EmergencyContact = ({ form, draftSaving, isSubmitting }: Props) => {
           <div className="space-y-6">
             <FormField
               control={form.control}
-              name="emergencyContactStreetAddress"
+              name="emergencyStreetAddress"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Emergency Contact Street Address</FormLabel>
@@ -154,7 +154,7 @@ const EmergencyContact = ({ form, draftSaving, isSubmitting }: Props) => {
             />
             <FormField
               control={form.control}
-              name="emergencyContactCity"
+              name="emergencyCity"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Emergency Contact City, town, village</FormLabel>
@@ -167,7 +167,7 @@ const EmergencyContact = ({ form, draftSaving, isSubmitting }: Props) => {
             />
             <FormField
               control={form.control}
-              name="emergencyContactRegion"
+              name="emergencyRegion"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
@@ -182,7 +182,7 @@ const EmergencyContact = ({ form, draftSaving, isSubmitting }: Props) => {
             />
             <FormField
               control={form.control}
-              name="emergencyContactPostalCode"
+              name="emergencyPostalCode"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Emergency Contact Postal Code</FormLabel>
@@ -195,7 +195,7 @@ const EmergencyContact = ({ form, draftSaving, isSubmitting }: Props) => {
             />
             <FormField
               control={form.control}
-              name="emergencyContactCountry"
+              name="emergencyCountry"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Emergency Contact Country</FormLabel>
@@ -232,7 +232,7 @@ const EmergencyContact = ({ form, draftSaving, isSubmitting }: Props) => {
                                 key={country.value}
                                 onSelect={() => {
                                   form.setValue(
-                                    "emergencyContactCountry",
+                                    "emergencyCountry",
                                     country.value,
                                   );
                                 }}
@@ -259,7 +259,7 @@ const EmergencyContact = ({ form, draftSaving, isSubmitting }: Props) => {
             />
             <FormField
               control={form.control}
-              name="emergencyContactRelation"
+              name="emergencyRelation"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Emergency Contact Relation</FormLabel>

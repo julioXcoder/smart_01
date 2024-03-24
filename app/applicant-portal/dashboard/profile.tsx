@@ -182,7 +182,7 @@ const Profile = ({
         <div className="space-y-5">
           <FormField
             control={form.control}
-            name="citizenship"
+            name="nationality"
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>Nationality</FormLabel>
@@ -221,7 +221,7 @@ const Profile = ({
                               value={nationality.label}
                               key={nationality.value}
                               onSelect={() => {
-                                form.setValue("citizenship", nationality.value);
+                                form.setValue("nationality", nationality.value);
                               }}
                             >
                               <BiCheck

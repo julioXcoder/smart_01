@@ -44,10 +44,10 @@ import {
 } from "./actions";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import {
-  ApplicantAdditionalFileData,
-  ApplicantEducationFileData,
   EducationLevel,
-} from "@/types/application";
+  ApplicantAdditionalFile,
+  ApplicantEducationFile,
+} from "@prisma/client";
 import { formatBytes } from "@/utils";
 import { AiOutlineCloudUpload } from "react-icons/ai";
 import { IoIosAddCircle } from "react-icons/io";
@@ -59,12 +59,12 @@ interface Props {
 
   uploadingFile: boolean;
   applicantHighestEducation: EducationLevel;
-  applicantEducationFileData: ApplicantEducationFileData;
-  applicantAdditionalFileData: ApplicantAdditionalFileData[];
+  applicantEducationFileData: ApplicantEducationFile;
+  applicantAdditionalFileData: ApplicantAdditionalFile[];
   onFileUpdate: (event: ChangeEvent<HTMLInputElement>) => void;
   onAdditionalFileUpdate: (event: ChangeEvent<HTMLInputElement>) => void;
   onFileRemove: () => void;
-  onAdditionalFileRemove: (file: ApplicantAdditionalFileData) => void;
+  onAdditionalFileRemove: (file: ApplicantAdditionalFile) => void;
 }
 
 const maxItems = 4;

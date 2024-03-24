@@ -605,7 +605,7 @@ interface ApplicantProgram {
   id: string;
   programmeCode: string;
   priority: number;
-  programmeDetails: Programme;
+  programme: Programme;
 }
 
 interface ApplicantEducationBackground {
@@ -679,4 +679,4 @@ export {
   maritalStatusOptions,
 };
 
-export type { ApplicationData, ApplicantFormData };
+export type { ApplicationData, ApplicantFormData, ApplicantProgram };

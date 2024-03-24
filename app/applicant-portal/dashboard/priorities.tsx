@@ -6,7 +6,7 @@ import { FaUniversity } from "react-icons/fa";
 import { FiArrowDown, FiArrowUp, FiTrash2 } from "react-icons/fi";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { IoWarning, IoChatbubblesSharp } from "react-icons/io5";
-import { ApplicantProgram } from "@/types/application";
+import { ApplicantProgram } from "./data";
 import { getEducationLevel } from "@/utils/programme";
 import { useRouter } from "next/navigation";
 
@@ -118,7 +118,7 @@ const Priorities = ({
                         <AlertDialogDescription>
                           Are you sure you want to remove{" "}
                           <span className="text-orange-500 underline underline-offset-2">
-                            {item.programmeDetails.name}
+                            {item.programme.name}
                           </span>{" "}
                           from your priorities?
                         </AlertDialogDescription>
@@ -137,8 +137,7 @@ const Priorities = ({
                 </div>
               </div>
               <CardTitle>
-                {getEducationLevel(item.programmeDetails.level)}{" "}
-                {item.programmeDetails.name}
+                {getEducationLevel(item.programme.level)} {item.programme.name}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -149,11 +148,11 @@ const Priorities = ({
               <div className="flex items-center gap-4">
                 <div className="flex">
                   <GiWhiteBook className="mr-2 mt-0.5 h-4 w-4 shrink-0" />
-                  {item.programmeDetails.level}
+                  {item.programme.level}
                 </div>
                 <div className="flex">
                   <IoChatbubblesSharp className="mr-2 mt-0.5 h-4 w-4 shrink-0" />
-                  {item.programmeDetails.language}
+                  {item.programme.language}
                 </div>
               </div>
               <div className="flex">

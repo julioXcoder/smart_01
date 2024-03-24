@@ -6,9 +6,8 @@ import moment from "moment-timezone";
 import { revalidatePath } from "next/cache";
 import { getSession, setSession } from "@/lib";
 import { redirect } from "next/navigation";
-import { ApplicantProgram } from "@/types/application";
+import { ApplicantProgram } from "./data";
 import { ApplicantFormData } from "./data";
-import { Programme } from "@/types/draftProgrammes";
 // import { utapi } from "@/server/uploadthing";
 import { logError } from "@/utils/logger";
 
@@ -53,6 +52,12 @@ export async function getApplicationDetails() {
     formalImage,
     applicantProgrammes,
   } = applicantData;
+
+  if (!educationFile || !details || !formalImage) {
+    throw new Error(
+      `Unable to locate the applicant details for the applicant with the username: ${applicantUsername}.`,
+    );
+  }
 
   const applicantEducationBackgrounds = educationBackgrounds.map((item) => {
     const { id, ...rest } = item;

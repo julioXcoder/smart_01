@@ -14,7 +14,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Tab } from "@/types";
-import { ApplicantAdditionalFileData } from "@/types/application";
 import { logError } from "@/utils/logger";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { isEqual } from "lodash";
@@ -48,7 +47,7 @@ import Priorities from "./priorities";
 import Profile from "./profile";
 
 import { UploadFileResponse } from "@/types/uploadthing";
-import { ApplicantFormalImage } from "@prisma/client";
+import { ApplicantFormalImage, ApplicantAdditionalFile } from "@prisma/client";
 import {
   addApplicantAdditionalFile,
   addApplicantEducationFile,
@@ -667,7 +666,7 @@ const Draft = ({ data }: Props) => {
   );
 
   const handleAdditionalFileRemove = useCallback(
-    async (file: ApplicantAdditionalFileData) => {
+    async (file: ApplicantAdditionalFile) => {
       setIsUploadingFile(true);
 
       const formData = new FormData();
@@ -984,7 +983,8 @@ const Draft = ({ data }: Props) => {
         <Payment
           draftSaving={draftSaving}
           isSubmitting={isSubmitting}
-          applicantControlNumber={controlNumber}
+          controlNumber={controlNumber}
+          paymentStatus={paymentStatus}
         />
       ),
       label: "payments",

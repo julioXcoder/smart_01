@@ -8,7 +8,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import toast from "react-hot-toast";
-import { PaymentStatus } from "@/types/application";
+import { PaymentStatus } from "@prisma/client";
 
 interface Props {
   controlNumber: string;
