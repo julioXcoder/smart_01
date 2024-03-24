@@ -82,9 +82,16 @@ enum ResidencePlan {
 //USERS
 
 model Applicant {
-  username       String @id @map("_id")
-  hashedPassword String
-  role           Role   @default(APPLICANT)
+  username                 String                         @id @map("_id")
+  hashedPassword           String
+  role                     Role                           @default(APPLICANT)
+  details                  ApplicantDetails?
+  formalImage              ApplicantFormalImage?
+  educationFile            ApplicantEducationFile?
+  applicantNotification    ApplicantNotification[]
+  applicantProgrammes      ApplicantProgrammes[]
+  educationBackgrounds     ApplicantEducationBackground[]
+  additionalEducationFiles ApplicantAdditionalFile[]
 }
 
 model ResidenceManager {
@@ -101,56 +108,52 @@ model ResidenceManager {
 //APPLICANT DATA
 // FIXME: ADD University application ID to check the application period
 model ApplicantDetails {
-  applicantUsername               String            @id @map("_id")
-  status                          ApplicationStatus @default(DRAFT)
-  formIVIndex                     String
-  createdAt                       DateTime
-  submittedAt                     DateTime?
-  type                            ProgrammeLevel
-  origin                          Origin
-  highestEducationLevel           EducationLevel
-  academicYearId                  String            @db.ObjectId
+  applicantUsername         String            @id @map("_id")
+  applicant                 Applicant         @relation(fields: [applicantUsername], references: [username])
+  status                    ApplicationStatus @default(DRAFT)
+  formIVIndex               String
+  createdAt                 DateTime
+  submittedAt               DateTime?
+  type                      ProgrammeLevel
+  origin                    Origin
+  highestEducationLevel     EducationLevel
+  academicYearId            String            @db.ObjectId
   // Properties from ApplicantProfile
-  nida                            String            @default("")
-  firstName                       String            @default("")
-  middleName                      String            @default("")
-  lastName                        String            @default("")
-  nationality                     String            @default("")
-  gender                          String            @default("")
-  dateOfBirth                     String            @default("")
-  maritalStatus                   String            @default("")
-  placeOfBirth                    String            @default("")
-  disability                      String            @default("")
+  nida                      String            @default("")
+  firstName                 String            @default("")
+  middleName                String            @default("")
+  lastName                  String            @default("")
+  nationality               String            @default("")
+  gender                    String            @default("")
+  dateOfBirth               String            @default("")
+  maritalStatus             String            @default("")
+  placeOfBirth              String            @default("")
+  disability                String            @default("")
   // Properties from ApplicantContacts
-  phone                           String            @default("")
-  email                           String?           @default("")
-  alternativeEmail                String?           @default("")
-  alternativePhoneNumber          String?           @default("")
-  streetAddress                   String            @default("")
-  city                            String            @default("")
-  region                          String            @default("")
-  postalCode                      String            @default("")
-  country                         String            @default("")
+  phone                     String            @default("")
+  email                     String?           @default("")
+  alternativeEmail          String?           @default("")
+  alternativePhone          String?           @default("")
+  streetAddress             String            @default("")
+  city                      String            @default("")
+  region                    String            @default("")
+  postalCode                String            @default("")
+  country                   String            @default("")
   // Properties from ApplicantEmergencyContacts
-  emergencyFullName               String            @default("")
-  emergencyPhone                  String            @default("")
-  emergencyEmail                  String?           @default("")
-  emergencyAlternativeEmail       String?           @default("")
-  emergencyAlternativePhoneNumber String?           @default("")
-  emergencyStreetAddress          String            @default("")
-  emergencyCity                   String            @default("")
-  emergencyRegion                 String            @default("")
-  emergencyPostalCode             String            @default("")
-  emergencyCountry                String            @default("")
-  emergencyRelation               String            @default("")
+  emergencyFullName         String            @default("")
+  emergencyPhone            String            @default("")
+  emergencyEmail            String?           @default("")
+  emergencyAlternativeEmail String?           @default("")
+  emergencyAlternativePhone String?           @default("")
+  emergencyStreetAddress    String            @default("")
+  emergencyCity             String            @default("")
+  emergencyRegion           String            @default("")
+  emergencyPostalCode       String            @default("")
+  emergencyCountry          String            @default("")
+  emergencyRelation         String            @default("")
   // Properties from ApplicationPayment
-  controlNumber                   String            @default("")
-  paymentStatus                   PaymentStatus     @default(PENDING)
-
-  applicantProgrammes          ApplicantProgrammes[]
-  applicantNotification        ApplicantNotification[]
-  applicantEducationBackground ApplicantEducationBackground[]
-  applicantAdditionalFileData  ApplicantAdditionalFileData[]
+  controlNumber             String            @default("")
+  paymentStatus             PaymentStatus     @default(PENDING)
 }
 
 model ApplicantNotification {
@@ -160,15 +163,15 @@ model ApplicantNotification {
   read      Boolean // Whether the notification has been read
   timestamp DateTime // When the notification was created
 
-  applicantId      String
-  applicantDetails ApplicantDetails @relation(fields: [applicantId], references: [applicantUsername])
+  applicantId String
+  applicant   Applicant @relation(fields: [applicantId], references: [username])
 }
 
 model ApplicantProgrammes {
-  id               String           @id @default(auto()) @map("_id") @db.ObjectId
-  priority         Int
-  applicantId      String
-  applicantDetails ApplicantDetails @relation(fields: [applicantId], references: [applicantUsername])
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  priority    Int
+  applicantId String
+  applicant   Applicant @relation(fields: [applicantId], references: [username])
 
   programmeCode String
   programme     Programme @relation(fields: [programmeCode], references: [code])
@@ -182,38 +185,39 @@ model ApplicantEducationBackground {
   startYear  String @default("")
   endYear    String @default("")
 
-  applicantId      String
-  applicantDetails ApplicantDetails @relation(fields: [applicantId], references: [applicantUsername])
+  applicantId String
+  applicant   Applicant @relation(fields: [applicantId], references: [username])
 }
 
-model ApplicantImageData {
-  applicantUsername String @id @map("_id")
-  imageUrl          String @default("")
-  key               String @default("")
-  name              String @default("")
-  size              Int    @default(0)
+model ApplicantFormalImage {
+  applicantUsername String    @id @map("_id")
+  imageUrl          String    @default("")
+  key               String    @default("")
+  name              String    @default("")
+  size              Int       @default(0)
+  applicant         Applicant @relation(fields: [applicantUsername], references: [username])
 }
 
-model ApplicantEducationFileData {
-  applicantUsername String @id @map("_id")
-  url               String @default("")
-  key               String @default("")
-  type              String @default("")
-  name              String @default("")
-  size              Int    @default(0)
+model ApplicantEducationFile {
+  applicantUsername String    @id @map("_id")
+  url               String    @default("")
+  key               String    @default("")
+  type              String    @default("")
+  name              String    @default("")
+  size              Int       @default(0)
+  applicant         Applicant @relation(fields: [applicantUsername], references: [username])
 }
 
-model ApplicantAdditionalFileData {
-  id                String @id @default(auto()) @map("_id") @db.ObjectId
-  applicantUsername String
-  url               String
-  type              String
-  key               String
-  name              String
-  size              Int
+model ApplicantAdditionalFile {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  url  String
+  type String
+  key  String
+  name String
+  size Int
 
-  applicantId      String
-  applicantDetails ApplicantDetails @relation(fields: [applicantId], references: [applicantUsername])
+  applicantId String
+  applicant   Applicant @relation(fields: [applicantId], references: [username])
 }
 
 //APPLICANT DATA
@@ -242,35 +246,36 @@ model ResidenceRoom {
   type               ResidenceRoomType
   status             ResidenceRoomStatus
   maintenance        Boolean
+  images             ResidenceRoomImage[]
   residenceManagerId String
   managerDetails     ResidenceManagerDetails @relation(fields: [residenceManagerId], references: [username])
   bookings           ResidenceBooking[]
 }
 
 model ResidenceBooking {
-  id         String           @id @default(auto()) @map("_id") @db.ObjectId
+  id         String            @id @default(auto()) @map("_id") @db.ObjectId
   customerId String
-  roomId     String           @db.ObjectId
-  room       ResidenceRoom    @relation(fields: [roomId], references: [id])
-  paymentId  String           @unique @db.ObjectId
-  payment    ResidencePayment @relation(fields: [paymentId], references: [id])
+  roomId     String            @db.ObjectId
+  room       ResidenceRoom     @relation(fields: [roomId], references: [id])
+  payment    ResidencePayment?
   plan       ResidencePlan
 }
 
 model ResidencePayment {
-  id      String            @id @default(auto()) @map("_id") @db.ObjectId
-  date    DateTime
-  amount  String
-  status  PaymentStatus
-  booking ResidenceBooking?
+  bookingId String           @id @default(auto()) @map("_id") @db.ObjectId
+  date      DateTime
+  amount    String
+  status    PaymentStatus
+  booking   ResidenceBooking @relation(fields: [bookingId], references: [id])
 }
 
-model ResidenceRoomImageData {
-  key             String @id @map("_id")
-  residenceRoomId String
-  imageUrl        String @default("")
-  name            String @default("")
-  size            Int    @default(0)
+model ResidenceRoomImage {
+  key           String        @id @map("_id")
+  roomId        String        @db.ObjectId
+  residenceRoom ResidenceRoom @relation(fields: [roomId], references: [id])
+  imageUrl      String        @default("")
+  name          String        @default("")
+  size          Int           @default(0)
 }
 
 // RESIDENCE MANAGEMENT
