@@ -1,7 +1,4 @@
-"use client";
-
 import { Step } from "./data";
-import { useEffect, useState } from "react";
 
 interface Props {
   tabs: Step[];
@@ -9,31 +6,8 @@ interface Props {
 }
 
 const Stepper = ({ tabs, activeTab }: Props) => {
-  const [show, setShow] = useState(true);
-  const [scrollPos, setScrollPos] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollPos = window.pageYOffset;
-
-      if (currentScrollPos < scrollPos) {
-        setShow(true);
-      } else {
-        setShow(false);
-      }
-      setScrollPos(currentScrollPos);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [scrollPos]);
-
   return (
-    <ol
-      className={`sticky z-20 flex w-full items-center md:top-20 ${
-        show ? "top-16" : "top-2"
-      }`}
-    >
+    <ol className="z-20 flex w-full items-center">
       {tabs.map((tab, index) => (
         <li
           key={index}
@@ -46,7 +20,7 @@ const Stepper = ({ tabs, activeTab }: Props) => {
           <span
             className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full lg:h-12 lg:w-12 ${
               index <= activeTab
-                ? "bg-blue-300 dark:bg-blue-800"
+                ? "bg-blue-100 dark:bg-blue-800"
                 : "bg-gray-100 dark:bg-gray-700"
             }`}
           >
@@ -59,7 +33,7 @@ const Stepper = ({ tabs, activeTab }: Props) => {
             />
           </span>
           <span className="absolute top-14 hidden text-xs md:text-sm">
-            {show && tab.label}
+            {tab.label}
           </span>
         </li>
       ))}

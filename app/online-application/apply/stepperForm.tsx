@@ -1,79 +1,49 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Step } from "./data";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import completion from "@/public/online_application/completion2.png";
 import education from "@/public/online_application/education3.png";
-import globe from "@/public/online_application/globe2.png";
-import payment from "@/public/online_application/payment3.png";
 import select from "@/public/online_application/select3.png";
 import door from "@/public/online_application/welcome5.png";
-import { getFormIVData } from "@/server/actions/necta";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { CiCircleQuestion } from "react-icons/ci";
-import {
-  EyeClosedIcon,
-  EyeOpenIcon,
-  InfoCircledIcon,
-} from "@radix-ui/react-icons";
-import { MdArrowBackIos } from "react-icons/md";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import z from "zod";
-import { useForm } from "react-hook-form";
+import { Step } from "./data";
+// FIXME: Use to fetch applicant form IV data
+// import { getFormIVData } from "../actions";
+import HeadingThree from "@/components/typography/headingThree";
 import { newApplicantAccount } from "@/server/actions/application";
 import { NewApplicant } from "@/server/actions/application/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { CiCircleQuestion } from "react-icons/ci";
+import { FaHome, FaUserEdit } from "react-icons/fa";
+import { FaClipboardList } from "react-icons/fa6";
+import { MdArrowBackIos, MdBook } from "react-icons/md";
+import z from "zod";
 import {
-  FormSchema,
   applicantOrigins,
   applicationTypes,
   certificateEducationLevels,
   diplomaEducationLevels,
-  indexFormat,
+  EducationLevel,
+  FormSchema,
   mastersEducationLevels,
+  Origin,
   phdEducationLevels,
   postgraduateDiplomaEducationLevels,
   ProgrammeLevel,
-  EducationLevel,
-  Origin,
 } from "./data";
-import { MdSchool, MdBook } from "react-icons/md";
-import { FaHome, FaUserEdit } from "react-icons/fa";
-import { FaClipboardList } from "react-icons/fa6";
-import HeadingOne from "@/components/typography/headingOne";
-import HeadingThree from "@/components/typography/headingThree";
 
-import Welcome from "./welcome";
+import Application from "./application";
 import Education from "./education";
 import Setup from "./setup";
-import Application from "./application";
 import Stepper from "./stepper";
+import Welcome from "./welcome";
 
 const StepperForm = () => {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
-  const [errorMessage, setErrorMessage] = useState("");
   const [selectedApplicationType, setSelectedApplicationType] = useState<{
     label: string;
     value: ProgrammeLevel;
@@ -101,17 +71,16 @@ const StepperForm = () => {
       confirmPassword: "",
     },
   });
-  const [showPass, setShowPass] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-
-  const toggleShowPass = () => setShowPass(!showPass);
-  const toggleConfirmPass = () => setShowConfirm(!showConfirm);
 
   const handleSetCompletedOLevel = (value: string) => {
+    setSelectedApplicantOrigin(null);
+
     setCompletedOLevel(value as "yes" | "no" | "");
   };
 
   const handleApplicationTypeChange = (selectedOption: string) => {
+    setSelectedEducationLevel(null);
+
     const selectedApplicationTypeObject = applicationTypes.find(
       (applicationType) => applicationType.value === selectedOption,
     );
@@ -124,6 +93,8 @@ const StepperForm = () => {
   };
 
   const handleApplicantOriginChange = (selectedOption: string) => {
+    setFormIVIndex("");
+
     const selectedApplicationOriginObject = applicantOrigins.find(
       (applicationOrigin) => applicationOrigin.value === selectedOption,
     );
@@ -173,23 +144,6 @@ const StepperForm = () => {
     setSelectedEducationLevel(selectedEducationLevelObject);
   };
 
-  const getEducationLevels = (applicationType: ProgrammeLevel | "") => {
-    switch (applicationType) {
-      case "CERTIFICATE":
-        return certificateEducationLevels;
-      case "DIPLOMA":
-        return diplomaEducationLevels;
-      case "BACHELOR":
-        return postgraduateDiplomaEducationLevels;
-      case "MASTERS":
-        return mastersEducationLevels;
-      case "PHD":
-        return phdEducationLevels;
-      default:
-        return [];
-    }
-  };
-
   const pages: Step[] = [
     { label: "Welcome", Icon: FaHome, content: <Welcome />, image: door },
     {
@@ -210,91 +164,175 @@ const StepperForm = () => {
     {
       label: "Application",
       Icon: FaClipboardList,
-      content: <Application />,
+      content: (
+        <Application
+          onApplicationTypeChange={handleApplicationTypeChange}
+          selectedApplicationType={selectedApplicationType}
+          onEducationChange={handleEducationChange}
+          selectedEducationLevel={selectedEducationLevel}
+        />
+      ),
       image: select,
     },
-    { label: "Setup", Icon: FaUserEdit, content: <Setup />, image: door },
+    {
+      label: "Setup",
+      Icon: FaUserEdit,
+      content: <Setup form={form} />,
+    },
     // { label: "setup", Icon: FiUser, content: <>content</> },
   ];
 
   const handleNext = async () => {
-    setErrorMessage("");
+    const errorDuration = 6000;
 
-    if (currentStep === 2 && !selectedApplicationType) {
-      setErrorMessage("Please select an application type.");
-      return;
-    }
-
-    if (currentStep === 3) {
+    const checkStepOne = () => {
       if (!completedOLevel) {
-        setErrorMessage("Please confirm if you have completed O Level.");
-        return;
+        toast.error("Please confirm if you have completed O Level.", {
+          duration: errorDuration,
+        });
+        return false;
       } else if (completedOLevel === "no") {
-        setErrorMessage(
+        toast.error(
           "Unfortunately, completion of O Level is a requirement for our university. Please check back when you have completed your O Level.",
+          { duration: errorDuration },
         );
-        return;
+        return false;
       }
-    }
 
-    if (currentStep === 4 && !selectedApplicantOrigin) {
-      setErrorMessage("Please select Origin of Education.");
-      return;
-    }
+      if (!selectedApplicantOrigin) {
+        toast.error("Please select Origin of Education.", {
+          duration: errorDuration,
+        });
+        return false;
+      }
 
-    if (currentStep === 5 && !selectedEducationLevel) {
-      setErrorMessage(
-        "Please select your highest level of education to proceed.",
-      );
-      return;
-    }
+      return true;
+    };
 
-    if (currentStep === 6) {
-      if (!formIVIndex) {
-        setErrorMessage(
-          "Kindly provide your Form IV Index Number. It's crucial for us to proceed with your application.",
+    const checkStepTwo = () => {
+      if (!selectedApplicationType) {
+        toast.error("Please select an application type.", {
+          duration: errorDuration,
+        });
+        return false;
+      }
+
+      if (!selectedEducationLevel) {
+        toast.error(
+          "Please select your highest level of education to proceed.",
+          { duration: errorDuration },
         );
-
-        return;
-      } else {
-        const validate = indexFormat.safeParse(formIVIndex.trim());
-
-        if (!validate.success) {
-          setErrorMessage("Invalid format.");
-
-          return;
-        }
-
-        setVerifyFormIVIndex(true);
-        // FIXME: trim form IV index
-        // FIXME: get the students form IV data
-        const { data, error } = await getFormIVData(formIVIndex.trim());
-
-        // FIXME: handle error
-        if (error) {
-          setErrorMessage(error);
-          setVerifyFormIVIndex(false);
-          return;
-        }
-
-        setVerifyFormIVIndex(false);
+        return false;
       }
-    }
 
-    if (currentStep < pages.length - 1) {
+      return true;
+    };
+
+    if (currentStep === 1 && !checkStepOne()) return;
+    if (currentStep === 2 && !checkStepTwo()) return;
+
+    if (isLastStep) {
+      // form.handleSubmit(onSubmit);
+      toast.success("Submitted!!");
+    } else if (currentStep < pages.length - 1) {
       setCurrentStep(currentStep + 1);
     }
   };
 
+  // const handleNext = async () => {
+  //   if (currentStep === 1) {
+  //     if (!completedOLevel) {
+  //       toast.error("Please confirm if you have completed O Level.", {
+  //         duration: 6000,
+  //       });
+  //       return;
+  //     } else if (completedOLevel === "no") {
+  //       toast.error(
+  //         "Unfortunately, completion of O Level is a requirement for our university. Please check back when you have completed your O Level.",
+  //         {
+  //           duration: 6000,
+  //         },
+  //       );
+  //       return;
+  //     }
+
+  //     if (!selectedApplicantOrigin) {
+  //       toast.error("Please select Origin of Education.", {
+  //         duration: 6000,
+  //       });
+  //       return;
+  //     }
+  //   }
+
+  //   if (currentStep === 2) {
+  //     if (!selectedApplicationType) {
+  //       toast.error("Please select an application type.", {
+  //         duration: 6000,
+  //       });
+  //       return;
+  //     }
+
+  //     if (!selectedEducationLevel) {
+  //       toast.error(
+  //         "Please select your highest level of education to proceed.",
+  //         {
+  //           duration: 6000,
+  //         },
+  //       );
+  //       return;
+  //     }
+  //   }
+
+  //   if (isLastStep) {
+  //     form.handleSubmit(onSubmit);
+  //     return;
+  //   } else {
+  //     if (currentStep < pages.length - 1) {
+  //       setCurrentStep(currentStep + 1);
+  //     }
+  //   }
+  // };
+
+  // FIXME: Check for formIV index
+  // if (currentStep === 6) {
+  //   if (!formIVIndex) {
+  //     setErrorMessage(
+  //       "Kindly provide your Form IV Index Number. It's crucial for us to proceed with your application.",
+  //     );
+
+  //     return;
+  //   } else {
+  //     const validate = indexFormat.safeParse(formIVIndex.trim());
+
+  //     if (!validate.success) {
+  //       setErrorMessage("Invalid format.");
+
+  //       return;
+  //     }
+
+  //     setVerifyFormIVIndex(true);
+  //     // FIXME: trim form IV index
+  //     // FIXME: get the students form IV data
+  //     const { data, error } = await getFormIVData(formIVIndex.trim());
+
+  //     // FIXME: handle error
+  //     if (error) {
+  //       setErrorMessage(error);
+  //       setVerifyFormIVIndex(false);
+  //       return;
+  //     }
+
+  //     setVerifyFormIVIndex(false);
+  //   }
+  // }
+
   const handleBack = () => {
-    setErrorMessage("");
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
   };
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
-    setErrorMessage("");
     setIsLoading(true);
     if (
       !selectedApplicantOrigin ||
@@ -322,7 +360,7 @@ const StepperForm = () => {
     if (response.redirect) {
       router.push(response.redirect);
     } else if (response.message) {
-      setErrorMessage(response.message);
+      toast.error(response.message, { duration: 6000 });
       setIsLoading(false);
     }
   };
@@ -343,16 +381,43 @@ const StepperForm = () => {
         <Stepper activeTab={currentStep} tabs={pages} />
 
         <div className="mt-5 grid gap-8 lg:relative lg:grid-cols-2 lg:items-center lg:justify-center">
-          <Image
-            className="hidden h-80 w-auto lg:block"
-            src={currentPage.image}
-            alt="Image Description"
-          />
+          {isLastStep ? (
+            <div className="rounded-lg bg-white shadow-md dark:bg-gray-900">
+              <h2 className="border-b border-gray-200 py-4 text-2xl font-semibold dark:border-gray-800 md:px-6">
+                Account Creation
+              </h2>
+              <div className="md:p-6">
+                <p>
+                  Almost there! Now, let’s create your account. This will be
+                  your gateway to complete the application process and beyond.
+                  Please provide your contact information, including your phone
+                  number and email address. Make sure they are both correct as
+                  we will use them for all future communications. Next, create a
+                  password for your account and confirm it. Remember, your
+                  password should be strong and secure to protect your account.
+                  Your username will be your Form IV Index Number. This is to
+                  ensure uniqueness and easy recall. Once you’ve filled in all
+                  the information, click ‘Create Account’
+                </p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {currentPage.image && (
+                <Image
+                  className="hidden h-80 w-auto lg:block"
+                  src={currentPage.image}
+                  alt="Image Description"
+                />
+              )}
+            </>
+          )}
+
           <div className="w-full pb-8">{currentPage.content}</div>
           <div className="fixed bottom-0 left-0 mt-6 flex w-full items-center gap-2 px-4 pb-2 lg:absolute lg:bottom-0 lg:left-auto lg:right-0 lg:w-auto">
             <Button
               variant="secondary"
-              disabled={isFirstStep}
+              disabled={isFirstStep || loading}
               className={`w-1/3 lg:w-auto ${isFirstStep ? "hidden" : ""}`}
               onClick={handleBack}
             >
@@ -361,8 +426,9 @@ const StepperForm = () => {
             <Button
               className="flex flex-grow lg:flex-grow-0"
               onClick={handleNext}
+              disabled={loading}
             >
-              Next step
+              {isLastStep ? "Create account" : "Next step"}
             </Button>
           </div>
         </div>

@@ -9,7 +9,7 @@ interface Step {
   label: string;
   Icon: IconType;
   content: ReactNode;
-  image: StaticImageData;
+  image?: StaticImageData;
 }
 
 const applicationTypes: { label: string; value: ProgrammeLevel }[] = [
