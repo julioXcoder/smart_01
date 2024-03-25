@@ -1,10 +1,10 @@
 "use client";
 
-import { Tab } from "@/types";
+import { Step } from "./data";
 import { useEffect, useState } from "react";
 
 interface Props {
-  tabs: Tab[];
+  tabs: Step[];
   activeTab: number;
 }
 
@@ -39,7 +39,7 @@ const Stepper = ({ tabs, activeTab }: Props) => {
           key={index}
           className={`relative flex w-full items-center text-sm ${
             index <= activeTab
-              ? "text-blue-600 after:border-blue-500 dark:text-blue-500"
+              ? "after:border-blue-100 dark:after:border-blue-800"
               : "after:border-gray-100 dark:after:border-gray-700"
           } after:inline-block after:h-1 after:w-full after:border-4 after:border-b  after:content-[''] last:w-auto last:after:border-0 last:after:border-none`}
         >
@@ -53,12 +53,12 @@ const Stepper = ({ tabs, activeTab }: Props) => {
             <tab.Icon
               className={`size-4 lg:size-5 ${
                 index <= activeTab
-                  ? "text-blue-800 dark:text-blue-100"
+                  ? "text-blue-600 dark:text-blue-300"
                   : "text-gray-500 dark:text-gray-100"
               }`}
             />
           </span>
-          <span className="absolute top-14 text-xs md:flex md:text-sm">
+          <span className="absolute top-14 hidden text-xs md:text-sm">
             {show && tab.label}
           </span>
         </li>

@@ -321,7 +321,16 @@ model Programme {
   qualification       String
   availability        Boolean               @default(true)
   applicantProgrammes ApplicantProgrammes[]
+  // programmeYears ProgrammeYear[]
 }
+
+// model ProgrammeYear {
+//   id           Int           @id @default(autoincrement())
+//   name         String // This could be "First Year", "Second Year", etc.
+//   students     Student[]
+//   studentYears StudentYear[]
+//   subjects     Subject[]
+// }
 
 //UNIVERSITY HIERARCHY
 

@@ -7,6 +7,18 @@ const Page = async () => {
     details: { status },
   } = data;
 
+  if (status === "ACCEPTED") {
+    return <div>ACCEPTED card</div>;
+  }
+
+  if (status === "REJECTED") {
+    return <div>REJECTED card</div>;
+  }
+
+  if (status === "UNDER_REVIEW") {
+    return <div>UNDER_REVIEW card</div>;
+  }
+
   if (status === "DRAFT") {
     return <Draft data={data} />;
   }
