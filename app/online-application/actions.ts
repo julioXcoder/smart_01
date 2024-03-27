@@ -2,7 +2,12 @@
 
 import axios from "axios";
 import * as cheerio from "cheerio";
+import prisma from "@/prisma/db";
+import { NewApplicant } from "./apply/data";
 import { GetFormIVDataResponse, StudentInfo } from "./schema";
+import { setSession } from "@/lib";
+import bcrypt from "bcrypt";
+import moment from "moment-timezone";
 
 const baseURL = "https://onlinesys.necta.go.tz/results/";
 
@@ -94,4 +99,129 @@ export const getFormIVData = async (
         "We're sorry, but the Form IV verification was unsuccessful. Please try again or reach out to our support team for further assistance.",
     };
   }
+};
+
+export const newApplicantAccount = async (newApplicantData: NewApplicant) => {
+  try {
+    const {
+      username,
+      formIVIndex,
+      password,
+      latestAcademicYearId,
+      origin,
+      highestEducationLevel,
+      applicationType,
+    } = newApplicantData;
+
+    const applicant = await prisma.applicant.findUnique({
+      where: {
+        username,
+      },
+    });
+
+    if (applicant) {
+      return { message: "username already exist." };
+    }
+
+    const now = new Date();
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const newApplicant = await prisma.applicant.create({
+      data: {
+        username,
+        hashedPassword,
+        formIVIndex,
+        applicationType,
+        educationOrigin: origin,
+        highestEducationLevel,
+        academicYear: { connect: { id: latestAcademicYearId } },
+        createdAt: now,
+      },
+    });
+
+    await prisma.applicantFormalImage.create({
+      data: {
+        applicant: {
+          connect: {
+            username: newApplicant.username,
+          },
+        },
+      },
+    });
+
+    const newApplicationDetails = await prisma.applicationDetails.create({
+      data: {
+        applicant: { connect: { username: newApplicant.username } },
+        createdAt: now,
+      },
+    });
+
+    await prisma.applicantEducationBackground.create({
+      data: {
+        applicationDetails: {
+          connect: {
+            applicantUsername: newApplicationDetails.applicantUsername,
+          },
+        },
+        position: 0,
+      },
+    });
+
+    await prisma.applicantEducationFile.create({
+      data: {
+        applicationDetails: {
+          connect: {
+            applicantUsername: newApplicationDetails.applicantUsername,
+          },
+        },
+      },
+    });
+
+    const data = { id: newApplicant.username, role: newApplicant.role };
+
+    await setSession(data);
+
+    return {
+      redirect: "/applicant-portal/dashboard",
+    };
+  } catch (error) {
+    return {
+      message:
+        "We’re sorry, but we were unable to create your account at this time. Please try again later, and if the problem persists, reach out to our support team for assistance.",
+    };
+  }
+};
+
+export const getApplicationPeriodStatus = async () => {
+  const latestAcademicYear = await prisma.academicYear.findFirst({
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  if (!latestAcademicYear) {
+    throw new Error("Latest Academic Year not found!");
+  }
+
+  const now = moment().tz("Africa/Dar_es_Salaam");
+
+  let status = "CLOSED";
+
+  if (
+    now.isAfter(
+      moment(latestAcademicYear.applicationStartTime).tz(
+        "Africa/Dar_es_Salaam",
+      ),
+    ) &&
+    now.isBefore(
+      moment(latestAcademicYear.applicationEndTime).tz("Africa/Dar_es_Salaam"),
+    )
+  )
+    status = "OPEN";
+
+  return {
+    status: status,
+    latestAcademicYearId: latestAcademicYear.id,
+  };
 };

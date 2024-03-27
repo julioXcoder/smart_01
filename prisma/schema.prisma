@@ -38,7 +38,7 @@ enum ProgrammeLevel {
   PHD
 }
 
-enum Origin {
+enum ExaminationType {
   NECTA
   FOREIGN
   NECTA1988
@@ -82,16 +82,19 @@ enum ResidencePlan {
 //USERS
 
 model Applicant {
-  username                 String                         @id @map("_id")
-  hashedPassword           String
-  role                     Role                           @default(APPLICANT)
-  details                  ApplicantDetails?
-  formalImage              ApplicantFormalImage?
-  educationFile            ApplicantEducationFile?
-  applicantNotification    ApplicantNotification[]
-  applicantProgrammes      ApplicantProgrammes[]
-  educationBackgrounds     ApplicantEducationBackground[]
-  additionalEducationFiles ApplicantAdditionalFile[]
+  username              String                  @id @map("_id")
+  hashedPassword        String
+  role                  Role                    @default(APPLICANT)
+  formIVIndex           String
+  createdAt             DateTime
+  applicationType       ProgrammeLevel
+  educationOrigin       ExaminationType
+  highestEducationLevel EducationLevel
+  academicYearId        String                  @db.ObjectId
+  academicYear          AcademicYear            @relation(fields: [academicYearId], references: [id])
+  details               ApplicationDetails?
+  formalImage           ApplicantFormalImage?
+  applicantNotification ApplicantNotification[]
 }
 
 model ResidenceManager {
@@ -107,53 +110,53 @@ model ResidenceManager {
 
 //APPLICANT DATA
 // FIXME: ADD University application ID to check the application period
-model ApplicantDetails {
-  applicantUsername         String            @id @map("_id")
-  applicant                 Applicant         @relation(fields: [applicantUsername], references: [username])
-  status                    ApplicationStatus @default(DRAFT)
-  formIVIndex               String
-  createdAt                 DateTime
-  submittedAt               DateTime?
-  type                      ProgrammeLevel
-  origin                    Origin
-  highestEducationLevel     EducationLevel
-  academicYearId            String            @db.ObjectId
+model ApplicationDetails {
+  applicantUsername            String                         @id @map("_id")
+  applicant                    Applicant                      @relation(fields: [applicantUsername], references: [username])
+  createdAt                    DateTime
+  submittedAt                  DateTime?
+  applicationStatus            ApplicationStatus              @default(DRAFT)
   // Properties from ApplicantProfile
-  nida                      String            @default("")
-  firstName                 String            @default("")
-  middleName                String            @default("")
-  lastName                  String            @default("")
-  nationality               String            @default("")
-  gender                    String            @default("")
-  dateOfBirth               String            @default("")
-  maritalStatus             String            @default("")
-  placeOfBirth              String            @default("")
-  disability                String            @default("")
+  nida                         String                         @default("")
+  firstName                    String                         @default("")
+  middleName                   String                         @default("")
+  lastName                     String                         @default("")
+  nationality                  String                         @default("")
+  gender                       String                         @default("")
+  dateOfBirth                  String                         @default("")
+  maritalStatus                String                         @default("")
+  placeOfBirth                 String                         @default("")
+  disability                   String                         @default("")
   // Properties from ApplicantContacts
-  phone                     String            @default("")
-  email                     String?           @default("")
-  alternativeEmail          String?           @default("")
-  alternativePhone          String?           @default("")
-  streetAddress             String            @default("")
-  city                      String            @default("")
-  region                    String            @default("")
-  postalCode                String            @default("")
-  country                   String            @default("")
+  phone                        String                         @default("")
+  email                        String?                        @default("")
+  alternativeEmail             String?                        @default("")
+  alternativePhone             String?                        @default("")
+  streetAddress                String                         @default("")
+  city                         String                         @default("")
+  region                       String                         @default("")
+  postalCode                   String                         @default("")
+  country                      String                         @default("")
   // Properties from ApplicantEmergencyContacts
-  emergencyFullName         String            @default("")
-  emergencyPhone            String            @default("")
-  emergencyEmail            String?           @default("")
-  emergencyAlternativeEmail String?           @default("")
-  emergencyAlternativePhone String?           @default("")
-  emergencyStreetAddress    String            @default("")
-  emergencyCity             String            @default("")
-  emergencyRegion           String            @default("")
-  emergencyPostalCode       String            @default("")
-  emergencyCountry          String            @default("")
-  emergencyRelation         String            @default("")
+  emergencyFullName            String                         @default("")
+  emergencyPhone               String                         @default("")
+  emergencyEmail               String?                        @default("")
+  emergencyAlternativeEmail    String?                        @default("")
+  emergencyAlternativePhone    String?                        @default("")
+  emergencyStreetAddress       String                         @default("")
+  emergencyCity                String                         @default("")
+  emergencyRegion              String                         @default("")
+  emergencyPostalCode          String                         @default("")
+  emergencyCountry             String                         @default("")
+  emergencyRelation            String                         @default("")
   // Properties from ApplicationPayment
-  controlNumber             String            @default("")
-  paymentStatus             PaymentStatus     @default(PENDING)
+  controlNumber                String                         @default("")
+  paymentStatus                PaymentStatus                  @default(PENDING)
+  //relations
+  educationFile                ApplicantEducationFile?
+  applicantProgrammePriorities ApplicantProgrammePriority[]
+  educationBackgrounds         ApplicantEducationBackground[]
+  additionalEducationFiles     ApplicantAdditionalFile[]
 }
 
 model ApplicantNotification {
@@ -167,11 +170,11 @@ model ApplicantNotification {
   applicant   Applicant @relation(fields: [applicantId], references: [username])
 }
 
-model ApplicantProgrammes {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  priority    Int
-  applicantId String
-  applicant   Applicant @relation(fields: [applicantId], references: [username])
+model ApplicantProgrammePriority {
+  id                 String             @id @default(auto()) @map("_id") @db.ObjectId
+  priority           Int
+  applicantUsername  String
+  applicationDetails ApplicationDetails @relation(fields: [applicantUsername], references: [applicantUsername])
 
   programmeCode String
   programme     Programme @relation(fields: [programmeCode], references: [code])
@@ -185,8 +188,8 @@ model ApplicantEducationBackground {
   startYear  String @default("")
   endYear    String @default("")
 
-  applicantId String
-  applicant   Applicant @relation(fields: [applicantId], references: [username])
+  applicantUsername  String
+  applicationDetails ApplicationDetails @relation(fields: [applicantUsername], references: [applicantUsername])
 }
 
 model ApplicantFormalImage {
@@ -199,13 +202,14 @@ model ApplicantFormalImage {
 }
 
 model ApplicantEducationFile {
-  applicantUsername String    @id @map("_id")
-  url               String    @default("")
-  key               String    @default("")
-  type              String    @default("")
-  name              String    @default("")
-  size              Int       @default(0)
-  applicant         Applicant @relation(fields: [applicantUsername], references: [username])
+  url  String @default("")
+  key  String @default("")
+  type String @default("")
+  name String @default("")
+  size Int    @default(0)
+
+  applicantUsername  String             @id @map("_id")
+  applicationDetails ApplicationDetails @relation(fields: [applicantUsername], references: [applicantUsername])
 }
 
 model ApplicantAdditionalFile {
@@ -216,8 +220,8 @@ model ApplicantAdditionalFile {
   name String
   size Int
 
-  applicantId String
-  applicant   Applicant @relation(fields: [applicantId], references: [username])
+  applicantUsername  String
+  applicationDetails ApplicationDetails @relation(fields: [applicantUsername], references: [applicantUsername])
 }
 
 //APPLICANT DATA
@@ -308,19 +312,19 @@ model Department {
 }
 
 model Programme {
-  code                String                @id @map("_id")
-  name                String
-  level               ProgrammeLevel
-  duration            Int
-  type                ProgrammeType
-  language            String
-  departmentId        String                @db.ObjectId
-  department          Department            @relation(fields: [departmentId], references: [id])
-  tuitionFee          Float
-  applicationFee      Float
-  qualification       String
-  availability        Boolean               @default(true)
-  applicantProgrammes ApplicantProgrammes[]
+  code                         String                       @id @map("_id")
+  name                         String
+  level                        ProgrammeLevel
+  duration                     Int
+  type                         ProgrammeType
+  language                     String
+  departmentId                 String                       @db.ObjectId
+  department                   Department                   @relation(fields: [departmentId], references: [id])
+  tuitionFee                   Float
+  applicationFee               Float
+  qualification                String
+  availability                 Boolean                      @default(true)
+  applicantProgrammePriorities ApplicantProgrammePriority[]
   // programmeYears ProgrammeYear[]
 }
 
@@ -343,6 +347,7 @@ model AcademicYear {
 
   applicationStartTime DateTime // Start time of the application
   applicationEndTime   DateTime // End time of the application
+  applicants           Applicant[]
 }
 
 //UNIVERSITY ANUAL EVENTS

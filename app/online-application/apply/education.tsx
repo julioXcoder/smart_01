@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
-import { applicantOrigins, Origin } from "./data";
+import { applicantOrigins, ExaminationType } from "./data";
 
 interface Props {
   onSetOLevelChange: (value: string) => void;
@@ -19,7 +19,7 @@ interface Props {
   onApplicationOriginChange: (selectedOption: string) => void;
   selectedApplicantOrigin: {
     label: string;
-    value: Origin;
+    value: ExaminationType;
   } | null;
   completedOLevel: "" | "yes" | "no";
   formIVIndex: string;

@@ -1,13 +1,13 @@
 import {
-  EducationLevel,
-  PaymentStatus,
-  Origin,
-  ProgrammeLevel,
-  ApplicantFormalImage,
-  ApplicantEducationFile,
   ApplicantAdditionalFile,
-  ApplicantDetails,
+  ApplicantEducationFile,
+  ApplicantFormalImage,
+  EducationLevel,
+  ApplicationDetails,
   Programme,
+  Department,
+  College,
+  Campus,
 } from "@prisma/client";
 import z from "zod";
 
@@ -601,7 +601,7 @@ const FormSchema = z.object({
   education: z.array(EducationSchema),
 });
 
-interface ApplicantProgram {
+interface ProgramPriority {
   id: string;
   programmeCode: string;
   priority: number;
@@ -617,18 +617,26 @@ interface ApplicantEducationBackground {
   endYear: string;
 }
 
+interface ProgrammeWithDetails extends Programme {
+  department: Department & {
+    college: College & { campus: Campus };
+  };
+}
+
 interface ApplicationData {
-  details: ApplicantDetails;
+  details: ApplicationDetails;
   formalImage: ApplicantFormalImage;
   educationFile: ApplicantEducationFile;
-  applicantProgrammes: ApplicantProgram[];
+  applicantProgrammePriorities: ProgramPriority[];
   applicantEducationBackgrounds: ApplicantEducationBackground[];
   additionalEducationFiles: ApplicantAdditionalFile[];
+  highestEducationLevel: EducationLevel;
+  programmeList: ProgrammeWithDetails[];
 }
 
 interface ApplicantFormData {
   formData: z.infer<typeof FormSchema>;
-  applicantProgrammes: ApplicantProgram[];
+  applicantProgrammes: ProgramPriority[];
 }
 
 const ImageSchema = z.object({
@@ -670,13 +678,18 @@ const EducationFileSchema = z.object({
 
 export {
   countries,
-  genders,
-  nationalities,
+  EducationFileSchema,
   educationLevel,
   FormSchema,
+  genders,
   ImageSchema,
-  EducationFileSchema,
   maritalStatusOptions,
+  nationalities,
 };
 
-export type { ApplicationData, ApplicantFormData, ApplicantProgram };
+export type {
+  ApplicantFormData,
+  ProgramPriority,
+  ApplicationData,
+  ProgrammeWithDetails,
+};

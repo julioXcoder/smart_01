@@ -1,6 +1,10 @@
 import z from "zod";
 // import { ProgrammeLevel, Origin, EducationLevel } from "@/types/application";
-import { ProgrammeLevel, EducationLevel, Origin } from "@prisma/client";
+import {
+  ProgrammeLevel,
+  EducationLevel,
+  ExaminationType,
+} from "@prisma/client";
 import { IconType } from "react-icons";
 import { ReactNode } from "react";
 import { StaticImageData } from "next/image";
@@ -20,7 +24,7 @@ const applicationTypes: { label: string; value: ProgrammeLevel }[] = [
   { label: "phD", value: "PHD" },
 ];
 
-const applicantOrigins: { label: string; value: Origin }[] = [
+const applicantOrigins: { label: string; value: ExaminationType }[] = [
   { label: "Tanzania - NECTA", value: "NECTA" },
   { label: "NON NECTA - Foreign", value: "FOREIGN" },
   { label: "Tanzania NECTA before 1988", value: "NECTA1988" },
@@ -61,9 +65,6 @@ const indexFormat = z.string().regex(/^[SP]\d{4}\/\d{4}\/\d{4}$/);
 const FormSchema = z
   .object({
     username: z.string().min(1, { message: "username is required" }),
-    firstName: z.string().min(1, { message: "First name is required" }),
-    middleName: z.string().min(1, { message: "Middle name is required" }),
-    lastName: z.string().min(1, { message: "Last name is required" }),
     password: z
       .string()
       .min(8, { message: "Password must be at least 8 characters long" }),
@@ -75,6 +76,16 @@ const FormSchema = z
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
+
+interface NewApplicant {
+  username: string;
+  formIVIndex: string;
+  password: string;
+  latestAcademicYearId: string;
+  origin: ExaminationType;
+  applicationType: ProgrammeLevel;
+  highestEducationLevel: EducationLevel;
+}
 
 export {
   applicationTypes,
@@ -88,7 +99,7 @@ export {
   FormSchema,
   ProgrammeLevel,
   EducationLevel,
-  Origin,
+  ExaminationType,
 };
 
-export type { Step };
+export type { Step, NewApplicant };

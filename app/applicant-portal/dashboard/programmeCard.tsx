@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import mustLogo from "@/public/logo/must.svg";
-import { Programme } from "@/types/draftProgrammes";
+import { ProgrammeWithDetails } from "./data";
 import { getEducationLevel, getProgrammeType } from "@/utils/programme";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
@@ -8,12 +8,11 @@ import Image from "next/image";
 import { MdBook, MdEventNote } from "react-icons/md";
 
 interface Props {
-  programme: Programme;
-  addProgramme: (programme: Programme) => Promise<void>;
-  loading: boolean;
+  programme: ProgrammeWithDetails;
+  addProgramme: (programme: ProgrammeWithDetails) => Promise<void>;
 }
 
-const ProgrammeCard = ({ programme, addProgramme, loading }: Props) => {
+const ProgrammeCard = ({ programme, addProgramme }: Props) => {
   return (
     <div className="group grid grid-cols-12 gap-2 overflow-hidden rounded-lg border bg-white p-4 shadow-md transition hover:shadow-lg dark:border-gray-700 dark:bg-slate-900 dark:shadow-slate-700/[.7]">
       {/* column 1 */}
@@ -29,11 +28,12 @@ const ProgrammeCard = ({ programme, addProgramme, loading }: Props) => {
           </div>
           <p className="font-semibold text-gray-800 dark:text-white">
             {/* <FaUniversity className="mr-2 inline" /> */}
-            {programme.campus.name}
+            {programme.department.college.campus.name}
           </p>
 
           <p className="hidden text-xs capitalize text-gray-500 dark:text-gray-300 md:block">
-            {programme.campus.country}, {programme.campus.location}
+            {programme.department.college.campus.country},{" "}
+            {programme.department.college.campus.location}
           </p>
           <p className="hidden text-xs capitalize text-gray-500 dark:text-gray-300 md:block">
             Department of {programme.department.name}
@@ -105,7 +105,6 @@ const ProgrammeCard = ({ programme, addProgramme, loading }: Props) => {
                 </Button>
                 <Button
                   onClick={() => addProgramme(programme)}
-                  disabled={loading}
                   className="mt-2 w-full"
                 >
                   Apply Now!

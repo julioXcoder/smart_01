@@ -4,12 +4,9 @@ import { Button } from "@/components/ui/button";
 import education from "@/public/online_application/education3.png";
 import select from "@/public/online_application/select3.png";
 import door from "@/public/online_application/welcome5.png";
-import { Step } from "./data";
 // FIXME: Use to fetch applicant form IV data
 // import { getFormIVData } from "../actions";
 import HeadingThree from "@/components/typography/headingThree";
-import { newApplicantAccount } from "@/server/actions/application";
-import { NewApplicant } from "@/server/actions/application/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -29,10 +26,13 @@ import {
   EducationLevel,
   FormSchema,
   mastersEducationLevels,
-  Origin,
+  ExaminationType,
   phdEducationLevels,
   postgraduateDiplomaEducationLevels,
   ProgrammeLevel,
+  NewApplicant,
+  Step,
+  indexFormat,
 } from "./data";
 
 import Application from "./application";
@@ -40,8 +40,13 @@ import Education from "./education";
 import Setup from "./setup";
 import Stepper from "./stepper";
 import Welcome from "./welcome";
+import { newApplicantAccount } from "../actions";
 
-const StepperForm = () => {
+interface Props {
+  latestAcademicYearId: string;
+}
+
+const StepperForm = ({ latestAcademicYearId }: Props) => {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedApplicationType, setSelectedApplicationType] = useState<{
@@ -50,7 +55,7 @@ const StepperForm = () => {
   } | null>(null);
   const [selectedApplicantOrigin, setSelectedApplicantOrigin] = useState<{
     label: string;
-    value: Origin;
+    value: ExaminationType;
   } | null>(null);
   const [selectedEducationLevel, setSelectedEducationLevel] = useState<{
     label: string;
@@ -64,9 +69,6 @@ const StepperForm = () => {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       username: "",
-      firstName: "",
-      middleName: "",
-      lastName: "",
       password: "",
       confirmPassword: "",
     },
@@ -206,6 +208,26 @@ const StepperForm = () => {
         return false;
       }
 
+      if (!formIVIndex) {
+        toast.error(
+          "Kindly provide your Form IV Index Number. It's crucial for us to proceed with your application.",
+          {
+            duration: errorDuration,
+          },
+        );
+        return false;
+      } else {
+        const validate = indexFormat.safeParse(formIVIndex.trim());
+
+        if (!validate.success) {
+          toast.error("Invalid form IV index format format.", {
+            duration: errorDuration,
+          });
+
+          return false;
+        }
+      }
+
       return true;
     };
 
@@ -232,66 +254,11 @@ const StepperForm = () => {
     if (currentStep === 2 && !checkStepTwo()) return;
 
     if (isLastStep) {
-      // form.handleSubmit(onSubmit);
-      toast.success("Submitted!!");
+      form.handleSubmit(onSubmit)();
     } else if (currentStep < pages.length - 1) {
       setCurrentStep(currentStep + 1);
     }
   };
-
-  // const handleNext = async () => {
-  //   if (currentStep === 1) {
-  //     if (!completedOLevel) {
-  //       toast.error("Please confirm if you have completed O Level.", {
-  //         duration: 6000,
-  //       });
-  //       return;
-  //     } else if (completedOLevel === "no") {
-  //       toast.error(
-  //         "Unfortunately, completion of O Level is a requirement for our university. Please check back when you have completed your O Level.",
-  //         {
-  //           duration: 6000,
-  //         },
-  //       );
-  //       return;
-  //     }
-
-  //     if (!selectedApplicantOrigin) {
-  //       toast.error("Please select Origin of Education.", {
-  //         duration: 6000,
-  //       });
-  //       return;
-  //     }
-  //   }
-
-  //   if (currentStep === 2) {
-  //     if (!selectedApplicationType) {
-  //       toast.error("Please select an application type.", {
-  //         duration: 6000,
-  //       });
-  //       return;
-  //     }
-
-  //     if (!selectedEducationLevel) {
-  //       toast.error(
-  //         "Please select your highest level of education to proceed.",
-  //         {
-  //           duration: 6000,
-  //         },
-  //       );
-  //       return;
-  //     }
-  //   }
-
-  //   if (isLastStep) {
-  //     form.handleSubmit(onSubmit);
-  //     return;
-  //   } else {
-  //     if (currentStep < pages.length - 1) {
-  //       setCurrentStep(currentStep + 1);
-  //     }
-  //   }
-  // };
 
   // FIXME: Check for formIV index
   // if (currentStep === 6) {
@@ -353,6 +320,7 @@ const StepperForm = () => {
       highestEducationLevel,
       applicationType,
       formIVIndex,
+      latestAcademicYearId,
     };
 
     const response = await newApplicantAccount(newApplicantData);
@@ -382,11 +350,11 @@ const StepperForm = () => {
 
         <div className="mt-5 grid gap-8 lg:relative lg:grid-cols-2 lg:items-center lg:justify-center">
           {isLastStep ? (
-            <div className="rounded-lg bg-white shadow-md dark:bg-gray-900">
+            <div className="hidden rounded-lg bg-white shadow-md dark:bg-gray-900 lg:block">
               <h2 className="border-b border-gray-200 py-4 text-2xl font-semibold dark:border-gray-800 md:px-6">
                 Account Creation
               </h2>
-              <div className="md:p-6">
+              <div className="hidden p-6 lg:block">
                 <p>
                   Almost there! Now, let’s create your account. This will be
                   your gateway to complete the application process and beyond.

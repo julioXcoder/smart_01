@@ -6,7 +6,6 @@ import moment from "moment-timezone";
 import { revalidatePath } from "next/cache";
 import { getSession, setSession } from "@/lib";
 import { redirect } from "next/navigation";
-import { ApplicantProgram } from "./data";
 import { ApplicantFormData } from "./data";
 // import { utapi } from "@/server/uploadthing";
 import { logError } from "@/utils/logger";
@@ -29,12 +28,15 @@ export async function getApplicationDetails() {
       username: applicantUsername,
     },
     include: {
-      details: true,
+      details: {
+        include: {
+          applicantProgrammePriorities: { include: { programme: true } },
+          educationBackgrounds: true,
+          additionalEducationFiles: true,
+          educationFile: true,
+        },
+      },
       formalImage: true,
-      educationFile: true,
-      applicantProgrammes: { include: { programme: true } },
-      educationBackgrounds: true,
-      additionalEducationFiles: true,
     },
   });
 
@@ -44,20 +46,35 @@ export async function getApplicationDetails() {
     );
   }
 
-  const {
-    educationBackgrounds,
-    additionalEducationFiles,
-    educationFile,
-    details,
-    formalImage,
-    applicantProgrammes,
-  } = applicantData;
+  const programmes = await prisma.programme.findMany({
+    where: {
+      level: applicantData.applicationType,
+    },
+    include: {
+      department: {
+        include: {
+          college: {
+            include: { campus: true },
+          },
+        },
+      },
+    },
+  });
 
-  if (!educationFile || !details || !formalImage) {
+  const { formalImage, details } = applicantData;
+
+  if (!details || !formalImage) {
     throw new Error(
       `Unable to locate the applicant details for the applicant with the username: ${applicantUsername}.`,
     );
   }
+
+  const {
+    educationBackgrounds,
+    additionalEducationFiles,
+    applicantProgrammePriorities,
+    educationFile,
+  } = details;
 
   const applicantEducationBackgrounds = educationBackgrounds.map((item) => {
     const { id, ...rest } = item;
@@ -68,14 +85,16 @@ export async function getApplicationDetails() {
     details,
     formalImage,
     educationFile,
-    applicantProgrammes,
     additionalEducationFiles,
+    programmeList: programmes,
     applicantEducationBackgrounds,
+    applicantProgrammePriorities,
+    highestEducationLevel: applicantData.highestEducationLevel,
   };
 }
 
 export async function deleteApplicantProgramme(id: string) {
-  await prisma.applicantProgrammes.delete({
+  await prisma.applicantProgrammePriority.delete({
     where: {
       id,
     },
@@ -194,9 +213,9 @@ export const addApplicantAdditionalFile = async (
 
   await prisma.applicantAdditionalFile.create({
     data: {
-      applicant: {
+      applicationDetails: {
         connect: {
-          username: applicantUsername,
+          applicantUsername,
         },
       },
       url: applicantEducationFileData.url,
@@ -218,9 +237,9 @@ export const addApplicantEducationBackground = async (position: number) => {
 
   const newEducation = await prisma.applicantEducationBackground.create({
     data: {
-      applicant: {
+      applicationDetails: {
         connect: {
-          username: applicantUsername,
+          applicantUsername,
         },
       },
       position,
@@ -248,7 +267,7 @@ export const generateControlNumber = async () => {
 
   const controlNumberString = controlNumber.toString();
 
-  await prisma.applicantDetails.update({
+  await prisma.applicationDetails.update({
     where: { applicantUsername },
     data: {
       controlNumber: controlNumberString,
@@ -263,11 +282,11 @@ export const saveApplicationData = async (
 ) => {
   const { id: applicantUsername } = await getPayload();
 
-  await prisma.applicantDetails.update({
+  await prisma.applicationDetails.update({
     where: {
       applicantUsername,
     },
-    data: applicantFormData,
+    data: applicantFormData.formData,
   });
 
   for (const educationBackground of applicantFormData.formData.education) {
@@ -284,7 +303,7 @@ export const saveApplicationData = async (
   }
 
   for (const programme of applicantFormData.applicantProgrammes) {
-    await prisma.applicantProgrammes.update({
+    await prisma.applicantProgrammePriority.update({
       where: { id: programme.id },
       data: {
         priority: programme.priority,
@@ -299,14 +318,42 @@ export const saveApplicationData = async (
 export const submitApplicantApplication = async () => {
   const { id: applicantUsername } = await getPayload();
 
-  await prisma.applicantDetails.update({
+  const now = new Date();
+
+  await prisma.applicationDetails.update({
     where: {
       applicantUsername,
     },
     data: {
-      status: "UNDER_REVIEW",
+      applicationStatus: "UNDER_REVIEW",
+      submittedAt: now,
     },
   });
 
   revalidatePath(baseUrl);
+};
+
+export const addApplicantProgrammePriority = async (
+  programmeCode: string,
+  priority: number,
+) => {
+  const { id: applicantUsername } = await getPayload();
+
+  const newProgramme = await prisma.applicantProgrammePriority.create({
+    data: {
+      priority,
+      programme: {
+        connect: {
+          code: programmeCode,
+        },
+      },
+      applicationDetails: {
+        connect: {
+          applicantUsername,
+        },
+      },
+    },
+  });
+
+  return newProgramme;
 };

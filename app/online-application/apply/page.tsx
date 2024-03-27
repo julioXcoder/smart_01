@@ -1,9 +1,12 @@
+import { getApplicationPeriodStatus } from "../actions";
 import StepperForm from "./stepperForm";
 
-const Page = () => {
+const Page = async () => {
+  const data = await getApplicationPeriodStatus();
+
   return (
     <div>
-      <StepperForm />
+      <StepperForm latestAcademicYearId={data.latestAcademicYearId} />
     </div>
   );
 };

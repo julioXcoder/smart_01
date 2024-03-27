@@ -30,6 +30,7 @@ import {
   FaUser,
 } from "react-icons/fa6";
 import { MdOutlineAccessTime } from "react-icons/md";
+import { Programme } from "@prisma/client";
 import z from "zod";
 import Contacts from "./contacts";
 import {
@@ -38,6 +39,7 @@ import {
   EducationFileSchema,
   FormSchema,
   ImageSchema,
+  ProgrammeWithDetails,
 } from "./data";
 import DraftTabs from "./draftTabs";
 import Education from "./education";
@@ -45,6 +47,7 @@ import EmergencyContact from "./emergencyContact";
 import Payment from "./payment";
 import Priorities from "./priorities";
 import Profile from "./profile";
+import ProgrammeListing from "./programmeListing";
 
 import { UploadFileResponse } from "@/types/uploadthing";
 import { ApplicantFormalImage, ApplicantAdditionalFile } from "@prisma/client";
@@ -58,6 +61,7 @@ import {
   deleteApplicantProgramme,
   saveApplicationData,
   submitApplicantApplication,
+  addApplicantProgrammePriority,
 } from "./actions";
 
 interface Props {
@@ -69,12 +73,9 @@ const Draft = ({ data }: Props) => {
     details: {
       firstName,
       alternativeEmail,
-      academicYearId,
       alternativePhone,
-      applicantUsername,
       city,
       country,
-      createdAt,
       dateOfBirth,
       email,
       disability,
@@ -89,37 +90,33 @@ const Draft = ({ data }: Props) => {
       emergencyAlternativePhone,
       emergencyRegion,
       emergencyStreetAddress,
-      formIVIndex,
       gender,
-      highestEducationLevel,
       lastName,
       maritalStatus,
       middleName,
       nationality,
       nida,
-      origin,
       phone,
       placeOfBirth,
       postalCode,
       region,
-      status,
       streetAddress,
       paymentStatus,
-      submittedAt,
       emergencyRelation,
-      type,
     },
     formalImage,
     educationFile,
-    applicantProgrammes,
+    applicantProgrammePriorities,
     additionalEducationFiles,
     applicantEducationBackgrounds: education,
+    programmeList,
   } = data;
 
   const [isSaved, setIsSaved] = useState(true);
-
-  const [programmePriorities, setProgrammePriorities] =
-    useState(applicantProgrammes);
+  const [showProgrammes, setShowProgrammes] = useState(false);
+  const [programmePriorities, setProgrammePriorities] = useState(
+    applicantProgrammePriorities,
+  );
   const [programmePrioritiesErrorMessage, setProgrammePrioritiesErrorMessage] =
     useState("");
 
@@ -134,7 +131,7 @@ const Draft = ({ data }: Props) => {
 
   useEffect(() => {
     const initialState = {
-      programmePriorities: applicantProgrammes,
+      programmePriorities: applicantProgrammePriorities,
     };
 
     const currentState = {
@@ -146,7 +143,7 @@ const Draft = ({ data }: Props) => {
     } else {
       setIsSaved(false);
     }
-  }, [applicantProgrammes, programmePriorities]);
+  }, [applicantProgrammePriorities, programmePriorities]);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -278,6 +275,77 @@ const Draft = ({ data }: Props) => {
   ]);
 
   // Priorities
+
+  const addProgramme = useCallback(
+    async (programme: ProgrammeWithDetails) => {
+      const hasDuplicateProgrammeCode = programmePriorities.some(
+        (programmePriority) =>
+          programmePriority.programmeCode === programme.code,
+      );
+
+      if (hasDuplicateProgrammeCode) {
+        toast.error("Programme already added. Please pick a different one.", {
+          duration: 6000,
+        });
+        return;
+      }
+
+      const programmesLength = programmePriorities.length;
+
+      if (programmesLength >= 5) {
+        toast.error("Max programmes reached you cant add anymore programmes.", {
+          duration: 6000,
+        });
+        return;
+      }
+
+      // Optimistically update the state
+      const tempId = (programmePriorities.length + 1).toString(); // Generate a temporary ID based on the
+
+      setProgrammePriorities((prevProgrammes) => [
+        ...prevProgrammes,
+        {
+          id: tempId,
+          programmeCode: programme.code,
+          priority: prevProgrammes.length + 1,
+          programme,
+        },
+      ]);
+
+      setShowProgrammes(false);
+
+      // Then perform the server operation
+      const responsePromise = addApplicantProgrammePriority(
+        programme.code,
+        programmesLength + 1,
+      );
+
+      toast.promise(responsePromise, {
+        loading: "Adding programme...",
+        success: <b>Programme added!</b>,
+        error: <b>Unfortunately, the programme could not be added.</b>,
+      });
+
+      const newProgramme = await responsePromise.catch((error) => {
+        // If the server operation fails, revert the optimistic update
+        setProgrammePriorities((prevProgrammes) =>
+          prevProgrammes.filter((programme) => programme.id !== tempId),
+        );
+        logError(error);
+      });
+
+      if (newProgramme) {
+        setProgrammePriorities((prevProgrammes) =>
+          prevProgrammes.map((programme) =>
+            programme.id === tempId
+              ? { ...programme, id: newProgramme.id }
+              : programme,
+          ),
+        );
+      }
+    },
+    [programmePriorities],
+  );
 
   const moveUp = useCallback(
     (index: number) => {
@@ -772,6 +840,14 @@ const Draft = ({ data }: Props) => {
 
   // Education
 
+  const handleShowProgrammeListing = () => {
+    setShowProgrammes(true);
+  };
+
+  const handleCloseProgrammeListing = () => {
+    setShowProgrammes(false);
+  };
+
   const reorderPriorities = () => {
     const prevProgrammes = [...programmePriorities];
 
@@ -914,6 +990,7 @@ const Draft = ({ data }: Props) => {
           isSubmitting={isSubmitting}
           applicantProgrammes={programmePriorities}
           onMoveUp={moveUp}
+          openListing={handleShowProgrammeListing}
           programmePrioritiesErrorMessage={programmePrioritiesErrorMessage}
           onMoveDown={moveDown}
           onDelete={deleteProgramme}
@@ -972,7 +1049,7 @@ const Draft = ({ data }: Props) => {
           onFileRemove={handleEducationFileRemove}
           onAdditionalFileUpdate={handleAdditionalFileChange}
           onAdditionalFileRemove={handleAdditionalFileRemove}
-          applicantHighestEducation={highestEducationLevel}
+          applicantHighestEducation={data.highestEducationLevel}
           uploadingFile={uploadingFile}
           form={form}
         />
@@ -994,69 +1071,87 @@ const Draft = ({ data }: Props) => {
 
   return (
     <div className="w-full">
-      <Form {...form}>
-        <DraftTabs tabs={tabs} />
-      </Form>
+      {showProgrammes ? (
+        <ProgrammeListing
+          programmes={programmeList}
+          handleAddApplicantProgramme={addProgramme}
+          closeListing={handleCloseProgrammeListing}
+        />
+      ) : (
+        <>
+          <Form {...form}>
+            <DraftTabs tabs={tabs} />
+          </Form>
 
-      <div className="w-full">
-        <Button
-          className="mt-2 w-full"
-          variant="secondary"
-          onClick={() => handleSaveAsDraft({})}
-          disabled={isSubmitting || draftSaving}
-        >
-          <span className="flex items-center gap-2">
-            <MdOutlineAccessTime className="h-4 w-4 shrink-0" />
-            Save as Draft
-          </span>
-        </Button>
-
-        <AlertDialog>
-          <AlertDialogTrigger disabled={isSubmitting || draftSaving} asChild>
-            <Button className="mt-2 w-full">
+          <div className="w-full">
+            <Button
+              className="mt-2 w-full"
+              variant="secondary"
+              onClick={() => handleSaveAsDraft({})}
+              disabled={isSubmitting || draftSaving}
+            >
               <span className="flex items-center gap-2">
-                <FaPaperPlane className="h-4 w-4 shrink-0" />
-                Submit Application
+                <MdOutlineAccessTime className="h-4 w-4 shrink-0" />
+                Save as Draft
               </span>
             </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                {paymentStatus === "SUCCESS" ? (
-                  <>Application Submission Confirmation</>
-                ) : (
-                  <> Payment Required</>
-                )}
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                {paymentStatus === "SUCCESS" ? (
-                  <>
-                    {" "}
-                    Please review your information carefully before submitting.
-                    Are you sure all the information is correct?
-                  </>
-                ) : (
-                  <>
-                    Please complete your payment of 10,000 Tanzanian Shillings
-                    before proceeding with your application. Thank you.
-                  </>
-                )}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>
-                {paymentStatus === "SUCCESS" ? <>Review Again</> : <>Close</>}
-              </AlertDialogCancel>
-              {paymentStatus === "SUCCESS" && (
-                <AlertDialogAction onClick={handleSubmitApplication}>
-                  Confirm and Submit
-                </AlertDialogAction>
-              )}
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
+
+            <AlertDialog>
+              <AlertDialogTrigger
+                disabled={isSubmitting || draftSaving}
+                asChild
+              >
+                <Button className="mt-2 w-full">
+                  <span className="flex items-center gap-2">
+                    <FaPaperPlane className="h-4 w-4 shrink-0" />
+                    Submit Application
+                  </span>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    {paymentStatus === "SUCCESS" ? (
+                      <>Application Submission Confirmation</>
+                    ) : (
+                      <> Payment Required</>
+                    )}
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {paymentStatus === "SUCCESS" ? (
+                      <>
+                        {" "}
+                        Please review your information carefully before
+                        submitting. Are you sure all the information is correct?
+                      </>
+                    ) : (
+                      <>
+                        Please complete your payment of 10,000 Tanzanian
+                        Shillings before proceeding with your application. Thank
+                        you.
+                      </>
+                    )}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>
+                    {paymentStatus === "SUCCESS" ? (
+                      <>Review Again</>
+                    ) : (
+                      <>Close</>
+                    )}
+                  </AlertDialogCancel>
+                  {paymentStatus === "SUCCESS" && (
+                    <AlertDialogAction onClick={handleSubmitApplication}>
+                      Confirm and Submit
+                    </AlertDialogAction>
+                  )}
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </>
+      )}
     </div>
   );
 };

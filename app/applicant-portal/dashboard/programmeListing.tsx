@@ -1,40 +1,27 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
-import { addApplicantProgrammePriority } from "@/server/actions/application";
-import { ProgrammeLevel } from "@/types/application";
-import { Programme } from "@/types/draftProgrammes";
+import { ProgrammeWithDetails } from "./data";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { ChangeEvent, useState } from "react";
 import toast from "react-hot-toast";
 import { MdArrowBack } from "react-icons/md";
 import ProgrammeCard from "./programmeCard";
 
-const levels: ProgrammeLevel[] = [
-  "CERTIFICATE",
-  "DIPLOMA",
-  "BACHELOR",
-  "MASTERS",
-  "PHD",
-];
-
 interface Props {
-  programmes: Programme[] | null;
-  applicantApplicationId: string;
-  onGotoItem: (itemIndex: number) => void;
-  handleAddApplicantProgramme: (programme: Programme) => Promise<void>;
+  programmes: ProgrammeWithDetails[] | null;
+  handleAddApplicantProgramme: (
+    programme: ProgrammeWithDetails,
+  ) => Promise<void>;
+  closeListing: () => void;
 }
 
-const Programmes = ({
+const ProgrammeListing = ({
   programmes,
-  applicantApplicationId,
-  onGotoItem,
   handleAddApplicantProgramme,
+  closeListing,
 }: Props) => {
-  const [loading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filteredProgrammes, setFilteredProgrammes] = useState<
-    Programme[] | null
+    ProgrammeWithDetails[] | null
   >(programmes);
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -73,7 +60,7 @@ const Programmes = ({
           </div>
           <div>
             <div className="inline-flex gap-x-2">
-              <Button onClick={() => onGotoItem(0)} variant={"outline"}>
+              <Button onClick={closeListing} variant={"outline"}>
                 <MdArrowBack className="mr-1 h-4 w-4 shrink-0" />
                 Return to Edit
               </Button>
@@ -85,7 +72,6 @@ const Programmes = ({
           {filteredProgrammes?.map((programme, index) => (
             <ProgrammeCard
               addProgramme={handleAddApplicantProgramme}
-              loading={loading}
               key={index}
               programme={programme}
             />
@@ -98,4 +84,4 @@ const Programmes = ({
   return <div>No Programmes available!</div>;
 };
 
-export default Programmes;
+export default ProgrammeListing;

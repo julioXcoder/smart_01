@@ -6,7 +6,7 @@ import { FaUniversity } from "react-icons/fa";
 import { FiArrowDown, FiArrowUp, FiTrash2 } from "react-icons/fi";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { IoWarning, IoChatbubblesSharp } from "react-icons/io5";
-import { ApplicantProgram } from "./data";
+import { ProgramPriority } from "./data";
 import { getEducationLevel } from "@/utils/programme";
 import { useRouter } from "next/navigation";
 
@@ -24,13 +24,14 @@ import {
 import { IoSearch } from "react-icons/io5";
 
 interface Props {
-  applicantProgrammes: ApplicantProgram[];
+  applicantProgrammes: ProgramPriority[];
   onMoveUp: (index: number) => void;
   onMoveDown: (index: number) => void;
   onDelete: (index: number) => void;
   programmePrioritiesErrorMessage: string;
   draftSaving: boolean;
   isSubmitting: boolean;
+  openListing: () => void;
 }
 
 const Priorities = ({
@@ -41,6 +42,7 @@ const Priorities = ({
   programmePrioritiesErrorMessage,
   draftSaving,
   isSubmitting,
+  openListing,
 }: Props) => {
   const router = useRouter();
 
@@ -173,7 +175,7 @@ const Priorities = ({
         <Button
           disabled={isSubmitting || draftSaving}
           className="bg-green-500 hover:bg-green-600"
-          onClick={() => handleNavigation("applicant-portal/programmes")}
+          onClick={openListing}
         >
           <IoSearch className="mr-2 h-4 w-4 shrink-0" /> search{" "}
           <span
