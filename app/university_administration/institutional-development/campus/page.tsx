@@ -1,22 +1,21 @@
 import HeadingOne from "@/components/typography/headingOne";
 import Muted from "@/components/typography/muted";
-import { IoMdAdd } from "react-icons/io";
-import { Button } from "@/components/ui/button";
+import Add from "./add";
+import { getCampuses } from "./actions";
 import DataTable from "./dataTable";
-import { columns, campuses } from "./columns";
+import { columns } from "./columns";
 
-const Page = () => {
+const Page = async () => {
+  const campuses = await getCampuses();
+
   return (
     <div>
-      {" "}
       <div className="flex w-full items-center justify-between">
         <div>
           <HeadingOne>Campus Lists</HeadingOne>
-          <Muted>There are a total of 2 campuses.</Muted>
+          <Muted>{`There are a total of ${campuses.length} campuses.`}</Muted>
         </div>
-        <Button variant="default" size="icon">
-          <IoMdAdd className="size-6 flex-shrink-0" />
-        </Button>
+        <Add />
       </div>
       <div className="container mx-auto py-10">
         <DataTable columns={columns} data={campuses} />

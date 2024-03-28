@@ -12,20 +12,25 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 import moment from "moment";
 import { MdOutlineMoreHoriz } from "react-icons/md";
+import { Department } from "@prisma/client";
 
-export type Department = {
-  name: string;
-  college: string;
-};
+interface DepartmentData extends Department {
+  collegeName: string;
+  campusName: string;
+}
 
-export const columns: ColumnDef<Department>[] = [
+export const columns: ColumnDef<DepartmentData>[] = [
   {
     accessorKey: "name",
     header: "Department Name",
   },
   {
-    accessorKey: "college",
+    accessorKey: "collegeName",
     header: "College Name",
+  },
+  {
+    accessorKey: "campusName",
+    header: "Campus Name",
   },
   {
     id: "actions",
@@ -49,12 +54,5 @@ export const columns: ColumnDef<Department>[] = [
         </DropdownMenu>
       );
     },
-  },
-];
-
-export const departments: Department[] = [
-  {
-    name: "Computer science and engineering",
-    college: "Engineering and technology",
   },
 ];

@@ -12,12 +12,13 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 import moment from "moment";
 import { MdOutlineMoreHoriz } from "react-icons/md";
+import { Campus } from "@prisma/client";
 
-export type Campus = {
-  name: string;
-  location: string;
-  country: string;
-};
+// export type Campus = {
+//   name: string;
+//   location: string;
+//   country: string;
+// };
 
 export const columns: ColumnDef<Campus>[] = [
   {
@@ -48,8 +49,7 @@ export const columns: ColumnDef<Campus>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            <DropdownMenuItem>Edit Campus</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -59,11 +59,3 @@ export const columns: ColumnDef<Campus>[] = [
 
 const date = new Date(); // Use your date here
 const formattedDate = moment(date).format("DD MMM YYYY");
-
-export const campuses: Campus[] = [
-  {
-    name: "Mbeya University of Science and Technology",
-    country: "Tanzania",
-    location: "Mbeya",
-  },
-];

@@ -16,13 +16,18 @@ interface Step {
   image?: StaticImageData;
 }
 
-const applicationTypes: { label: string; value: ProgrammeLevel }[] = [
-  { label: "Certificate", value: "CERTIFICATE" },
-  { label: "Diploma", value: "DIPLOMA" },
-  { label: "Postgraduate Diploma", value: "BACHELOR" },
-  { label: "Masters", value: "MASTERS" },
-  { label: "phD", value: "PHD" },
-];
+// const applicationTypes: { label: string; value: ProgrammeLevel }[] = [
+//   { label: "Certificate", value: "CERTIFICATE" },
+//   { label: "Diploma", value: "DIPLOMA" },
+//   { label: "Postgraduate Diploma", value: "BACHELOR" },
+//   { label: "Masters", value: "MASTERS" },
+//   { label: "phD", value: "PHD" },
+// ];
+
+const applicationTypes = Object.keys(ProgrammeLevel).map((key) => ({
+  label: key.charAt(0) + key.slice(1).toLowerCase(),
+  value: ProgrammeLevel[key as keyof typeof ProgrammeLevel],
+}));
 
 const applicantOrigins: { label: string; value: ExaminationType }[] = [
   { label: "Tanzania - NECTA", value: "NECTA" },
