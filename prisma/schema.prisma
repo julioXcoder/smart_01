@@ -287,12 +287,11 @@ model ResidenceRoomImage {
 //UNIVERSITY HIERARCHY
 
 model Campus {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  location  String
-  shortHand String
-  country   String
-  colleges  College[]
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  location String
+  country  String
+  colleges College[]
 }
 
 model College {
@@ -321,7 +320,6 @@ model Programme {
   departmentId                 String                       @db.ObjectId
   department                   Department                   @relation(fields: [departmentId], references: [id])
   tuitionFee                   Float
-  applicationFee               Float
   qualification                String
   availability                 Boolean                      @default(true)
   applicantProgrammePriorities ApplicantProgrammePriority[]
