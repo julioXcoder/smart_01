@@ -40,7 +40,12 @@ export async function getApplicationDetails() {
     },
   });
 
-  if (!applicantData) {
+  if (
+    !applicantData ||
+    !applicantData.details ||
+    !applicantData.formalImage ||
+    !applicantData.details.educationFile
+  ) {
     throw new Error(
       `Unable to locate the applicant details for the applicant with the username: ${applicantUsername}.`,
     );
@@ -61,20 +66,15 @@ export async function getApplicationDetails() {
     },
   });
 
-  const { formalImage, details } = applicantData;
-
-  if (!details || !formalImage) {
-    throw new Error(
-      `Unable to locate the applicant details for the applicant with the username: ${applicantUsername}.`,
-    );
-  }
-
   const {
-    educationBackgrounds,
-    additionalEducationFiles,
-    applicantProgrammePriorities,
-    educationFile,
-  } = details;
+    formalImage,
+    details: {
+      educationBackgrounds,
+      additionalEducationFiles,
+      applicantProgrammePriorities,
+      educationFile,
+    },
+  } = applicantData;
 
   const applicantEducationBackgrounds = educationBackgrounds.map((item) => {
     const { id, ...rest } = item;
@@ -82,7 +82,7 @@ export async function getApplicationDetails() {
   });
 
   return {
-    details,
+    details: applicantData.details,
     formalImage,
     educationFile,
     additionalEducationFiles,

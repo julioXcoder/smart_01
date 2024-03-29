@@ -3,23 +3,24 @@ import Draft from "./draft";
 
 const Page = async () => {
   const data = await getApplicationDetails();
+
   const {
-    details: { status },
+    details: { applicationStatus },
   } = data;
 
-  if (status === "ACCEPTED") {
+  if (applicationStatus === "ACCEPTED") {
     return <div>ACCEPTED card</div>;
   }
 
-  if (status === "REJECTED") {
+  if (applicationStatus === "REJECTED") {
     return <div>REJECTED card</div>;
   }
 
-  if (status === "UNDER_REVIEW") {
+  if (applicationStatus === "UNDER_REVIEW") {
     return <div>UNDER_REVIEW card</div>;
   }
 
-  if (status === "DRAFT") {
+  if (applicationStatus === "DRAFT") {
     return <Draft data={data} />;
   }
 };

@@ -21,7 +21,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { authorizeApplicant } from "@/server/actions/application";
+import { authorizeApplicant } from "./actions";
 
 const FormSchema = z.object({
   username: z.string().min(1, {
