@@ -1,6 +1,6 @@
-import Appbar from "@/components/applicant/appbar";
 import MainContent from "@/components/layout/mainContent";
 import { ReactNode } from "react";
+import Appbar from "@/components/layout/appbar";
 
 interface Props {
   children: ReactNode;
@@ -9,7 +9,7 @@ interface Props {
 const Layout = ({ children }: Props) => {
   return (
     <div>
-      <Appbar username="julioXcoder" />
+      <Appbar username="julioXcoder" imageUrl="" />
 
       {children}
     </div>

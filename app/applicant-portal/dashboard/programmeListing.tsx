@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { ProgrammeWithDetails } from "./data";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { ChangeEvent, useState } from "react";
-import toast from "react-hot-toast";
 import { MdArrowBack } from "react-icons/md";
+import { ProgrammeWithDetails } from "./data";
 import ProgrammeCard from "./programmeCard";
 
 interface Props {

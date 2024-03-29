@@ -3,17 +3,17 @@ import prisma from "@/prisma/db";
 import ResidenceManagerForm from "./residenceManagerForm";
 
 const Page = async () => {
-  async function getResidenceNames() {
-    "use server";
+  // async function getResidenceNames() {
+  //   "use server";
 
-    const residenceNames = await prisma.residenceManager.findMany({
-      select: { residenceName: true },
-    });
+  //   const residenceNames = await prisma.residenceManager.findMany({
+  //     select: { namr },
+  //   });
 
-    return residenceNames;
-  }
+  //   return residenceNames;
+  // }
 
-  const residenceNames = await getResidenceNames();
+  // const residenceNames = await getResidenceNames();
 
   return (
     <div className="p-2">
@@ -24,9 +24,9 @@ const Page = async () => {
               Residence List
             </h1>
             <ul className="max-w-md list-inside list-disc space-y-1 text-gray-500 dark:text-gray-400">
-              {residenceNames.map((item, index) => (
+              {/* {residenceNames.map((item, index) => (
                 <li key={index}>{item.residenceName}</li>
-              ))}
+              ))} */}
             </ul>
           </div>
           <div className="mx-auto max-w-4xl p-3">

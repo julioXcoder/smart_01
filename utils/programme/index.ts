@@ -1,5 +1,4 @@
-import { ProgrammeLevel } from "@/types/application";
-import { ProgrammeType } from "@prisma/client";
+import { ProgrammeType, ProgrammeLevel } from "@prisma/client";
 
 function getProgrammeType(type: ProgrammeType): string {
   switch (type) {

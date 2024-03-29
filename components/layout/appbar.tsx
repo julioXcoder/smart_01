@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Logo from "@/components/logo";
 import Notifications from "@/components/notifications";
 import Profile from "./profile";
-import { ApplicantNotification } from "@/types/application";
+import { ApplicantNotification } from "@prisma/client";
 
 interface Props {
   fullName?: string;

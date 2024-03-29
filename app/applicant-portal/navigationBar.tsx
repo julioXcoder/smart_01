@@ -26,7 +26,7 @@ const NavigationBar = ({ status }: Props) => {
       ? [
           {
             title: "programmes",
-            path: "/applicant-portal/programmes",
+            path: "",
             Icon: FaMagnifyingGlass,
           },
         ]

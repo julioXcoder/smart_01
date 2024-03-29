@@ -4,14 +4,12 @@ import { useState, useEffect } from "react";
 import Logo from "@/components/logo";
 import Notifications from "@/components/notifications";
 import Profile from "./profile";
-import { ApplicantNotification } from "@/types/application";
 
 interface Props {
   username: string;
-  notifications?: ApplicantNotification[];
 }
 
-const Appbar = ({ notifications, username }: Props) => {
+const Appbar = ({ username }: Props) => {
   const [show, setShow] = useState(true);
   const [scrollPos, setScrollPos] = useState(0);
 
@@ -45,9 +43,6 @@ const Appbar = ({ notifications, username }: Props) => {
           <div className="flex items-center">
             <div className="ml-3 flex items-center">
               <div className="flex items-center gap-3">
-                {notifications && (
-                  <Notifications value={notifications.length} />
-                )}
                 <Profile username={username} />
               </div>
             </div>

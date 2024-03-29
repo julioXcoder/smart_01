@@ -34,7 +34,7 @@ const Page = () => {
     {
       label: "Pre-Arrival Preparations",
       Icon: FaClipboardList,
-      content: <Prepare />,
+      content: <>Prepare</>,
     },
     {
       label: "Arrival and Orientation",

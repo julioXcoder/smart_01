@@ -94,9 +94,6 @@ const ProgrammeCard = ({ programme, addProgramme }: Props) => {
                   31 Aug 2024,23:59:59
                   <div>East Africa Time (EAT)</div>
                 </div>
-                <p className="text-sm text-gray-500 dark:text-gray-300">
-                  Application fee: {programme.applicationFee}
-                </p>
               </div>
               <div>
                 <Button variant="secondary" className="mt-2 w-full md:hidden">

@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { ApplicantImageData } from "@/types/application";
+import { ApplicantFormalImage } from "@prisma/client";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
 import Link from "next/link";
@@ -53,7 +53,7 @@ interface Props {
   onImageDelete: () => void;
   imagePreview: string | null;
   imageErrorMessage: string;
-  applicantImageData: ApplicantImageData;
+  applicantImageData: ApplicantFormalImage;
   uploadingImage: boolean;
   draftSaving: boolean;
   isSubmitting: boolean;
