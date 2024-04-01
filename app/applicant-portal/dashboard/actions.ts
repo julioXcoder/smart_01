@@ -9,16 +9,9 @@ import { redirect } from "next/navigation";
 import { ApplicantFormData } from "./data";
 // import { utapi } from "@/server/uploadthing";
 import { logError } from "@/utils/logger";
+import { getPayload } from "../actions";
 
 const baseUrl = "/applicant-portal/dashboard";
-
-export const getPayload = async () => {
-  const payload = await getSession();
-
-  if (!payload) redirect("/auth/applicant");
-
-  return payload;
-};
 
 export async function getApplicationDetails() {
   const { id: applicantUsername } = await getPayload();
@@ -82,6 +75,7 @@ export async function getApplicationDetails() {
   });
 
   return {
+    applicationType: applicantData.applicationType,
     details: applicantData.details,
     formalImage,
     educationFile,
@@ -282,14 +276,16 @@ export const saveApplicationData = async (
 ) => {
   const { id: applicantUsername } = await getPayload();
 
+  const { education, ...rest } = applicantFormData.formData;
+
   await prisma.applicationDetails.update({
     where: {
       applicantUsername,
     },
-    data: applicantFormData.formData,
+    data: rest,
   });
 
-  for (const educationBackground of applicantFormData.formData.education) {
+  for (const educationBackground of education) {
     await prisma.applicantEducationBackground.update({
       where: { id: educationBackground._id },
       data: {

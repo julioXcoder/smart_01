@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Tab } from "@/types";
+import useScrollListener from "@/hooks/useScrollListener";
 import { logError } from "@/utils/logger";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { isEqual } from "lodash";
@@ -128,6 +129,8 @@ const Draft = ({ data }: Props) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadingImage, setIsUploadingImage] = useState(false);
   const [uploadingFile, setIsUploadingFile] = useState(false);
+
+  const showOnScroll = useScrollListener();
 
   useEffect(() => {
     const initialState = {
@@ -933,6 +936,7 @@ const Draft = ({ data }: Props) => {
     await responsePromise.catch((error) => {
       logError(error);
 
+      setDraftSaving(false);
       throw error;
     });
     setDraftSaving(false);
@@ -1079,13 +1083,19 @@ const Draft = ({ data }: Props) => {
         />
       ) : (
         <>
-          <Form {...form}>
-            <DraftTabs tabs={tabs} />
-          </Form>
+          <div className="mb-24">
+            <Form {...form}>
+              <DraftTabs tabs={tabs} />
+            </Form>
+          </div>
 
-          <div className="w-full">
+          <div
+            className={`fixed left-0 flex w-full items-center gap-2 px-2 md:static md:mt-0 md:flex-col md:px-0 ${
+              showOnScroll ? "bottom-14" : "bottom-2"
+            }`}
+          >
             <Button
-              className="mt-2 w-full"
+              className="w-1/3 md:w-full"
               variant="secondary"
               onClick={() => handleSaveAsDraft({})}
               disabled={isSubmitting || draftSaving}
@@ -1101,7 +1111,7 @@ const Draft = ({ data }: Props) => {
                 disabled={isSubmitting || draftSaving}
                 asChild
               >
-                <Button className="mt-2 w-full">
+                <Button className="flex flex-grow md:w-full md:flex-grow-0">
                   <span className="flex items-center gap-2">
                     <FaPaperPlane className="h-4 w-4 shrink-0" />
                     Submit Application

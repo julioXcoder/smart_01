@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { FaCalendar } from "react-icons/fa";
 import { FaHeadset, FaMagnifyingGlass } from "react-icons/fa6";
 import { FiList } from "react-icons/fi";
+import useScrollListener from "@/hooks/useScrollListener";
 import { MdHotel } from "react-icons/md";
 
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
 
 const NavigationBar = ({ status }: Props) => {
   const pathname = usePathname();
+  const showOnScroll = useScrollListener();
 
   const links: Path[] = [
     {
@@ -22,15 +24,15 @@ const NavigationBar = ({ status }: Props) => {
       path: "/applicant-portal/dashboard",
       Icon: FiList,
     },
-    ...(status === "DRAFT"
-      ? [
-          {
-            title: "programmes",
-            path: "",
-            Icon: FaMagnifyingGlass,
-          },
-        ]
-      : []),
+    // ...(status === "DRAFT"
+    //   ? [
+    //       {
+    //         title: "TBD",
+    //         path: "#",
+    //         Icon: FaMagnifyingGlass,
+    //       },
+    //     ]
+    //   : []),
     ...(status === "ACCEPTED"
       ? [
           {
@@ -103,7 +105,11 @@ const NavigationBar = ({ status }: Props) => {
         </div>
       </aside>
 
-      <div className="fixed bottom-0 left-0 z-50 h-12 w-full border-t border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-800 md:hidden">
+      <div
+        className={`fixed bottom-0 left-0 z-50 h-12 w-full border-t border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-800 md:hidden ${
+          showOnScroll ? "translate-y-0" : "translate-y-full md:translate-y-0"
+        }`}
+      >
         {/* <div className="fixed bottom-0 left-0 z-50 h-16 w-full border-t border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-800 md:hidden"> */}
         <div className="mx-auto grid h-full max-w-lg grid-cols-4 font-medium">
           {links.map(({ title, path, Icon }, index) => (

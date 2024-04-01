@@ -3,6 +3,7 @@ import {
   ApplicantEducationFile,
   ApplicantFormalImage,
   EducationLevel,
+  ProgrammeLevel,
   ApplicationDetails,
   Programme,
   Department,
@@ -625,6 +626,7 @@ interface ProgrammeWithDetails extends Programme {
 
 interface ApplicationData {
   details: ApplicationDetails;
+  applicationType: ProgrammeLevel;
   formalImage: ApplicantFormalImage;
   educationFile: ApplicantEducationFile;
   applicantProgrammePriorities: ProgramPriority[];

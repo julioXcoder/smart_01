@@ -186,6 +186,7 @@ export const newApplicantAccount = async (newApplicantData: NewApplicant) => {
       redirect: "/applicant-portal/dashboard",
     };
   } catch (error) {
+    console.log("Error", error);
     return {
       message:
         "We’re sorry, but we were unable to create your account at this time. Please try again later, and if the problem persists, reach out to our support team for assistance.",

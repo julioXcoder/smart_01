@@ -1,14 +1,16 @@
 import { getCurrentYear } from "@/server/actions/university";
-import ErrorPage from "@/components/errorPage";
+import MainContent from "@/components/layout/mainContent";
 import NewAcademicYearForm from "./newAcademicYearForm";
 
 const Page = async () => {
   const academicYearName = await getCurrentYear();
 
   return (
-    <div>
-      <div className="my-5">Current Academic Year: {academicYearName}</div>
-      <NewAcademicYearForm />
+    <div className="p-2">
+      <MainContent>
+        <div className="my-5">Current Academic Year: {academicYearName}</div>
+        <NewAcademicYearForm />
+      </MainContent>
     </div>
   );
 };

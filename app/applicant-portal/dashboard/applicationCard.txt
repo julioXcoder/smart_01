@@ -1,0 +1,258 @@
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { IoWarning, IoCalendar } from "react-icons/io5";
+import { FaHourglassEnd } from "react-icons/fa";
+import { Separator } from "@/components/ui/separator";
+import { LiaHandPointRightSolid } from "react-icons/lia";
+import { MdModeEdit, MdSchedule } from "react-icons/md";
+import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
+import moment from "moment-timezone";
+import { ApplicationStatusName } from "@/types/application";
+import Appbar from "@/components/layout/appbar";
+import { getApplicantData } from "@/server/actions/applicant";
+import {
+  AiOutlineInfoCircle,
+  AiOutlineExclamationCircle,
+  AiOutlineCheckCircle,
+  AiOutlineClockCircle,
+  AiOutlineSearch,
+  AiOutlineCloseCircle,
+} from "react-icons/ai";
+import { ReactNode } from "react";
+import { ApplicantApplication } from "@/server/actions/applicant/schema";
+import ErrorPage from "@/components/errorPage";
+
+function getStatusText(applicationStatus: ApplicationStatusName): {
+  title: string;
+  description: string;
+  color: string;
+  TitleIcon: ReactNode;
+  DescriptionIcon: ReactNode;
+} {
+  switch (applicationStatus) {
+    case "DRAFT":
+      return {
+        title: "Your Application is in Draft Mode",
+        description:
+          "Important! - Your application hasn't been submitted yet! Please click on the 'Edit Application' button to complete it.",
+        TitleIcon: (
+          <AiOutlineInfoCircle className="h-12 w-12 shrink-0 text-gray-400" />
+        ),
+        DescriptionIcon: (
+          <AiOutlineExclamationCircle className="mx-2 h-4 w-4 shrink-0" />
+        ),
+        color: "bg-gray-300 dark:bg-gray-400",
+      };
+    case "ACCEPTED":
+      return {
+        title: "Congratulations, Your Application is Accepted!",
+        description:
+          "Your application has been accepted! Please click on the 'Continue Application' button to proceed.",
+        TitleIcon: (
+          <AiOutlineCheckCircle className="h-12 w-12 shrink-0 text-green-400" />
+        ),
+        DescriptionIcon: (
+          <AiOutlineInfoCircle className="mx-2 h-4 w-4 shrink-0" />
+        ),
+        color: "bg-green-400",
+      };
+    case "UNDER_REVIEW":
+      return {
+        title: "Your Application is Under Review",
+        description:
+          "Your application is currently being reviewed by our team. We appreciate your patience during this process.",
+        TitleIcon: (
+          <AiOutlineSearch className="h-12 w-12 shrink-0 text-blue-400" />
+        ),
+        DescriptionIcon: (
+          <AiOutlineClockCircle className="mx-2 h-4 w-4 shrink-0" />
+        ),
+        color: "bg-blue-400",
+      };
+    case "REJECTED":
+      return {
+        title: "Unfortunately, Your Application Was Not Accepted",
+        description:
+          "We regret to inform you that your application was not accepted. Please review the feedback provided and consider reapplying.",
+        TitleIcon: (
+          <AiOutlineCloseCircle className="h-12 w-12 shrink-0 text-red-400" />
+        ),
+        DescriptionIcon: (
+          <AiOutlineExclamationCircle className="mx-2 h-4 w-4 shrink-0" />
+        ),
+        color: "bg-red-400",
+      };
+    default:
+      return {
+        title: "",
+        description: "",
+        TitleIcon: <></>,
+        DescriptionIcon: <></>,
+        color: "",
+      };
+  }
+}
+
+const Page = async () => {
+  const { data, error } = await getApplicantData();
+
+  if (error) {
+    <ErrorPage errorMessage={error} />;
+  }
+
+  if (data) {
+    return (
+      <div>
+        <Appbar
+          notifications={data.notifications}
+          username={data.username}
+          imageUrl={""}
+        />
+
+        <div className="mx-auto my-14 max-w-[85rem] p-4 sm:p-6">
+          <div className="mt-20 w-full md:px-28">
+            <ol className="relative border-s border-gray-200 dark:border-gray-700">
+              {data.years.map((application, index) => (
+                <li className="mb-10 ms-6" key={index}>
+                  <span className="absolute -start-3 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 ring-8 ring-white dark:bg-blue-900 dark:ring-gray-900">
+                    <IoCalendar className="h-4 w-4 text-blue-800 dark:text-blue-300" />
+                  </span>
+                  <h3 className="mb-1 text-lg font-semibold text-gray-900 dark:text-white">
+                    Academic year {application.year}
+                  </h3>
+                  <div className="space-y-6">
+                    {application.applications.map((item) => (
+                      <div key={item.id}>
+                        <Card key={item.id} className="w-full">
+                          <CardHeader>
+                            {item.isExpired ? (
+                              <div className="flex w-full justify-between">
+                                <div className="flex items-center gap-2">
+                                  <MdSchedule className="mx-2 h-10 w-10 shrink-0 text-gray-500" />
+                                  <p className="font-semibold text-gray-500">
+                                    EXPIRED
+                                  </p>
+                                </div>
+                                <Button variant={"secondary"}>
+                                  View application
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="flex w-full justify-between">
+                                <div className="flex items-center gap-2">
+                                  {/* <IoWarning className="h-12 w-12 shrink-0 text-orange-400" /> */}
+                                  {getStatusText(item.status).TitleIcon}
+                                  <div>
+                                    <p className="font-semibold text-gray-800 dark:text-gray-200">
+                                      {getStatusText(item.status).title}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                      {item.type}
+                                    </p>
+
+                                    <p className="text-xs text-gray-500">
+                                      Deadline:{" "}
+                                      {moment(item.end)
+                                        .tz("Africa/Dar_es_Salaam")
+                                        .format("DD MMMM YYYY HH:mm:ss")}
+                                    </p>
+                                  </div>
+                                </div>
+                                <Button variant={"secondary"}>
+                                  View application
+                                </Button>
+                                {/* <Badge
+                            className={`shrink-0 ${
+                              getStatusText(item.status).color
+                            }`}
+                            variant={"secondary"}
+                          >
+                            {item.status}
+                          </Badge> */}
+                              </div>
+                            )}
+                          </CardHeader>
+                          <CardContent>
+                            <Separator className="mb-4 h-1.5" />
+                            {item.programmePriorities.length === 0 ? (
+                              <div className="flex h-10 w-full items-center justify-center">
+                                No Programs selected
+                              </div>
+                            ) : (
+                              <div className="flex w-full flex-col gap-1 px-4">
+                                {item.programmePriorities.map((priority) => (
+                                  <div key={priority.programmeCode}>
+                                    <div className="flex w-full items-center gap-2">
+                                      <div className="shrink-0 text-3xl">
+                                        {priority.priority}
+                                      </div>
+                                      <div className="ms-3 sm:ms-4">
+                                        <p className="font-semibold text-gray-800 dark:text-gray-200 sm:mb-1">
+                                          {priority.programmeDetails.name}
+                                        </p>
+                                        <p className="text-xs text-gray-500">
+                                          {priority.programmeDetails.level}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <Separator className="my-5 h-0.5 last:hidden" />
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </CardContent>
+                          <CardDescription className="flex items-center p-1">
+                            {/* text-orange-600 dark:text-yellow-300 */}
+                            {item.isExpired ? (
+                              <>
+                                <FaHourglassEnd className="mx-2 h-4 w-4 shrink-0" />
+                                <p>
+                                  Application editing is closed for this cycle.
+                                  If you wish to apply in the future, you’ll
+                                  need to initiate a new application.
+                                </p>
+                              </>
+                            ) : (
+                              <>
+                                {" "}
+                                <LiaHandPointRightSolid className="mx-2 h-4 w-4 shrink-0" />
+                                {/* {getStatusText(data.applicationStatus).DescriptionIcon} */}
+                                {getStatusText(item.status).description}
+                              </>
+                            )}
+                          </CardDescription>
+                        </Card>
+                        {!item.isExpired &&
+                          item.status !== "ACCEPTED" &&
+                          item.status !== "REJECTED" &&
+                          item.status !== "UNDER_REVIEW" && (
+                            <Link
+                              href={`/applicant_portal/edit_application/${item.id}`}
+                            >
+                              <Button className="mt-1.5 w-full">
+                                <MdModeEdit className="mr-2 h-5 w-5 shrink-0" />
+                                Edit Application
+                              </Button>
+                            </Link>
+                          )}
+                      </div>
+                    ))}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </div>
+    );
+  }
+};
+
+export default Page;

@@ -34,7 +34,7 @@ export const getCurrentYear = async () => {
     },
   });
 
-  if (!latestAcademicYear) throw new Error("Latest Academic Year not found!");
+  if (!latestAcademicYear) return null;
 
   return latestAcademicYear.name;
 };

@@ -184,7 +184,7 @@ const Page = () => {
   ];
 
   return (
-    <div className="mx-auto w-full max-w-[45rem]">
+    <div className="mx-auto mt-28 w-full max-w-[45rem]">
       {/* {currentStep.title} */}
 
       {/* <BottomNavigation onGotoItem={handleGoToStep} index={step} items={paths} /> */}

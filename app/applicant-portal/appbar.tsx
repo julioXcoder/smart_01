@@ -4,38 +4,30 @@ import { useState, useEffect } from "react";
 import Logo from "@/components/logo";
 import Notifications from "@/components/notifications";
 import Profile from "./profile";
+import useScrollListener from "@/hooks/useScrollListener";
 import { ApplicantNotification } from "@prisma/client";
 
 interface Props {
   username: string;
   notifications?: ApplicantNotification[];
-  fullName?: string;
+  firstName: string;
+  lastName: string;
+  imageUrl: string;
 }
 
-const Appbar = ({ notifications, username, fullName }: Props) => {
-  const [show, setShow] = useState(true);
-  const [scrollPos, setScrollPos] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollPos = window.pageYOffset;
-
-      if (currentScrollPos < scrollPos) {
-        setShow(true);
-      } else {
-        setShow(false);
-      }
-      setScrollPos(currentScrollPos);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [scrollPos]);
+const Appbar = ({
+  notifications,
+  username,
+  firstName,
+  lastName,
+  imageUrl,
+}: Props) => {
+  const showOnScroll = useScrollListener();
 
   return (
     <nav
       className={`fixed top-0 z-50 w-full transform border-b border-gray-200 bg-white transition-transform duration-300 dark:border-gray-700 dark:bg-gray-800 ${
-        show ? "translate-y-0" : "-translate-y-full md:translate-y-0"
+        showOnScroll ? "translate-y-0" : "-translate-y-full md:translate-y-0"
       }`}
     >
       <div className="p-3 lg:px-5 lg:pl-3">
@@ -49,7 +41,12 @@ const Appbar = ({ notifications, username, fullName }: Props) => {
                 {notifications && (
                   <Notifications value={notifications.length} />
                 )}
-                <Profile fullName={fullName} username={username} />
+                <Profile
+                  imageUrl={imageUrl}
+                  firstName={firstName}
+                  lastName={lastName}
+                  username={username}
+                />
               </div>
             </div>
           </div>

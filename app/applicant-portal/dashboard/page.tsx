@@ -1,5 +1,8 @@
 import { getApplicationDetails } from "./actions";
 import Draft from "./draft";
+import UnderReview from "./underReview";
+import Accepted from "./accepted";
+import Rejected from "./rejected";
 
 const Page = async () => {
   const data = await getApplicationDetails();
@@ -9,15 +12,20 @@ const Page = async () => {
   } = data;
 
   if (applicationStatus === "ACCEPTED") {
-    return <div>ACCEPTED card</div>;
+    return <Accepted />;
   }
 
   if (applicationStatus === "REJECTED") {
-    return <div>REJECTED card</div>;
+    return <Rejected />;
   }
 
   if (applicationStatus === "UNDER_REVIEW") {
-    return <div>UNDER_REVIEW card</div>;
+    return (
+      <UnderReview
+        applicationType={data.applicationType}
+        programmes={data.applicantProgrammePriorities}
+      />
+    );
   }
 
   if (applicationStatus === "DRAFT") {
