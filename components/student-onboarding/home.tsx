@@ -14,7 +14,6 @@ const Home = ({ activeTab, tabs, onNextTab, onPrevTab }: Props) => {
     <div>
       <Stepper activeTab={activeTab} tabs={tabs} />
       <div className="mt-10">{currentTab.content}</div>
-      {/* <div>{currentTab.content}</div> */}
       <div className="mt-6">
         <button
           onClick={onPrevTab}
