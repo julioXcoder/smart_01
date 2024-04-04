@@ -178,6 +178,16 @@ export const newApplicantAccount = async (newApplicantData: NewApplicant) => {
       },
     });
 
+    await prisma.universityPolicyAccepted.create({
+      data: {
+        applicant: {
+          connect: {
+            username: newApplicant.username,
+          },
+        },
+      },
+    });
+
     const data = { id: newApplicant.username, role: newApplicant.role };
 
     await setSession(data);

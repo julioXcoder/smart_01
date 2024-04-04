@@ -11,6 +11,7 @@ import {
   FaMagnifyingGlass,
 } from "react-icons/fa6";
 import { MdChecklist } from "react-icons/md";
+import { setRulesAccepted } from "./actions";
 
 import {
   Accordion,
@@ -18,7 +19,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,15 +28,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
 import {
   Form,
   FormControl,
-  FormDescription,
+  FormMessage,
   FormField,
   FormItem,
   FormLabel,
@@ -55,6 +53,7 @@ const RulesCard = () => {
   });
 
   const [displayRules, setDisplayRules] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleDisplayRules = () => {
     setDisplayRules(true);
@@ -158,56 +157,62 @@ const RulesCard = () => {
     },
   ];
 
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    setIsLoading(true);
+    await setRulesAccepted();
+    setIsLoading(false);
+  }
+
   return (
     <div className="mx-auto mt-20 w-full max-w-[45rem]">
       {displayRules ? (
         <Card>
-          <CardHeader className="flex items-center">
-            <CardTitle>University Regulations and By-Laws</CardTitle>
-            <CardDescription>
-              As a student of this University, you are expected to adhere to the
-              following regulations and by-laws:
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="max-h-72 overflow-y-auto">
-            <Accordion type="single" collapsible className="w-full">
-              {rules.map((item, index) => (
-                <AccordionItem value={item.title} key={index}>
-                  <AccordionTrigger>{item.title}</AccordionTrigger>
-                  <AccordionContent>{item.content}</AccordionContent>
-                </AccordionItem>
-              ))}
-              <div className="mb-2 mt-6">
-                <CardTitle>Additional Conditions</CardTitle>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <CardHeader className="flex items-center">
+                <CardTitle>University Regulations and By-Laws</CardTitle>
                 <CardDescription>
-                  In addition to the above regulations, students must observe
-                  the following conditions:
+                  As a student of this University, you are expected to adhere to
+                  the following regulations and by-laws:
                 </CardDescription>
-              </div>
-              {additionalRules.map((item, index) => (
-                <AccordionItem value={item.title} key={index}>
-                  <AccordionTrigger>{item.title}</AccordionTrigger>
-                  <AccordionContent>{item.content}</AccordionContent>
-                </AccordionItem>
-              ))}
-              <div className="mb-2 mt-6">
-                <CardTitle>Student Dress Code Policy</CardTitle>
-                <CardDescription>
-                  As a student of this University, it is important to adhere to
-                  the following dress code policy:
-                </CardDescription>
-              </div>
-              {dressCodeRules.map((item, index) => (
-                <AccordionItem value={item.title} key={index}>
-                  <AccordionTrigger>{item.title}</AccordionTrigger>
-                  <AccordionContent>{item.content}</AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </CardContent>
-          <CardContent className="mt-6 flex justify-end">
-            <Form {...form}>
-              <form>
+              </CardHeader>
+              <CardContent className="max-h-72 overflow-y-auto">
+                <Accordion type="single" collapsible className="w-full">
+                  {rules.map((item, index) => (
+                    <AccordionItem value={item.title} key={index}>
+                      <AccordionTrigger>{item.title}</AccordionTrigger>
+                      <AccordionContent>{item.content}</AccordionContent>
+                    </AccordionItem>
+                  ))}
+                  <div className="mb-2 mt-6">
+                    <CardTitle>Additional Conditions</CardTitle>
+                    <CardDescription>
+                      In addition to the above regulations, students must
+                      observe the following conditions:
+                    </CardDescription>
+                  </div>
+                  {additionalRules.map((item, index) => (
+                    <AccordionItem value={item.title} key={index}>
+                      <AccordionTrigger>{item.title}</AccordionTrigger>
+                      <AccordionContent>{item.content}</AccordionContent>
+                    </AccordionItem>
+                  ))}
+                  <div className="mb-2 mt-6">
+                    <CardTitle>Student Dress Code Policy</CardTitle>
+                    <CardDescription>
+                      As a student of this University, it is important to adhere
+                      to the following dress code policy:
+                    </CardDescription>
+                  </div>
+                  {dressCodeRules.map((item, index) => (
+                    <AccordionItem value={item.title} key={index}>
+                      <AccordionTrigger>{item.title}</AccordionTrigger>
+                      <AccordionContent>{item.content}</AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </CardContent>
+              <CardContent className="mt-6 flex justify-end">
                 <FormField
                   control={form.control}
                   name="check"
@@ -228,15 +233,21 @@ const RulesCard = () => {
                     </FormItem>
                   )}
                 />
-              </form>
-            </Form>
-          </CardContent>
-          <CardFooter className="flex justify-end gap-2">
-            <Button onClick={() => setDisplayRules(false)} variant="outline">
-              Cancel
-            </Button>
-            <Button className="w-44">Continue</Button>
-          </CardFooter>
+              </CardContent>
+              <CardFooter className="flex justify-end gap-2">
+                <Button
+                  disabled={isLoading}
+                  onClick={() => setDisplayRules(false)}
+                  variant="outline"
+                >
+                  Cancel
+                </Button>
+                <Button disabled={isLoading} className="w-44" type="submit">
+                  Continue
+                </Button>
+              </CardFooter>
+            </form>
+          </Form>
         </Card>
       ) : (
         <CongratsCard displayRules={handleDisplayRules} />

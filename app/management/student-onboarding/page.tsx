@@ -46,17 +46,6 @@ const Page = () => {
   }
 
   const handleNext = () => {
-    // if (activeTab == 1) {
-    //   settleForm.handleSubmit(onSettleFormSubmit)();
-
-    //   const isFormValid = settleForm.formState.isValid;
-
-    //   if (!isFormValid) {
-    //     // If the form submission was not successful, return early and do not advance to the next tab
-    //     return;
-    //   }
-    // }
-
     setActiveTab((prevTab) => (prevTab + 1) % tabs.length);
   };
 

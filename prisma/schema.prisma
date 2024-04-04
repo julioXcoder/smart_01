@@ -82,19 +82,21 @@ enum ResidencePlan {
 //USERS
 
 model Applicant {
-  username              String                  @id @map("_id")
-  hashedPassword        String
-  role                  Role                    @default(APPLICANT)
-  formIVIndex           String
-  createdAt             DateTime
-  applicationType       ProgrammeLevel
-  educationOrigin       ExaminationType
-  highestEducationLevel EducationLevel
-  academicYearId        String                  @db.ObjectId
-  academicYear          AcademicYear            @relation(fields: [academicYearId], references: [id])
-  details               ApplicationDetails?
-  formalImage           ApplicantFormalImage?
-  applicantNotification ApplicantNotification[]
+  username                 String                    @id @map("_id")
+  hashedPassword           String
+  role                     Role                      @default(APPLICANT)
+  formIVIndex              String
+  createdAt                DateTime
+  applicationType          ProgrammeLevel
+  educationOrigin          ExaminationType
+  highestEducationLevel    EducationLevel
+  academicYearId           String                    @db.ObjectId
+  academicYear             AcademicYear              @relation(fields: [academicYearId], references: [id])
+  details                  ApplicationDetails?
+  formalImage              ApplicantFormalImage?
+  studentOnboarding        StudentOnboarding?
+  universityPolicyAccepted UniversityPolicyAccepted?
+  applicantNotification    ApplicantNotification[]
 }
 
 model ResidenceManager {
@@ -194,11 +196,11 @@ model ApplicantEducationBackground {
 
 model ApplicantFormalImage {
   applicantUsername String    @id @map("_id")
+  applicant         Applicant @relation(fields: [applicantUsername], references: [username])
   imageUrl          String    @default("")
   key               String    @default("")
   name              String    @default("")
   size              Int       @default(0)
-  applicant         Applicant @relation(fields: [applicantUsername], references: [username])
 }
 
 model ApplicantEducationFile {
@@ -222,6 +224,24 @@ model ApplicantAdditionalFile {
 
   applicantUsername  String
   applicationDetails ApplicationDetails @relation(fields: [applicantUsername], references: [applicantUsername])
+}
+
+model UniversityPolicyAccepted {
+  applicantUsername String    @id @map("_id")
+  applicant         Applicant @relation(fields: [applicantUsername], references: [username])
+
+  hasAcceptedRules Boolean   @default(false)
+  acceptedAt       DateTime?
+}
+
+model StudentOnboarding {
+  applicantUsername String    @id @map("_id")
+  applicant         Applicant @relation(fields: [applicantUsername], references: [username])
+
+  currentPage      Int     @default(0)
+  hasDocuments     Boolean @default(false)
+  hasAccommodation Boolean @default(false)
+  registeredBy     String  @default("")
 }
 
 //APPLICANT DATA

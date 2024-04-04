@@ -353,3 +353,39 @@ export const addApplicantProgrammePriority = async (
 
   return newProgramme;
 };
+
+export const setRulesAccepted = async () => {
+  const { id: applicantUsername } = await getPayload();
+
+  const now = new Date();
+
+  await prisma.universityPolicyAccepted.update({
+    where: {
+      applicantUsername,
+    },
+    data: {
+      hasAcceptedRules: true,
+      acceptedAt: now,
+    },
+  });
+
+  revalidatePath(baseUrl);
+};
+
+export const hasAcceptedRules = async () => {
+  const { id: applicantUsername } = await getPayload();
+
+  const data = await prisma.universityPolicyAccepted.findUnique({
+    where: {
+      applicantUsername,
+    },
+  });
+
+  if (!data) {
+    throw new Error(
+      `Unable to locate the applicant university policy details for the applicant with the username: ${applicantUsername}.`,
+    );
+  }
+
+  return data.hasAcceptedRules;
+};
