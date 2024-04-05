@@ -59,7 +59,7 @@ const TimetablePage = () => {
         { name: "Calculus", sockets: 1, requirements: ["computers"] },
         {
           name: "Geometry",
-          sockets: 6,
+          sockets: 3,
           requirements: ["computers"],
         },
       ],
@@ -127,10 +127,7 @@ const TimetablePage = () => {
         ) {
           allPeriods = allPeriods.concat(
             shuffledTimetable[dayIndex][classroomIndex].filter(
-              (period: ScheduledPeriod) =>
-                period.course !== "breakfast" &&
-                period.course !== "break" &&
-                period.course !== "lunch",
+              (_, i) => dayStructure[i].type === "s",
             ),
           );
         }
@@ -138,32 +135,24 @@ const TimetablePage = () => {
         // Shuffle all 's' type periods
         allPeriods = shuffleArray(allPeriods);
 
-        // Distribute the shuffled periods back to the timetable
-        let periodIndex = 0;
+        // Distribute the shuffled periods back to the days according to the dayStructure
         for (
           let dayIndex = 0;
           dayIndex < shuffledTimetable.length;
           dayIndex++
         ) {
+          let periodIndex = 0;
           for (
-            let classroomIndex = 0;
-            classroomIndex < shuffledTimetable[dayIndex].length;
-            classroomIndex++
+            let structureIndex = 0;
+            structureIndex < dayStructure.length;
+            structureIndex++
           ) {
-            for (
-              let periodIndex = 0;
-              periodIndex < shuffledTimetable[dayIndex][classroomIndex].length;
-              periodIndex++
-            ) {
-              const period =
-                shuffledTimetable[dayIndex][classroomIndex][periodIndex];
-              if (
-                period.course !== "breakfast" &&
-                period.course !== "break" &&
-                period.course !== "lunch"
-              ) {
-                shuffledTimetable[dayIndex][classroomIndex][periodIndex] =
-                  allPeriods.shift() || period;
+            if (dayStructure[structureIndex].type === "s") {
+              const period = allPeriods.shift();
+              if (period) {
+                shuffledTimetable[dayIndex][classroomIndex][structureIndex] =
+                  period;
+                periodIndex += dayStructure[structureIndex].duration;
               }
             }
           }
@@ -172,13 +161,13 @@ const TimetablePage = () => {
 
       return shuffledTimetable;
     },
-    [],
+    [dayStructure],
   );
 
   function shuffleArray<T>(array: T[]): T[] {
-    let currentIndex = array.length,
-      temporaryValue,
-      randomIndex;
+    let currentIndex = array.length;
+    let temporaryValue: T;
+    let randomIndex: number;
 
     // While there remain elements to shuffle...
     while (0 !== currentIndex) {
