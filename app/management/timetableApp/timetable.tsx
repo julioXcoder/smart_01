@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 
 interface Classroom {
   name: string;
@@ -40,7 +40,7 @@ const TimetablePage = () => {
       name: "Classroom 1",
       seats: 30,
       available: true,
-      features: ["computers", "projector"],
+      features: ["computers", "projector", "laboratory"],
     },
     {
       name: "Classroom 2",
@@ -72,7 +72,7 @@ const TimetablePage = () => {
         { name: "Calculus 2", sockets: 1, requirements: ["computers"] },
         {
           name: "Geometry 2",
-          sockets: 6,
+          sockets: 3,
           requirements: ["computers"],
         },
       ],
@@ -105,10 +105,136 @@ const TimetablePage = () => {
 
   const [unscheduledCourses, setUnscheduledCourses] = useState<string[]>([]);
 
+  const shuffleTimetableDays = useCallback(
+    (timetable: ScheduledPeriod[][][]): ScheduledPeriod[][][] => {
+      // Create a copy of the timetable to avoid mutating the original
+      const shuffledTimetable: ScheduledPeriod[][][] = JSON.parse(
+        JSON.stringify(timetable),
+      );
+
+      // For each classroom
+      for (
+        let classroomIndex = 0;
+        classroomIndex < shuffledTimetable[0].length;
+        classroomIndex++
+      ) {
+        // Collect all 's' type periods for this classroom across all days
+        let allPeriods: ScheduledPeriod[] = [];
+        for (
+          let dayIndex = 0;
+          dayIndex < shuffledTimetable.length;
+          dayIndex++
+        ) {
+          allPeriods = allPeriods.concat(
+            shuffledTimetable[dayIndex][classroomIndex].filter(
+              (period: ScheduledPeriod) =>
+                period.course !== "breakfast" &&
+                period.course !== "break" &&
+                period.course !== "lunch",
+            ),
+          );
+        }
+
+        // Shuffle all 's' type periods
+        allPeriods = shuffleArray(allPeriods);
+
+        // Distribute the shuffled periods back to the timetable
+        let periodIndex = 0;
+        for (
+          let dayIndex = 0;
+          dayIndex < shuffledTimetable.length;
+          dayIndex++
+        ) {
+          for (
+            let classroomIndex = 0;
+            classroomIndex < shuffledTimetable[dayIndex].length;
+            classroomIndex++
+          ) {
+            for (
+              let periodIndex = 0;
+              periodIndex < shuffledTimetable[dayIndex][classroomIndex].length;
+              periodIndex++
+            ) {
+              const period =
+                shuffledTimetable[dayIndex][classroomIndex][periodIndex];
+              if (
+                period.course !== "breakfast" &&
+                period.course !== "break" &&
+                period.course !== "lunch"
+              ) {
+                shuffledTimetable[dayIndex][classroomIndex][periodIndex] =
+                  allPeriods.shift() || period;
+              }
+            }
+          }
+        }
+      }
+
+      return shuffledTimetable;
+    },
+    [],
+  );
+
+  function shuffleArray<T>(array: T[]): T[] {
+    let currentIndex = array.length,
+      temporaryValue,
+      randomIndex;
+
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+
+      // And swap it with the current element.
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+
+    return array;
+  }
+
+  const getDuration = useCallback(
+    (index: number): number => {
+      const period = dayStructure[index];
+      return period ? period.duration : 0;
+    },
+    [dayStructure],
+  );
+
+  const startingTime = useMemo(() => 8.5 * 60, []);
+
+  const correctTimes = useCallback(
+    (
+      shuffledTimetable: Array<Array<ScheduledPeriod[]>>,
+    ): Array<Array<ScheduledPeriod[]>> => {
+      return shuffledTimetable.map((day: ScheduledPeriod[][]) =>
+        day.map((classroom: ScheduledPeriod[]) => {
+          let currentTime = startingTime;
+          return classroom.map((period: ScheduledPeriod, index) => {
+            const duration = getDuration(index);
+            const startTime = currentTime;
+            currentTime += duration * 60;
+            const endTime = currentTime;
+            return {
+              ...period,
+              time: `${Math.floor(startTime / 60)}:${(startTime % 60)
+                .toString()
+                .padStart(2, "0")} - ${Math.floor(endTime / 60)}:${(
+                endTime % 60
+              )
+                .toString()
+                .padStart(2, "0")}`,
+            };
+          });
+        }),
+      );
+    },
+    [getDuration, startingTime],
+  );
   useEffect(() => {
     let programmesCopy = shuffleCourses(JSON.parse(JSON.stringify(programmes)));
-    console.log("Copy", programmesCopy);
-    let startingTime = 8 * 60;
 
     let updatedTimetable: Array<Array<ScheduledPeriod[]>> = Array.from(
       { length: daysOfWeek.length },
@@ -202,7 +328,10 @@ const TimetablePage = () => {
       }
     }
 
-    setTimetable(updatedTimetable);
+    let shuffledTimetable = shuffleTimetableDays(updatedTimetable);
+    let correctedTimetable = correctTimes(shuffledTimetable);
+
+    setTimetable(correctedTimetable);
 
     const unscheduled = programmesCopy.reduce(
       (unscheduledCourses: string[], programme: Programme) => {
@@ -219,7 +348,14 @@ const TimetablePage = () => {
     );
 
     setUnscheduledCourses(unscheduled);
-  }, [classrooms, programmes, dayStructure]);
+  }, [
+    classrooms,
+    programmes,
+    dayStructure,
+    shuffleTimetableDays,
+    correctTimes,
+    startingTime,
+  ]);
 
   function shuffleCourses(programmes: Programme[]): Programme[] {
     return programmes.map((programme) => {
@@ -238,70 +374,9 @@ const TimetablePage = () => {
     });
   }
 
-  function shuffleTimetableDays(
-    timetable: ScheduledPeriod[][][],
-    dayStructure: DayStructure[],
-  ): ScheduledPeriod[][][] {
-    // Create a copy of the timetable to avoid mutating the original
-    const shuffledTimetable: ScheduledPeriod[][][] = JSON.parse(
-      JSON.stringify(timetable),
-    );
-
-    // For each classroom
-    for (
-      let classroomIndex = 0;
-      classroomIndex < shuffledTimetable[0].length;
-      classroomIndex++
-    ) {
-      // Collect all periods for this classroom across all days
-      let allPeriods: ScheduledPeriod[] = [];
-      for (let dayIndex = 0; dayIndex < shuffledTimetable.length; dayIndex++) {
-        allPeriods = allPeriods.concat(
-          shuffledTimetable[dayIndex][classroomIndex].filter(
-            (_, i) => dayStructure[i].type === "s",
-          ),
-        );
-      }
-
-      // Shuffle all periods
-      allPeriods = shuffleArray(allPeriods);
-
-      // Distribute the shuffled periods back to the days according to the dayStructure
-      for (let dayIndex = 0; dayIndex < shuffledTimetable.length; dayIndex++) {
-        for (
-          let structureIndex = 0;
-          structureIndex < dayStructure.length;
-          structureIndex++
-        ) {
-          if (dayStructure[structureIndex].type === "s") {
-            const period = allPeriods.shift();
-            if (period) {
-              shuffledTimetable[dayIndex][classroomIndex][structureIndex] =
-                period;
-            }
-          }
-        }
-      }
-    }
-
-    return shuffledTimetable;
-  }
-
-  // Helper function to shuffle an array
-  function shuffleArray<T>(array: T[]): T[] {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-
-    return array;
-  }
-
-  const shuffledTimetable = shuffleTimetableDays(timetable, dayStructure);
-
   return (
     <div>
-      {shuffledTimetable.map((day, dayIndex) => (
+      {timetable.map((day, dayIndex) => (
         <div key={dayIndex}>
           <h2>{`${daysOfWeek[dayIndex]}`}</h2>
           {day.map((classroom, classroomIndex) => (
