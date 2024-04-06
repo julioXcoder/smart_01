@@ -11,7 +11,7 @@ interface Classroom {
 
 interface Course {
   name: string;
-  sockets: { span: number }[]; // Array of sockets with duration (span)
+  sockets: number;
   requirements: string[];
 }
 
@@ -28,7 +28,6 @@ interface DayStructure {
 
 interface ScheduledPeriod {
   time: string;
-  span: number;
   event: string;
   classroom?: string;
 }
@@ -45,7 +44,7 @@ const TimetablePage = () => {
     },
     {
       name: "Classroom 2",
-      seats: 30,
+      seats: 12,
       available: true,
       features: ["computers"],
     },
@@ -62,32 +61,49 @@ const TimetablePage = () => {
       name: "Mathematics",
       students: 25,
       courses: [
+        { name: "Algebra", sockets: 2, requirements: ["computers"] },
+        { name: "Calculus", sockets: 1, requirements: ["computers"] },
         {
-          name: "Algebra asdddddddddddddddddddd asdddddddddddddddddddd",
-          sockets: [{ span: 2 }, { span: 5 }],
+          name: "Geometry",
+          sockets: 3,
           requirements: ["computers"],
         },
-        {
-          name: "Calculus",
-          sockets: [{ span: 3 }, { span: 2 }, { span: 2 }],
-          requirements: ["computers"],
-        },
-        // Additional courses with sockets and durations
       ],
     },
-    // More programmes with courses
+    {
+      name: "Mathematics 2",
+      students: 25,
+      courses: [
+        { name: "Algebra 2", sockets: 2, requirements: ["computers"] },
+        { name: "Calculus 2", sockets: 1, requirements: ["computers"] },
+        {
+          name: "Geometry 2",
+          sockets: 3,
+          requirements: ["computers"],
+        },
+      ],
+    },
+    {
+      name: "Physics",
+      students: 20,
+      courses: [
+        { name: "Mechanics", sockets: 1, requirements: ["laboratory"] },
+        { name: "Electricity", sockets: 1, requirements: ["laboratory"] },
+        { name: "Optics", sockets: 1, requirements: ["laboratory"] },
+      ],
+    },
   ]);
 
   const [dayStructure, setDayStructure] = useState<DayStructure[]>([
     { type: "breakfast", duration: 2 },
     { type: "s", duration: 2 },
+    { type: "s", duration: 2 },
     { type: "break", duration: 1 },
-    { type: "s", duration: 4 },
+    { type: "s", duration: 2 },
     { type: "lunch", duration: 1 },
     { type: "s", duration: 2 },
   ]);
 
-  // Initialization of timetable state
   const [timetable, setTimetable] = useState<Array<Array<ScheduledPeriod[]>>>(
     Array.from({ length: daysOfWeek.length }, () =>
       Array.from({ length: classrooms.length }, () => []),
@@ -96,37 +112,9 @@ const TimetablePage = () => {
 
   const [unscheduledCourses, setUnscheduledCourses] = useState<string[]>([]);
 
-  const shufflePeriods = useCallback(
-    (periods: ScheduledPeriod[], duration: number): ScheduledPeriod[] => {
-      // Shuffle only the 's' type periods based on their specific duration
-      const shuffledPeriods: ScheduledPeriod[] = [];
-      const periodsByDuration: { [key: number]: ScheduledPeriod[] } = {};
-
-      // Group periods by duration
-      // periods.forEach(period => {
-      //   const periodDuration = dayStructure.find(structure => structure.type === period.type)?.duration;
-      //   if (periodDuration) {
-      //     if (!periodsByDuration[periodDuration]) {
-      //       periodsByDuration[periodDuration] = [];
-      //     }
-      //     periodsByDuration[periodDuration].push(period);
-      //   }
-      // });
-
-      // Shuffle periods based on their duration
-      Object.keys(periodsByDuration).forEach((durationKey) => {
-        const periodsToShuffle = periodsByDuration[parseInt(durationKey)];
-        const shuffled = shuffleArray(periodsToShuffle);
-        shuffledPeriods.push(...shuffled);
-      });
-
-      return shuffledPeriods;
-    },
-    [],
-  );
-
   const shuffleTimetableDays = useCallback(
     (timetable: ScheduledPeriod[][][]): ScheduledPeriod[][][] => {
+      // Create a copy of the timetable to avoid mutating the original
       const shuffledTimetable: ScheduledPeriod[][][] = JSON.parse(
         JSON.stringify(timetable),
       );
@@ -137,9 +125,8 @@ const TimetablePage = () => {
         classroomIndex < shuffledTimetable[0].length;
         classroomIndex++
       ) {
-        let allPeriods: ScheduledPeriod[] = [];
-
         // Collect all 's' type periods for this classroom across all days
+        let allPeriods: ScheduledPeriod[] = [];
         for (
           let dayIndex = 0;
           dayIndex < shuffledTimetable.length;
@@ -152,12 +139,8 @@ const TimetablePage = () => {
           );
         }
 
-        // Shuffle 's' type periods based on their duration
-        const shuffledPeriods = shufflePeriods(
-          allPeriods,
-          dayStructure.find((structure) => structure.type === "s")?.duration ||
-            0,
-        );
+        // Shuffle all 's' type periods
+        allPeriods = shuffleArray(allPeriods);
 
         // Distribute the shuffled periods back to the days according to the dayStructure
         for (
@@ -172,7 +155,7 @@ const TimetablePage = () => {
             structureIndex++
           ) {
             if (dayStructure[structureIndex].type === "s") {
-              const period = shuffledPeriods.shift();
+              const period = allPeriods.shift();
               if (period) {
                 shuffledTimetable[dayIndex][classroomIndex][structureIndex] =
                   period;
@@ -185,7 +168,7 @@ const TimetablePage = () => {
 
       return shuffledTimetable;
     },
-    [dayStructure, shufflePeriods],
+    [dayStructure],
   );
 
   function shuffleArray<T>(array: T[]): T[] {
@@ -256,7 +239,6 @@ const TimetablePage = () => {
     );
 
     let classroomIndex = 0; // Track the current classroom index
-
     for (let dayIndex = 0; dayIndex < daysOfWeek.length; dayIndex++) {
       let currentTime = startingTime;
 
@@ -272,47 +254,51 @@ const TimetablePage = () => {
         const endTime = currentTime;
 
         for (let cIndex = 0; cIndex < classrooms.length; cIndex++) {
-          const classroom = classrooms[classroomIndex];
+          let classroom = classrooms[classroomIndex];
 
           if (type === "s") {
             let scheduled = false;
 
-            for (const programme of programmesCopy) {
-              for (const course of programme.courses) {
-                for (const socket of course.sockets) {
-                  if (
-                    socket.span <= duration &&
-                    classroom.seats >= programme.students &&
-                    course.requirements.every((req) =>
-                      classroom.features.includes(req),
-                    )
-                  ) {
-                    // When populating the timetable during scheduling
-                    updatedTimetable[dayIndex][classroomIndex].push({
-                      time: `${startTime / 60}:${(startTime % 60)
-                        .toString()
-                        .padStart(2, "0")} - ${endTime / 60}:${(endTime % 60)
-                        .toString()
-                        .padStart(2, "0")}`,
-                      event: `${programme.name}, ${course.name}`,
-                      classroom: classroom.name,
-                      span: socket.span, // Use the socket's duration as span
-                    });
+            for (
+              let programmeIndex = 0;
+              programmeIndex < programmesCopy.length;
+              programmeIndex++
+            ) {
+              let programme = programmesCopy[programmeIndex];
 
-                    // Remove the scheduled socket
-                    course.sockets = course.sockets.filter((s) => s !== socket);
+              if (
+                programme.courses.length > 0 &&
+                programme.courses[0].sockets > 0
+              ) {
+                if (
+                  classroom.seats >= programme.students &&
+                  programme.courses[0].requirements.every((req: string) =>
+                    classroom.features.includes(req),
+                  )
+                ) {
+                  updatedTimetable[dayIndex][classroomIndex].push({
+                    time: `${startTime / 60}:${(startTime % 60)
+                      .toString()
+                      .padStart(2, "0")} - ${endTime / 60}:${(endTime % 60)
+                      .toString()
+                      .padStart(2, "0")}`,
+                    event: `${programme.name}, ${programme.courses[0].name}`,
+                    classroom: classroom.name,
+                  });
 
-                    scheduled = true;
-                    break;
+                  programme.courses[0].sockets--;
+
+                  if (programme.courses[0].sockets === 0) {
+                    programme.courses.shift();
                   }
+
+                  scheduled = true;
+                  break;
                 }
-                if (scheduled) break;
               }
-              if (scheduled) break;
             }
 
             if (!scheduled) {
-              // If no course was scheduled, mark as "Free" period
               updatedTimetable[dayIndex][classroomIndex].push({
                 time: `${startTime / 60}:${(startTime % 60)
                   .toString()
@@ -320,11 +306,9 @@ const TimetablePage = () => {
                   .toString()
                   .padStart(2, "0")}`,
                 event: "Free",
-                span: duration, // Use the period's duration as span for free periods
               });
             }
           } else {
-            // Non-"s" type period (e.g., "breakfast", "lunch")
             updatedTimetable[dayIndex][classroomIndex].push({
               time: `${startTime / 60}:${(startTime % 60)
                 .toString()
@@ -332,15 +316,13 @@ const TimetablePage = () => {
                 .toString()
                 .padStart(2, "0")}`,
               event: period.type,
-              span: duration, // Use the period's duration as span for non-course periods
             });
           }
 
-          classroomIndex = (classroomIndex + 1) % classrooms.length;
+          classroomIndex = (classroomIndex + 1) % classrooms.length; // Move to the next classroom index in a circular manner
         }
       }
     }
-
     let shuffledTimetable = shuffleTimetableDays(updatedTimetable);
     let correctedTimetable = correctTimes(shuffledTimetable);
 
@@ -348,12 +330,13 @@ const TimetablePage = () => {
 
     const unscheduled = programmesCopy.reduce(
       (unscheduledCourses: string[], programme: Programme) => {
-        programme.courses.forEach((course) => {
-          // Check if the course still has sockets left to be scheduled
-          if (course.sockets.length > 0) {
-            unscheduledCourses.push(`${programme.name}, ${course.name}`);
-          }
-        });
+        if (programme.courses.length > 0) {
+          unscheduledCourses.push(
+            ...programme.courses.map(
+              (course) => `${programme.name}, ${course.name}`,
+            ),
+          );
+        }
         return unscheduledCourses;
       },
       [],
@@ -385,6 +368,7 @@ const TimetablePage = () => {
       return { ...programme, courses };
     });
   }
+
   return (
     <div>
       <div className="flex flex-col">
@@ -419,9 +403,6 @@ const TimetablePage = () => {
                           ? ", " + classroom[periodIndex].classroom
                           : ""
                       }`}
-                      <br />
-                      Duration: {classroom[periodIndex].span}{" "}
-                      {/* Display the duration/span */}
                     </div>
                   ))}
                 </React.Fragment>
