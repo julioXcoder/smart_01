@@ -69,6 +69,10 @@ let daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 type Timetable = ScheduledPeriod[][][];
 
 const TimetableGenerator = () => {
+  const [showUnscheduled, setShowUnscheduled] = useState(false);
+
+  const startTime = 8; // Start time in hours (e.g., 8 AM)
+
   const zones: Zone[] = [
     {
       name: "wing A",
@@ -258,36 +262,162 @@ const TimetableGenerator = () => {
       }
     }
 
-    console.log("Timetable - ", timetable);
-    console.log("Unscheduled - ", unscheduled);
-
-    // return { timetable, unscheduled };
-    return timetable;
+    return { timetable, unscheduled };
   }
 
+  const { timetable, unscheduled } = fillTimetableWithCourses(
+    createEmptyTimetable(classrooms, daysOfWeek, dayStructure, startTime),
+    createCourseInstances(programmes),
+  );
+
+  const timeFormat = (hour: number) => {
+    const meridiem = hour >= 12 ? "PM" : "AM";
+    const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
+    return `${formattedHour}:00 ${meridiem}`;
+  };
+
   return (
-    <div>
-      {/* TimetableGenerator */}
-      <Button
-        onClick={() =>
-          createEmptyTimetable(classrooms, daysOfWeek, dayStructure, 8)
-        }
-      >
-        Generate
-      </Button>
-      <Button onClick={() => createCourseInstances(programmes)}>
-        Create course instances
-      </Button>
-      <Button
-        onClick={() =>
-          fillTimetableWithCourses(
-            createEmptyTimetable(classrooms, daysOfWeek, dayStructure, 8),
-            createCourseInstances(programmes),
-          )
-        }
-      >
-        Create Table
-      </Button>
+    <div className="p-4">
+      <h1 className="mb-4 text-3xl font-bold">Classroom Timetables</h1>
+
+      {/* Classroom Selector */}
+      <div className="mb-4">
+        <label htmlFor="classroomSelect" className="mr-2">
+          Select Classroom:
+        </label>
+        <select
+          id="classroomSelect"
+          className="rounded border border-gray-300 px-2 py-1"
+        >
+          {classrooms.map((classroom, index) => (
+            <option key={index} value={index}>
+              {classroom.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Timetable Display */}
+      {timetable.map((classroomTimetable, classroomIndex) => (
+        <Fragment key={classroomIndex}>
+          <div className="mb-4">
+            <h2 className="text-xl font-semibold">{`Classroom: ${classrooms[classroomIndex].name}`}</h2>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-2">Day</th>
+                    {dayStructure.map((period, index) => (
+                      <th key={index} className="px-4 py-2">
+                        {`${period.type} (${period.duration} hours)`}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 bg-white">
+                  {classroomTimetable.map((dayTimetable, dayIndex) => {
+                    let currentTime = startTime;
+                    return (
+                      <tr key={dayIndex}>
+                        <td className="whitespace-nowrap px-4 py-2">
+                          {daysOfWeek[dayIndex]}
+                        </td>
+                        {dayTimetable.map((period, periodIndex) => {
+                          const periodStart = currentTime;
+                          let tempPeriodStart = periodStart;
+                          const periodEnd =
+                            currentTime + dayStructure[periodIndex].duration;
+                          currentTime = periodEnd; // Update current time for next period
+                          return (
+                            <td
+                              key={periodIndex}
+                              className="whitespace-nowrap px-4 py-2"
+                            >
+                              {period.courses.length == 0 && (
+                                <div className="font-medium">
+                                  {`${timeFormat(periodStart)} - ${timeFormat(
+                                    periodEnd,
+                                  )}`}
+                                </div>
+                              )}
+                              <div>
+                                {period.event != "s" ? (
+                                  <>{period.event}</>
+                                ) : (
+                                  <>
+                                    {period.courses.length > 0 ? (
+                                      period.courses.map(
+                                        (course, courseIndex) => {
+                                          let courseStartTime = tempPeriodStart;
+                                          let courseEndTime =
+                                            courseStartTime + course.span;
+
+                                          tempPeriodStart = courseEndTime;
+                                          return (
+                                            <div key={courseIndex}>
+                                              {/* {`${course.courseName} (${course.programmeName})`} */}
+                                              {course.courseName}
+                                              <br />
+                                              {`${timeFormat(
+                                                courseStartTime,
+                                              )} - ${timeFormat(
+                                                courseEndTime,
+                                              )}`}
+                                              {/* <br />
+                                              {course.span} */}
+                                            </div>
+                                          );
+                                        },
+                                      )
+                                    ) : (
+                                      <div>Free Period</div>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+
+                              {/* {period.courses.map((course, courseIndex) => (
+                                <div key={courseIndex}>
+                                  {`${course.courseName} (${course.programmeName})`}
+                                </div>
+                              ))} */}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </Fragment>
+      ))}
+
+      {/* Show/Hide Unscheduled Courses */}
+      <div className="mt-8">
+        <Button onClick={() => setShowUnscheduled(!showUnscheduled)}>
+          {showUnscheduled
+            ? "Hide Unscheduled Courses"
+            : "Show Unscheduled Courses"}
+        </Button>
+        {showUnscheduled && (
+          <div className="mt-4">
+            <h2 className="text-xl font-semibold">Unscheduled Courses</h2>
+            {unscheduled.length === 0 ? (
+              <p>All courses scheduled successfully!</p>
+            ) : (
+              <ul className="list-disc pl-4">
+                {unscheduled.map((item, index) => (
+                  <li key={index}>
+                    {`Course: ${item.courseInstance.courseName}, Reason: ${item.reason}`}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
