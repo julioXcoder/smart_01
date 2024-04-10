@@ -79,19 +79,24 @@ enum ResidencePlan {
   QUARTERLY // Indicating the 3-month choice.
 }
 
-enum ComponentTypeName {
+enum ComponentType {
   TASK
   TEST
 }
 
-enum ProgrammeClassName {
+enum HealthInsuranceStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ProgrammeClass {
   I
   II
   III
   IV
 }
 
-enum PositionName {
+enum Position {
   STUDENT_PRESIDENT
   CLASS_REPRESENTATIVE
 }
@@ -114,14 +119,15 @@ model Applicant {
 }
 
 model Student {
-  studentId      String         @id @map("_id")
-  hashedPassword String
-  role           Role           @default(STUDENT)
-  positions      PositionName[]
-  formalImageId  String         @unique @db.ObjectId
-  formalImage    FormalImage    @relation(fields: [formalImageId], references: [id])
-  basicInfoId    String         @unique @db.ObjectId
-  basicInfo      BasicInfo      @relation(fields: [basicInfoId], references: [id])
+  studentId           String                @id @map("_id")
+  hashedPassword      String
+  role                Role                  @default(STUDENT)
+  positions           Position[]
+  formalImageId       String                @unique @db.ObjectId
+  formalImage         FormalImage           @relation(fields: [formalImageId], references: [id])
+  basicInfoId         String                @unique @db.ObjectId
+  basicInfo           BasicInfo             @relation(fields: [basicInfoId], references: [id])
+  registrationHistory StudentRegistration[]
 }
 
 model ResidenceManager {
@@ -191,7 +197,6 @@ model StudentOnboarding {
   currentPage        Int     @default(0)
   hasDocuments       Boolean @default(false)
   hasAccommodation   Boolean @default(false)
-  registeredBy       String  @default("")
   generatedStudentId String
   admissionNumber    String
 
@@ -208,6 +213,82 @@ model StudentOnboarding {
 //APPLICANT DATA
 
 //STUDENT DATA
+
+model StudentRegistration {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  controlNumber String        @default("")
+  paymentStatus PaymentStatus @default(PENDING)
+  registeredBy  String        @default("")
+
+  // Registered On:
+  // Sponsor
+  // Campus
+
+  studentId              String                  @unique
+  student                Student                 @relation(fields: [studentId], references: [studentId])
+  studyYearId            String                  @db.ObjectId
+  studyYear              StudyYear               @relation(fields: [studyYearId], references: [id])
+  semesterId             String                  @db.ObjectId
+  semester               Semester                @relation(fields: [semesterId], references: [id])
+  academicFee            AcademicFee?
+  tuitionFee             TuitionFee?
+  studentHealthInsurance StudentHealthInsurance?
+  accomodationFee        AccomodationFee?
+  mealsFee               MealsFee?
+}
+
+model AcademicFee {
+  registrationId String              @id @map("_id") @db.ObjectId
+  registration   StudentRegistration @relation(fields: [registrationId], references: [id])
+
+  controlNumber Int
+  paymentDue    Float
+  amoutPayed    Float @default(0)
+}
+
+model TuitionFee {
+  registrationId String              @id @map("_id") @db.ObjectId
+  registration   StudentRegistration @relation(fields: [registrationId], references: [id])
+
+  controlNumber Int
+  paymentDue    Float
+  amoutPayed    Float @default(0)
+}
+
+model StudentHealthInsurance {
+  registrationId String              @id @map("_id") @db.ObjectId
+  registration   StudentRegistration @relation(fields: [registrationId], references: [id])
+
+  controlNumber Int
+  stutus        HealthInsuranceStatus @default(INACTIVE)
+}
+
+model AccomodationFee {
+  registrationId String              @id @map("_id") @db.ObjectId
+  registration   StudentRegistration @relation(fields: [registrationId], references: [id])
+
+  controlNumber Int
+  paymentDue    Float
+  amoutPayed    Float @default(0)
+}
+
+model MealsFee {
+  registrationId String              @id @map("_id") @db.ObjectId
+  registration   StudentRegistration @relation(fields: [registrationId], references: [id])
+
+  controlNumber Int
+  paymentDue    Float
+  amoutPayed    Float @default(0)
+}
+
+model StudyYear {
+  id    String         @id @default(auto()) @map("_id") @db.ObjectId
+  class ProgrammeClass
+
+  programmeCode       String
+  programme           Programme             @relation(fields: [programmeCode], references: [code])
+  StudyYearEnlorments StudentRegistration[]
+}
 
 //STUDENT DATA
 
@@ -403,20 +484,12 @@ model Programme {
   qualification                String
   availability                 Boolean                      @default(true)
   applicantProgrammePriorities ApplicantProgrammePriority[]
-  // programmeYears ProgrammeYear[]
+  studyYears                   StudyYear[]
 }
-
-// model ProgrammeYear {
-//   id           Int           @id @default(autoincrement())
-//   name         String // This could be "First Year", "Second Year", etc.
-//   students     Student[]
-//   studentYears StudentYear[]
-//   subjects     Subject[]
-// }
 
 //UNIVERSITY HIERARCHY
 
-//UNIVERSITY ANUAL EVENTS
+//UNIVERSITY EVENTS
 
 model AcademicYear {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -426,6 +499,17 @@ model AcademicYear {
   applicationStartTime DateTime // Start time of the application
   applicationEndTime   DateTime // End time of the application
   newStudents          StudentOnboarding[]
+  semesters            Semester[]
 }
 
-//UNIVERSITY ANUAL EVENTS
+model Semester {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  createdAt DateTime
+
+  semesterEnrollments StudentRegistration[]
+  academicYearId      String                @db.ObjectId
+  academicYear        AcademicYear          @relation(fields: [academicYearId], references: [id])
+}
+
+//UNIVERSITY EVENTS
