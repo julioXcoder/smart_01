@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useState, Fragment } from "react";
+import shuffle from "lodash/shuffle"; // Import lodash shuffle function for randomization
 
 interface Zone {
   name: string;
@@ -17,8 +18,7 @@ interface Classroom {
 
 interface Course {
   name: string;
-  sockets: { span: number }[]; // Array of sockets with duration (span)
-  requirements: string[];
+  sockets: { span: number; requirements: string[] }[]; // Array of sockets with duration (span)
 }
 
 interface CourseInstance {
@@ -71,7 +71,7 @@ type Timetable = ScheduledPeriod[][][];
 const TimetableGenerator = () => {
   const [showUnscheduled, setShowUnscheduled] = useState(false);
 
-  const startTime = 8; // Start time in hours (e.g., 8 AM)
+  const startTime = 8.5; // Start time in hours (e.g., 8 AM)
 
   const zones: Zone[] = [
     {
@@ -98,14 +98,14 @@ const TimetableGenerator = () => {
     },
     {
       name: "Classroom 2",
-      seats: 20,
+      seats: 25,
       available: true,
       features: ["computers"],
       zone: zones[1],
     },
     {
       name: "Classroom 3",
-      seats: 20,
+      seats: 25,
       available: true,
       features: ["computers", "laboratory"],
       zone: zones[0],
@@ -120,13 +120,21 @@ const TimetableGenerator = () => {
       courses: [
         {
           name: "Algebra",
-          sockets: [{ span: 2 }, { span: 3 }],
-          requirements: ["laboratory", "computers"],
+          sockets: [
+            { span: 2, requirements: ["computers"] },
+            { span: 3, requirements: ["computers"] },
+          ],
         },
         {
           name: "Calculus",
-          sockets: [{ span: 3 }, { span: 2 }, { span: 1 }, { span: 1 }],
-          requirements: ["computers"],
+          sockets: [
+            { span: 3, requirements: ["computers"] },
+            { span: 3, requirements: ["computers"] },
+            { span: 1, requirements: ["computers"] },
+            { span: 4, requirements: ["computers"] },
+            { span: 3, requirements: ["computers"] },
+            { span: 2, requirements: ["computers"] },
+          ],
         },
         // Add more courses with allowedZones
       ],
@@ -138,13 +146,19 @@ const TimetableGenerator = () => {
       courses: [
         {
           name: "Mechanics",
-          sockets: [{ span: 2 }, { span: 2 }],
-          requirements: ["laboratory"],
+          sockets: [
+            { span: 2, requirements: ["laboratory"] },
+            { span: 2, requirements: ["laboratory"] },
+          ],
         },
         {
           name: "Electricity",
-          sockets: [{ span: 3 }, { span: 2 }, { span: 1 }, { span: 1 }],
-          requirements: ["laboratory"],
+          sockets: [
+            { span: 3, requirements: ["laboratory"] },
+            { span: 2, requirements: ["laboratory"] },
+            { span: 1, requirements: ["laboratory"] },
+            { span: 1, requirements: ["laboratory"] },
+          ],
         },
         // Add more courses with allowedZones
       ],
@@ -153,7 +167,7 @@ const TimetableGenerator = () => {
   ];
 
   const dayStructure: DayStructure[] = [
-    { type: PeriodType.Breakfast, duration: 2 },
+    { type: PeriodType.Breakfast, duration: 2.5 },
     { type: PeriodType.Socket, duration: 2 },
     { type: PeriodType.Break, duration: 1 },
     { type: PeriodType.Socket, duration: 4 },
@@ -209,14 +223,14 @@ const TimetableGenerator = () => {
             courseName: course.name,
             span: socket.span,
             startTime: 0,
-            requirements: course.requirements,
+            requirements: socket.requirements,
           };
           courseInstances.push(courseInstance);
         }
       }
     }
 
-    return courseInstances;
+    return shuffle(courseInstances);
   }
 
   function fillTimetableWithCourses(
@@ -224,6 +238,7 @@ const TimetableGenerator = () => {
     courseInstances: CourseInstance[],
   ) {
     courseInstances.sort((a, b) => b.span - a.span);
+    // const shuffledCourseInstances = shuffle(courseInstances);
     let sortedSlots = timetable
       .flat(2)
       .filter((period) => period.event === PeriodType.Socket)
@@ -240,7 +255,8 @@ const TimetableGenerator = () => {
             socket.requirements.every((req) =>
               classroom.features.includes(req),
             ) &&
-            socket.allowedZones.includes(classroom.zone)
+            socket.allowedZones.includes(classroom.zone) &&
+            socket.students <= slot.classroom.seats
           ) {
             socket.startTime =
               slot.startingTime +
@@ -257,7 +273,7 @@ const TimetableGenerator = () => {
       if (!scheduled) {
         unscheduled.push({
           courseInstance: socket,
-          reason: "No suitable slot found",
+          reason: `No suitable slot found.`,
         });
       }
     }
@@ -270,11 +286,24 @@ const TimetableGenerator = () => {
     createCourseInstances(programmes),
   );
 
+  // 24 hours time format
   const timeFormat = (hour: number) => {
-    const meridiem = hour >= 12 ? "PM" : "AM";
-    const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
-    return `${formattedHour}:00 ${meridiem}`;
+    const formattedHour = Math.floor(hour); // Get the integer part (hours)
+    const minutes = (hour - formattedHour) * 60; // Calculate remaining minutes
+
+    const formattedMinutes = Math.floor(minutes);
+    const formattedMinutesString =
+      formattedMinutes < 10 ? `0${formattedMinutes}` : formattedMinutes;
+
+    return `${formattedHour}:${formattedMinutesString}`;
   };
+
+  // 12 hours time format
+  // const timeFormat = (hour: number) => {
+  //   const meridiem = hour >= 12 ? "PM" : "AM";
+  //   const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
+  //   return `${formattedHour}:00 ${meridiem}`;
+  // };
 
   return (
     <div className="p-4">
@@ -324,7 +353,6 @@ const TimetableGenerator = () => {
                         </td>
                         {dayTimetable.map((period, periodIndex) => {
                           const periodStart = currentTime;
-                          let tempPeriodStart = periodStart;
                           const periodEnd =
                             currentTime + dayStructure[periodIndex].duration;
                           currentTime = periodEnd; // Update current time for next period
@@ -348,23 +376,16 @@ const TimetableGenerator = () => {
                                     {period.courses.length > 0 ? (
                                       period.courses.map(
                                         (course, courseIndex) => {
-                                          let courseStartTime = tempPeriodStart;
-                                          let courseEndTime =
-                                            courseStartTime + course.span;
-
-                                          tempPeriodStart = courseEndTime;
                                           return (
                                             <div key={courseIndex}>
                                               {/* {`${course.courseName} (${course.programmeName})`} */}
                                               {course.courseName}
                                               <br />
                                               {`${timeFormat(
-                                                courseStartTime,
+                                                course.startTime,
                                               )} - ${timeFormat(
-                                                courseEndTime,
+                                                course.startTime + course.span,
                                               )}`}
-                                              {/* <br />
-                                              {course.span} */}
                                             </div>
                                           );
                                         },

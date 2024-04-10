@@ -79,24 +79,49 @@ enum ResidencePlan {
   QUARTERLY // Indicating the 3-month choice.
 }
 
+enum ComponentTypeName {
+  TASK
+  TEST
+}
+
+enum ProgrammeClassName {
+  I
+  II
+  III
+  IV
+}
+
+enum PositionName {
+  STUDENT_PRESIDENT
+  CLASS_REPRESENTATIVE
+}
+
 //USERS
 
 model Applicant {
   username                 String                    @id @map("_id")
   hashedPassword           String
   role                     Role                      @default(APPLICANT)
-  formIVIndex              String
   createdAt                DateTime
-  applicationType          ProgrammeLevel
-  educationOrigin          ExaminationType
-  highestEducationLevel    EducationLevel
-  academicYearId           String                    @db.ObjectId
-  academicYear             AcademicYear              @relation(fields: [academicYearId], references: [id])
-  details                  ApplicationDetails?
-  formalImage              ApplicantFormalImage?
   studentOnboarding        StudentOnboarding?
   universityPolicyAccepted UniversityPolicyAccepted?
+  applicationDetails       ApplicationDetails?
   applicantNotification    ApplicantNotification[]
+  formalImageId            String                    @unique @db.ObjectId
+  formalImage              FormalImage               @relation(fields: [formalImageId], references: [id])
+  basicInfoId              String                    @unique @db.ObjectId
+  basicInfo                BasicInfo                 @relation(fields: [basicInfoId], references: [id])
+}
+
+model Student {
+  studentId      String         @id @map("_id")
+  hashedPassword String
+  role           Role           @default(STUDENT)
+  positions      PositionName[]
+  formalImageId  String         @unique @db.ObjectId
+  formalImage    FormalImage    @relation(fields: [formalImageId], references: [id])
+  basicInfoId    String         @unique @db.ObjectId
+  basicInfo      BasicInfo      @relation(fields: [basicInfoId], references: [id])
 }
 
 model ResidenceManager {
@@ -113,52 +138,21 @@ model ResidenceManager {
 //APPLICANT DATA
 // FIXME: ADD University application ID to check the application period
 model ApplicationDetails {
-  applicantUsername            String                         @id @map("_id")
-  applicant                    Applicant                      @relation(fields: [applicantUsername], references: [username])
-  createdAt                    DateTime
-  submittedAt                  DateTime?
-  applicationStatus            ApplicationStatus              @default(DRAFT)
-  // Properties from ApplicantProfile
-  nida                         String                         @default("")
-  firstName                    String                         @default("")
-  middleName                   String                         @default("")
-  lastName                     String                         @default("")
-  nationality                  String                         @default("")
-  gender                       String                         @default("")
-  dateOfBirth                  String                         @default("")
-  maritalStatus                String                         @default("")
-  placeOfBirth                 String                         @default("")
-  disability                   String                         @default("")
-  // Properties from ApplicantContacts
-  phone                        String                         @default("")
-  email                        String?                        @default("")
-  alternativeEmail             String?                        @default("")
-  alternativePhone             String?                        @default("")
-  streetAddress                String                         @default("")
-  city                         String                         @default("")
-  region                       String                         @default("")
-  postalCode                   String                         @default("")
-  country                      String                         @default("")
-  // Properties from ApplicantEmergencyContacts
-  emergencyFullName            String                         @default("")
-  emergencyPhone               String                         @default("")
-  emergencyEmail               String?                        @default("")
-  emergencyAlternativeEmail    String?                        @default("")
-  emergencyAlternativePhone    String?                        @default("")
-  emergencyStreetAddress       String                         @default("")
-  emergencyCity                String                         @default("")
-  emergencyRegion              String                         @default("")
-  emergencyPostalCode          String                         @default("")
-  emergencyCountry             String                         @default("")
-  emergencyRelation            String                         @default("")
+  applicantUsername     String            @id @map("_id")
+  applicant             Applicant         @relation(fields: [applicantUsername], references: [username])
+  createdAt             DateTime
+  submittedAt           DateTime?
+  applicationStatus     ApplicationStatus @default(DRAFT)
+  formIVIndex           String
+  applicationType       ProgrammeLevel
+  educationOrigin       ExaminationType
+  highestEducationLevel EducationLevel
+
   // Properties from ApplicationPayment
-  controlNumber                String                         @default("")
-  paymentStatus                PaymentStatus                  @default(PENDING)
+  controlNumber                String                       @default("")
+  paymentStatus                PaymentStatus                @default(PENDING)
   //relations
-  educationFile                ApplicantEducationFile?
   applicantProgrammePriorities ApplicantProgrammePriority[]
-  educationBackgrounds         ApplicantEducationBackground[]
-  additionalEducationFiles     ApplicantAdditionalFile[]
 }
 
 model ApplicantNotification {
@@ -182,50 +176,6 @@ model ApplicantProgrammePriority {
   programme     Programme @relation(fields: [programmeCode], references: [code])
 }
 
-model ApplicantEducationBackground {
-  id         String @id @default(auto()) @map("_id") @db.ObjectId
-  position   Int
-  level      String @default("")
-  schoolName String @default("")
-  startYear  String @default("")
-  endYear    String @default("")
-
-  applicantUsername  String
-  applicationDetails ApplicationDetails @relation(fields: [applicantUsername], references: [applicantUsername])
-}
-
-model ApplicantFormalImage {
-  applicantUsername String    @id @map("_id")
-  applicant         Applicant @relation(fields: [applicantUsername], references: [username])
-  imageUrl          String    @default("")
-  key               String    @default("")
-  name              String    @default("")
-  size              Int       @default(0)
-}
-
-model ApplicantEducationFile {
-  url  String @default("")
-  key  String @default("")
-  type String @default("")
-  name String @default("")
-  size Int    @default(0)
-
-  applicantUsername  String             @id @map("_id")
-  applicationDetails ApplicationDetails @relation(fields: [applicantUsername], references: [applicantUsername])
-}
-
-model ApplicantAdditionalFile {
-  id   String @id @default(auto()) @map("_id") @db.ObjectId
-  url  String
-  type String
-  key  String
-  name String
-  size Int
-
-  applicantUsername  String
-  applicationDetails ApplicationDetails @relation(fields: [applicantUsername], references: [applicantUsername])
-}
-
 model UniversityPolicyAccepted {
   applicantUsername String    @id @map("_id")
   applicant         Applicant @relation(fields: [applicantUsername], references: [username])
@@ -238,13 +188,123 @@ model StudentOnboarding {
   applicantUsername String    @id @map("_id")
   applicant         Applicant @relation(fields: [applicantUsername], references: [username])
 
-  currentPage      Int     @default(0)
-  hasDocuments     Boolean @default(false)
-  hasAccommodation Boolean @default(false)
-  registeredBy     String  @default("")
+  currentPage        Int     @default(0)
+  hasDocuments       Boolean @default(false)
+  hasAccommodation   Boolean @default(false)
+  registeredBy       String  @default("")
+  generatedStudentId String
+  admissionNumber    String
+
+  entryYearId String       @db.ObjectId
+  entryYear   AcademicYear @relation(fields: [entryYearId], references: [id])
+
+  // Entry Programme - students entry programme
+  // Entry Year [✅]
+  // Entry Category - add enum
+  // Registration Number - auto generate
+  // Addmission letter
 }
 
 //APPLICANT DATA
+
+//STUDENT DATA
+
+//STUDENT DATA
+
+// STUDENT X APPLICANT DATA
+
+model FormalImage {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  applicant Applicant?
+  student   Student?
+  imageUrl  String     @default("")
+  key       String     @default("")
+  name      String     @default("")
+  size      Int        @default(0)
+}
+
+model EducationFile {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  url  String @default("")
+  key  String @default("")
+  type String @default("")
+  name String @default("")
+  size Int    @default(0)
+
+  basicInfoId String    @unique @db.ObjectId
+  basicInfo   BasicInfo @relation(fields: [basicInfoId], references: [id])
+}
+
+model EducationBackground {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  position   Int
+  level      String @default("")
+  schoolName String @default("")
+  startYear  String @default("")
+  endYear    String @default("")
+
+  basicInfoId String    @unique @db.ObjectId
+  basicInfo   BasicInfo @relation(fields: [basicInfoId], references: [id])
+}
+
+model AdditionalEducationFile {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  url  String
+  type String
+  key  String
+  name String
+  size Int
+
+  basicInfoId String    @unique @db.ObjectId
+  basicInfo   BasicInfo @relation(fields: [basicInfoId], references: [id])
+}
+
+model BasicInfo {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  applicant Applicant?
+  student   Student?
+
+  // Profile
+  firstName                 String  @default("")
+  middleName                String  @default("")
+  lastName                  String  @default("")
+  nida                      String  @default("")
+  nationality               String  @default("")
+  gender                    String  @default("")
+  dateOfBirth               String  @default("")
+  maritalStatus             String  @default("")
+  placeOfBirth              String  @default("")
+  disability                String  @default("")
+  // Contacts
+  phone                     String  @default("")
+  email                     String? @default("")
+  alternativeEmail          String? @default("")
+  alternativePhone          String? @default("")
+  streetAddress             String  @default("")
+  city                      String  @default("")
+  region                    String  @default("")
+  postalCode                String  @default("")
+  country                   String  @default("")
+  // EmergencyContacts
+  emergencyFullName         String  @default("")
+  emergencyPhone            String  @default("")
+  emergencyEmail            String? @default("")
+  emergencyAlternativeEmail String? @default("")
+  emergencyAlternativePhone String? @default("")
+  emergencyStreetAddress    String  @default("")
+  emergencyCity             String  @default("")
+  emergencyRegion           String  @default("")
+  emergencyPostalCode       String  @default("")
+  emergencyCountry          String  @default("")
+  emergencyRelation         String  @default("")
+
+  //model relationship
+  educationFile            EducationFile?
+  educationBackgrounds     EducationBackground[]
+  additionalEducationFiles AdditionalEducationFile[]
+}
+
+// STUDENT X APPLICANT DATA
 
 // RESIDENCE MANAGEMENT
 
@@ -365,7 +425,7 @@ model AcademicYear {
 
   applicationStartTime DateTime // Start time of the application
   applicationEndTime   DateTime // End time of the application
-  applicants           Applicant[]
+  newStudents          StudentOnboarding[]
 }
 
 //UNIVERSITY ANUAL EVENTS
