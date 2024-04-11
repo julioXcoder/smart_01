@@ -71,7 +71,7 @@ type Timetable = ScheduledPeriod[][][];
 const TimetableGenerator = () => {
   const [showUnscheduled, setShowUnscheduled] = useState(false);
 
-  const startTime = 8.5; // Start time in hours (e.g., 8 AM)
+  const startTime = 8.5; // Start time in hours (e.g., 8:30 AM)
 
   const zones: Zone[] = [
     {
@@ -122,17 +122,22 @@ const TimetableGenerator = () => {
           name: "Algebra",
           sockets: [
             { span: 2, requirements: ["computers"] },
-            { span: 3, requirements: ["computers"] },
+            { span: 2, requirements: ["computers"] },
+            { span: 2, requirements: ["computers"] },
+            { span: 2, requirements: ["computers"] },
+            { span: 2, requirements: ["computers"] },
+            { span: 2, requirements: ["computers"] },
           ],
         },
         {
-          name: "Calculus",
+          name: "Calculus asssssssss",
           sockets: [
-            { span: 3, requirements: ["computers"] },
-            { span: 3, requirements: ["computers"] },
-            { span: 1, requirements: ["computers"] },
-            { span: 4, requirements: ["computers"] },
-            { span: 3, requirements: ["computers"] },
+            { span: 2, requirements: ["computers"] },
+            { span: 2, requirements: ["computers"] },
+            { span: 2, requirements: ["computers"] },
+            { span: 2, requirements: ["computers"] },
+            { span: 2, requirements: ["computers"] },
+            { span: 2, requirements: ["computers"] },
             { span: 2, requirements: ["computers"] },
           ],
         },
@@ -158,6 +163,32 @@ const TimetableGenerator = () => {
             { span: 2, requirements: ["laboratory"] },
             { span: 1, requirements: ["laboratory"] },
             { span: 1, requirements: ["laboratory"] },
+          ],
+        },
+        // Add more courses with allowedZones
+      ],
+    },
+    {
+      name: "chem",
+      students: 25,
+      allowedZones: [zones[0], zones[1], zones[2]], // Algebra allowed in wing A, B, C
+      courses: [
+        {
+          name: "Chem2",
+          sockets: [
+            { span: 2, requirements: ["computers"] },
+            { span: 2, requirements: ["computers"] },
+            { span: 2, requirements: ["computers"] },
+            { span: 2, requirements: ["computers"] },
+          ],
+        },
+        {
+          name: "Chem1",
+          sockets: [
+            { span: 3, requirements: ["computers"] },
+            { span: 2, requirements: ["computers"] },
+            { span: 1, requirements: ["computers"] },
+            { span: 1, requirements: ["computers"] },
           ],
         },
         // Add more courses with allowedZones
@@ -233,43 +264,110 @@ const TimetableGenerator = () => {
     return shuffle(courseInstances);
   }
 
+  // function fillTimetableWithCourses(
+  //   timetable: Timetable,
+  //   courseInstances: CourseInstance[],
+  // ) {
+  //   courseInstances.sort((a, b) => b.span - a.span);
+  //   // const shuffledCourseInstances = shuffle(courseInstances);
+  //   let sortedSlots = timetable
+  //     .flat(2)
+  //     .filter((period) => period.event === PeriodType.Socket)
+  //     .sort((a, b) => b.span - a.span);
+
+  //   let unscheduled: UnscheduleReason[] = [];
+
+  //   for (let socket of courseInstances) {
+  //     let scheduled = false;
+  //     for (let slot of sortedSlots) {
+  //       if (socket.span <= slot.span && slot.classroom) {
+  //         const { classroom } = slot;
+  //         if (
+  //           socket.requirements.every((req) =>
+  //             classroom.features.includes(req),
+  //           ) &&
+  //           socket.allowedZones.includes(classroom.zone) &&
+  //           socket.students <= slot.classroom.seats
+  //         ) {
+  //           socket.startTime =
+  //             slot.startingTime +
+  //             (slot.courses.length > 0
+  //               ? slot.courses[slot.courses.length - 1].span
+  //               : 0);
+  //           slot.courses.push(socket);
+  //           slot.span -= socket.span;
+  //           scheduled = true;
+  //           break;
+  //         }
+  //       }
+  //     }
+  //     if (!scheduled) {
+  //       unscheduled.push({
+  //         courseInstance: socket,
+  //         reason: `No suitable slot found.`,
+  //       });
+  //     }
+  //   }
+
+  //   return { timetable, unscheduled };
+  // }
+
   function fillTimetableWithCourses(
     timetable: Timetable,
     courseInstances: CourseInstance[],
   ) {
     courseInstances.sort((a, b) => b.span - a.span);
-    // const shuffledCourseInstances = shuffle(courseInstances);
-    let sortedSlots = timetable
-      .flat(2)
-      .filter((period) => period.event === PeriodType.Socket)
-      .sort((a, b) => b.span - a.span);
+
+    // Track scheduled programmes
+    let scheduledProgrammes: Set<string> = new Set();
 
     let unscheduled: UnscheduleReason[] = [];
 
     for (let socket of courseInstances) {
       let scheduled = false;
-      for (let slot of sortedSlots) {
-        if (socket.span <= slot.span && slot.classroom) {
-          const { classroom } = slot;
-          if (
-            socket.requirements.every((req) =>
-              classroom.features.includes(req),
-            ) &&
-            socket.allowedZones.includes(classroom.zone) &&
-            socket.students <= slot.classroom.seats
-          ) {
-            socket.startTime =
-              slot.startingTime +
-              (slot.courses.length > 0
-                ? slot.courses[slot.courses.length - 1].span
-                : 0);
-            slot.courses.push(socket);
-            slot.span -= socket.span;
-            scheduled = true;
-            break;
+
+      for (let classroomTimetable of timetable) {
+        for (let dayTimetable of classroomTimetable) {
+          let sortedSlots = dayTimetable
+            .flat()
+            .filter((period) => period.event === PeriodType.Socket)
+            .sort((a, b) => b.span - a.span);
+          for (let slot of sortedSlots) {
+            if (socket.span <= slot.span && slot.classroom) {
+              const { classroom } = slot;
+
+              // Check if this programme has already been scheduled in this time slot
+              const programmeKey = `${socket.programmeName}-${slot.weekday}-${slot.startingTime}`;
+              console.log("key", programmeKey);
+              if (
+                !scheduledProgrammes.has(programmeKey) &&
+                socket.requirements.every((req) =>
+                  classroom.features.includes(req),
+                ) &&
+                socket.allowedZones.includes(classroom.zone) &&
+                socket.students <= classroom.seats
+              ) {
+                // Mark this programme as scheduled for this time slot
+                scheduledProgrammes.add(programmeKey);
+
+                // Assign start time and add course to the slot
+                socket.startTime =
+                  slot.startingTime +
+                  (slot.courses.length > 0
+                    ? slot.courses[slot.courses.length - 1].span
+                    : 0);
+                slot.courses.push(socket);
+                slot.span -= socket.span;
+                scheduled = true;
+                break; // Break out of inner loops once scheduled
+              }
+            }
           }
+          if (scheduled) break; // Break out of dayTimetable loop once scheduled
         }
+        if (scheduled) break; // Break out of classroomTimetable loop once scheduled
       }
+
       if (!scheduled) {
         unscheduled.push({
           courseInstance: socket,
@@ -277,6 +375,8 @@ const TimetableGenerator = () => {
         });
       }
     }
+
+    console.log("timetable", timetable);
 
     return { timetable, unscheduled };
   }
