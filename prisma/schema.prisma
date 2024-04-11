@@ -80,8 +80,10 @@ enum ResidencePlan {
 }
 
 enum ComponentType {
-  TASK
+  ASSIGNMENT
   TEST
+  PROJECT
+  FIELD
 }
 
 enum HealthInsuranceStatus {
@@ -102,6 +104,15 @@ enum Position {
 }
 
 //USERS
+
+model Staff {
+  staffId        String            @id @map("_id")
+  hashedPassword String
+  role           Role
+  formalImage    StaffFormalImage?
+  basicInfo      StaffBasicInfo?
+  modules        ModuleInstance[]
+}
 
 model Applicant {
   username                 String                    @id @map("_id")
@@ -235,6 +246,7 @@ model StudentRegistration {
   studentHealthInsurance StudentHealthInsurance?
   accomodationFee        AccomodationFee?
   mealsFee               MealsFee?
+  academicScoreCards     AcademicScorecard[]
 }
 
 model AcademicFee {
@@ -281,16 +293,32 @@ model MealsFee {
   amoutPayed    Float @default(0)
 }
 
-model StudyYear {
-  id    String         @id @default(auto()) @map("_id") @db.ObjectId
-  class ProgrammeClass
+//STUDENT DATA
 
-  programmeCode       String
-  programme           Programme             @relation(fields: [programmeCode], references: [code])
-  StudyYearEnlorments StudentRegistration[]
+//STAFF DATA
+
+model StaffFormalImage {
+  staffId String @id @map("_id")
+  staff   Staff  @relation(fields: [staffId], references: [staffId])
+
+  imageUrl String @default("")
+  key      String @default("")
+  name     String @default("")
+  size     Int    @default(0)
 }
 
-//STUDENT DATA
+model StaffBasicInfo {
+  staffId String @id @map("_id")
+  staff   Staff  @relation(fields: [staffId], references: [staffId])
+
+  firstName  String
+  middleName String
+  lastName   String
+  phone      String
+  email      String
+}
+
+//STAFF DATA
 
 // STUDENT X APPLICANT DATA
 
@@ -324,7 +352,7 @@ model EducationBackground {
   startYear  String @default("")
   endYear    String @default("")
 
-  basicInfoId String    @unique @db.ObjectId
+  basicInfoId String    @db.ObjectId
   basicInfo   BasicInfo @relation(fields: [basicInfoId], references: [id])
 }
 
@@ -336,7 +364,7 @@ model AdditionalEducationFile {
   name String
   size Int
 
-  basicInfoId String    @unique @db.ObjectId
+  basicInfoId String    @db.ObjectId
   basicInfo   BasicInfo @relation(fields: [basicInfoId], references: [id])
 }
 
@@ -487,7 +515,116 @@ model Programme {
   studyYears                   StudyYear[]
 }
 
+model StudyYear {
+  id    String         @id @default(auto()) @map("_id") @db.ObjectId
+  class ProgrammeClass
+
+  programmeCode       String
+  programme           Programme             @relation(fields: [programmeCode], references: [code])
+  StudyYearEnlorments StudentRegistration[]
+  modules             Module[]
+}
+
+model Module {
+  code               String @id @map("_id")
+  name               String
+  credits            Int
+  assessmentMaxScore Int
+
+  resources       ModuleFile[]
+  moduleInstances ModuleInstance[]
+  studyYearId     String           @db.ObjectId
+  studyYear       StudyYear        @relation(fields: [studyYearId], references: [id])
+}
+
+model ModuleFile {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  url  String @default("")
+  key  String @default("")
+  type String @default("")
+  name String @default("")
+  size Int    @default(0)
+
+  moduleCode String
+  module     Module @relation(fields: [moduleCode], references: [code])
+}
+
+model ModuleInstance {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  moduleCode         String
+  module             Module              @relation(fields: [moduleCode], references: [code])
+  lecturerId         String
+  lecturer           Staff               @relation(fields: [lecturerId], references: [staffId])
+  semesterId         String              @db.ObjectId
+  semester           Semester            @relation(fields: [semesterId], references: [id])
+  academicScorecards AcademicScorecard[]
+  components         Component[]
+}
+
 //UNIVERSITY HIERARCHY
+
+//UNIVERSITY GRADING
+
+model Component {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  totaltMarks Int
+  type        ComponentType
+  description String?
+
+  moduleInstanceId     String                 @db.ObjectId
+  moduleInstance       ModuleInstance         @relation(fields: [moduleInstanceId], references: [id])
+  continuousAssessment ContinuousAssessment[]
+}
+
+model ContinuousAssessment {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  marks Int?
+
+  // For assignment
+  files       ContinuousAssessmentFile[]
+  submittedAt DateTime?
+  deadline    DateTime?
+
+  componentId         String            @db.ObjectId
+  component           Component         @relation(fields: [componentId], references: [id])
+  academicScorecardId String            @db.ObjectId
+  academicScorecard   AcademicScorecard @relation(fields: [academicScorecardId], references: [id])
+}
+
+model ContinuousAssessmentFile {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  url  String @default("")
+  key  String @default("")
+  type String @default("")
+  name String @default("")
+  size Int    @default(0)
+
+  caId String               @db.ObjectId
+  ca   ContinuousAssessment @relation(fields: [caId], references: [id])
+}
+
+model UniversityExamination {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  marks Int?
+
+  academicScorecardId String            @unique @db.ObjectId
+  academicScorecard   AcademicScorecard @relation(fields: [academicScorecardId], references: [id])
+}
+
+model AcademicScorecard {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  ca                    ContinuousAssessment[]
+  universityExamination UniversityExamination?
+  studentRegistrationId String                 @db.ObjectId
+  studentRegistration   StudentRegistration    @relation(fields: [studentRegistrationId], references: [id])
+  moduleInstanceId      String                 @db.ObjectId
+  moduleInstance        ModuleInstance         @relation(fields: [moduleInstanceId], references: [id])
+}
+
+//UNIVERSITY GRADING
 
 //UNIVERSITY EVENTS
 
@@ -510,6 +647,7 @@ model Semester {
   semesterEnrollments StudentRegistration[]
   academicYearId      String                @db.ObjectId
   academicYear        AcademicYear          @relation(fields: [academicYearId], references: [id])
+  moduleInstances     ModuleInstance[]
 }
 
 //UNIVERSITY EVENTS
