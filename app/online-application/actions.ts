@@ -127,54 +127,51 @@ export const newApplicantAccount = async (newApplicantData: NewApplicant) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const newApplicant = await prisma.applicant.create({
-      data: {
-        username,
-        hashedPassword,
-        formIVIndex,
-        applicationType,
-        educationOrigin: origin,
-        highestEducationLevel,
-        academicYear: { connect: { id: latestAcademicYearId } },
-        createdAt: now,
-      },
-    });
+    const formalImage = await prisma.formalImage.create({});
 
-    await prisma.applicantFormalImage.create({
+    const basicInfo = await prisma.basicInfo.create({});
+
+    await prisma.educationBackground.create({
       data: {
-        applicant: {
+        basicInfo: {
           connect: {
-            username: newApplicant.username,
-          },
-        },
-      },
-    });
-
-    const newApplicationDetails = await prisma.applicationDetails.create({
-      data: {
-        applicant: { connect: { username: newApplicant.username } },
-        createdAt: now,
-      },
-    });
-
-    await prisma.applicantEducationBackground.create({
-      data: {
-        applicationDetails: {
-          connect: {
-            applicantUsername: newApplicationDetails.applicantUsername,
+            id: basicInfo.id,
           },
         },
         position: 0,
       },
     });
 
-    await prisma.applicantEducationFile.create({
+    await prisma.educationFile.create({
       data: {
-        applicationDetails: {
-          connect: {
-            applicantUsername: newApplicationDetails.applicantUsername,
-          },
+        basicInfo: {
+          connect: { id: basicInfo.id },
         },
+      },
+    });
+
+    const newApplicant = await prisma.applicant.create({
+      data: {
+        username,
+        hashedPassword,
+        createdAt: now,
+        basicInfo: {
+          connect: { id: basicInfo.id },
+        },
+        formalImage: {
+          connect: { id: formalImage.id },
+        },
+      },
+    });
+
+    await prisma.applicationDetails.create({
+      data: {
+        applicant: { connect: { username: newApplicant.username } },
+        createdAt: now,
+        formIVIndex,
+        applicationType,
+        educationOrigin: origin,
+        highestEducationLevel,
       },
     });
 

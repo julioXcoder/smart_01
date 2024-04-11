@@ -13,6 +13,23 @@ import { getPayload } from "../actions";
 
 const baseUrl = "/applicant-portal/dashboard";
 
+async function getApplicant() {
+  const { id: username } = await getPayload();
+
+  const applicant = await prisma.applicant.findUnique({
+    where: {
+      username,
+    },
+  });
+
+  if (!applicant)
+    throw new Error(
+      `Unable to locate the applicant details for the applicant with the username: ${username}.`,
+    );
+
+  return applicant;
+}
+
 export async function getApplicationDetails() {
   const { id: applicantUsername } = await getPayload();
 
@@ -21,12 +38,25 @@ export async function getApplicationDetails() {
       username: applicantUsername,
     },
     include: {
-      details: {
+      basicInfo: {
         include: {
-          applicantProgrammePriorities: { include: { programme: true } },
-          educationBackgrounds: true,
-          additionalEducationFiles: true,
+          educationBackgrounds: {
+            orderBy: {
+              position: "asc",
+            },
+          },
           educationFile: true,
+          additionalEducationFiles: true,
+        },
+      },
+      applicationDetails: {
+        include: {
+          applicantProgrammePriorities: {
+            include: { programme: true },
+            orderBy: {
+              priority: "asc",
+            },
+          },
         },
       },
       formalImage: true,
@@ -35,9 +65,10 @@ export async function getApplicationDetails() {
 
   if (
     !applicantData ||
-    !applicantData.details ||
+    !applicantData.applicationDetails ||
     !applicantData.formalImage ||
-    !applicantData.details.educationFile
+    !applicantData.basicInfo.educationFile ||
+    !applicantData.basicInfo
   ) {
     throw new Error(
       `Unable to locate the applicant details for the applicant with the username: ${applicantUsername}.`,
@@ -46,7 +77,7 @@ export async function getApplicationDetails() {
 
   const programmes = await prisma.programme.findMany({
     where: {
-      level: applicantData.applicationType,
+      level: applicantData.applicationDetails.applicationType,
     },
     include: {
       department: {
@@ -61,12 +92,12 @@ export async function getApplicationDetails() {
 
   const {
     formalImage,
-    details: {
+    basicInfo: {
       educationBackgrounds,
       additionalEducationFiles,
-      applicantProgrammePriorities,
       educationFile,
     },
+    applicationDetails: { applicantProgrammePriorities },
   } = applicantData;
 
   const applicantEducationBackgrounds = educationBackgrounds.map((item) => {
@@ -74,16 +105,22 @@ export async function getApplicationDetails() {
     return { _id: id, ...rest };
   });
 
+  const details = {
+    ...applicantData.basicInfo,
+    ...applicantData.applicationDetails,
+  };
+
   return {
-    applicationType: applicantData.applicationType,
-    details: applicantData.details,
+    applicationType: applicantData.applicationDetails.applicationType,
+    details,
     formalImage,
     educationFile,
     additionalEducationFiles,
     programmeList: programmes,
     applicantEducationBackgrounds,
     applicantProgrammePriorities,
-    highestEducationLevel: applicantData.highestEducationLevel,
+    highestEducationLevel:
+      applicantData.applicationDetails.highestEducationLevel,
   };
 }
 
@@ -103,11 +140,11 @@ export const addApplicantImageData = async (applicantImageData: {
   name: string;
   size: number;
 }) => {
-  const { id: applicantUsername } = await getPayload();
+  const applicant = await getApplicant();
 
-  await prisma.applicantFormalImage.update({
+  await prisma.formalImage.update({
     where: {
-      applicantUsername,
+      id: applicant.formalImageId,
     },
     data: {
       imageUrl: applicantImageData.url,
@@ -121,11 +158,11 @@ export const addApplicantImageData = async (applicantImageData: {
 };
 
 export const deleteApplicantImageData = async () => {
-  const { id: applicantUsername } = await getPayload();
+  const applicant = await getApplicant();
 
-  await prisma.applicantFormalImage.update({
+  await prisma.formalImage.update({
     where: {
-      applicantUsername,
+      id: applicant.formalImageId,
     },
     data: {
       imageUrl: "",
@@ -139,11 +176,29 @@ export const deleteApplicantImageData = async () => {
 };
 
 export const deleteApplicantEducationFileData = async () => {
-  const { id: applicantUsername } = await getPayload();
+  const { id: username } = await getPayload();
 
-  await prisma.applicantEducationFile.update({
+  const applicant = await prisma.applicant.findUnique({
     where: {
-      applicantUsername,
+      username,
+    },
+    include: {
+      basicInfo: {
+        include: {
+          educationFile: true,
+        },
+      },
+    },
+  });
+
+  if (!applicant || !applicant.basicInfo.educationFile)
+    throw new Error(
+      `Unable to locate the applicant details for the applicant with the username: ${username}.`,
+    );
+
+  await prisma.educationFile.update({
+    where: {
+      id: applicant.basicInfo.educationFile.id,
     },
     data: {
       url: "",
@@ -166,11 +221,29 @@ export const addApplicantEducationFile = async (
   },
   fileType: string,
 ) => {
-  const { id: applicantUsername } = await getPayload();
+  const { id: username } = await getPayload();
 
-  await prisma.applicantEducationFile.update({
+  const applicant = await prisma.applicant.findUnique({
     where: {
-      applicantUsername,
+      username,
+    },
+    include: {
+      basicInfo: {
+        include: {
+          educationFile: true,
+        },
+      },
+    },
+  });
+
+  if (!applicant || !applicant.basicInfo.educationFile)
+    throw new Error(
+      `Unable to locate the applicant details for the applicant with the username: ${username}.`,
+    );
+
+  await prisma.educationFile.update({
+    where: {
+      id: applicant.basicInfo.educationFile.id,
     },
     data: {
       url: applicantEducationFileData.url,
@@ -185,7 +258,7 @@ export const addApplicantEducationFile = async (
 };
 
 export const deleteApplicantAdditionalFileData = async (id: string) => {
-  await prisma.applicantAdditionalFile.delete({
+  await prisma.additionalEducationFile.delete({
     where: {
       id,
     },
@@ -203,13 +276,27 @@ export const addApplicantAdditionalFile = async (
   },
   fileType: string,
 ) => {
-  const { id: applicantUsername } = await getPayload();
+  const { id: username } = await getPayload();
 
-  await prisma.applicantAdditionalFile.create({
+  const applicant = await prisma.applicant.findUnique({
+    where: {
+      username,
+    },
+    include: {
+      basicInfo: true,
+    },
+  });
+
+  if (!applicant || !applicant.basicInfo)
+    throw new Error(
+      `Unable to locate the applicant details for the applicant with the username: ${username}.`,
+    );
+
+  await prisma.additionalEducationFile.create({
     data: {
-      applicationDetails: {
+      basicInfo: {
         connect: {
-          applicantUsername,
+          id: applicant.basicInfo.id,
         },
       },
       url: applicantEducationFileData.url,
@@ -224,16 +311,30 @@ export const addApplicantAdditionalFile = async (
 };
 
 export const addApplicantEducationBackground = async (position: number) => {
-  const { id: applicantUsername } = await getPayload();
+  const { id: username } = await getPayload();
+
+  const applicant = await prisma.applicant.findUnique({
+    where: {
+      username,
+    },
+    include: {
+      basicInfo: true,
+    },
+  });
+
+  if (!applicant || !applicant.basicInfo)
+    throw new Error(
+      `Unable to locate the applicant details for the applicant with the username: ${username}.`,
+    );
 
   if (position < 0 || position > 5)
     throw new Error("The provided position is invalid.");
 
-  const newEducation = await prisma.applicantEducationBackground.create({
+  const newEducation = await prisma.educationBackground.create({
     data: {
-      applicationDetails: {
+      basicInfo: {
         connect: {
-          applicantUsername,
+          id: applicant.basicInfo.id,
         },
       },
       position,
@@ -244,7 +345,7 @@ export const addApplicantEducationBackground = async (position: number) => {
 };
 
 export const deleteApplicantEducationBackground = async (itemId: string) => {
-  await prisma.applicantEducationBackground.delete({
+  await prisma.educationBackground.delete({
     where: {
       id: itemId,
     },
@@ -274,19 +375,33 @@ export const generateControlNumber = async () => {
 export const saveApplicationData = async (
   applicantFormData: ApplicantFormData,
 ) => {
-  const { id: applicantUsername } = await getPayload();
+  const { id: username } = await getPayload();
+
+  const applicant = await prisma.applicant.findUnique({
+    where: {
+      username,
+    },
+    include: {
+      basicInfo: true,
+    },
+  });
+
+  if (!applicant || !applicant.basicInfo)
+    throw new Error(
+      `Unable to locate the applicant details for the applicant with the username: ${username}.`,
+    );
 
   const { education, ...rest } = applicantFormData.formData;
 
-  await prisma.applicationDetails.update({
+  await prisma.basicInfo.update({
     where: {
-      applicantUsername,
+      id: applicant.basicInfoId,
     },
     data: rest,
   });
 
   for (const educationBackground of education) {
-    await prisma.applicantEducationBackground.update({
+    await prisma.educationBackground.update({
       where: { id: educationBackground._id },
       data: {
         position: educationBackground.position,

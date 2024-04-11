@@ -19,21 +19,27 @@ export const getApplicantInfo = async () => {
     where: { username },
     include: {
       formalImage: true,
-      details: true,
+      basicInfo: true,
+      applicationDetails: true,
     },
   });
 
-  if (!applicant || !applicant.details || !applicant.formalImage) {
+  if (
+    !applicant ||
+    !applicant.basicInfo ||
+    !applicant.applicationDetails ||
+    !applicant.formalImage
+  ) {
     throw new Error(
       `Unable to locate the applicant details for the applicant with the username: ${username}.`,
     );
   }
 
   return {
-    firstName: applicant.details.firstName,
-    lastName: applicant.details.lastName,
+    firstName: applicant.basicInfo.firstName,
+    lastName: applicant.basicInfo.lastName,
     username: applicant.username,
     imageUrl: applicant.formalImage.imageUrl,
-    status: applicant.details.applicationStatus,
+    status: applicant.applicationDetails.applicationStatus,
   };
 };

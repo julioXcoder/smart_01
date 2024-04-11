@@ -51,7 +51,7 @@ import Profile from "./profile";
 import ProgrammeListing from "./programmeListing";
 
 import { UploadFileResponse } from "@/types/uploadthing";
-import { ApplicantFormalImage, ApplicantAdditionalFile } from "@prisma/client";
+import { FormalImage, AdditionalEducationFile } from "@prisma/client";
 import {
   addApplicantAdditionalFile,
   addApplicantEducationFile,
@@ -528,51 +528,48 @@ const Draft = ({ data }: Props) => {
     [formalImage, handleImageUpload, imagePreview],
   );
 
-  const handleImageRemoval = useCallback(
-    async (imageData: ApplicantFormalImage) => {
-      const formData = new FormData();
+  const handleImageRemoval = useCallback(async (imageData: FormalImage) => {
+    const formData = new FormData();
 
-      for (let key in imageData) {
-        if (Object.prototype.hasOwnProperty.call(imageData, key)) {
-          const element = imageData[key as keyof typeof imageData];
-          formData.append(key, String(element));
-        }
+    for (let key in imageData) {
+      if (Object.prototype.hasOwnProperty.call(imageData, key)) {
+        const element = imageData[key as keyof typeof imageData];
+        formData.append(key, String(element));
       }
+    }
 
-      const responsePromise = fetch("/api/applicant/image", {
-        method: "DELETE",
-        body: formData,
-      });
+    const responsePromise = fetch("/api/applicant/image", {
+      method: "DELETE",
+      body: formData,
+    });
 
-      toast.promise(responsePromise, {
+    toast.promise(responsePromise, {
+      loading: "Removing image...",
+      success: <b>Image processed!</b>,
+      error: <b>Could not remove the image.</b>,
+    });
+
+    const response = await responsePromise;
+
+    if (!response.ok) {
+      toast.error("failed to process the image", { duration: 6000 });
+      return false;
+    }
+
+    const success: boolean = await response.json();
+
+    if (success) {
+      toast.promise(deleteApplicantImageData(), {
         loading: "Removing image...",
-        success: <b>Image processed!</b>,
-        error: <b>Could not remove the image.</b>,
+        success: <b>Image removed.</b>,
+        error: <b>Oops failed to remove image</b>,
       });
-
-      const response = await responsePromise;
-
-      if (!response.ok) {
-        toast.error("failed to process the image", { duration: 6000 });
-        return false;
-      }
-
-      const success: boolean = await response.json();
-
-      if (success) {
-        toast.promise(deleteApplicantImageData(), {
-          loading: "Removing image...",
-          success: <b>Image removed.</b>,
-          error: <b>Oops failed to remove image</b>,
-        });
-        return true;
-      } else {
-        toast.error("Image removal failed!", { duration: 6000 });
-        return false;
-      }
-    },
-    [],
-  );
+      return true;
+    } else {
+      toast.error("Image removal failed!", { duration: 6000 });
+      return false;
+    }
+  }, []);
 
   const handleFileRemove = useCallback(async () => {
     const prevImagePreView = imagePreview;
@@ -737,7 +734,7 @@ const Draft = ({ data }: Props) => {
   );
 
   const handleAdditionalFileRemove = useCallback(
-    async (file: ApplicantAdditionalFile) => {
+    async (file: AdditionalEducationFile) => {
       setIsUploadingFile(true);
 
       const formData = new FormData();
@@ -939,6 +936,7 @@ const Draft = ({ data }: Props) => {
       setDraftSaving(false);
       throw error;
     });
+    setIsSaved(true);
     setDraftSaving(false);
   };
 

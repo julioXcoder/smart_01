@@ -1,9 +1,10 @@
 import {
-  ApplicantAdditionalFile,
-  ApplicantEducationFile,
-  ApplicantFormalImage,
+  AdditionalEducationFile,
+  EducationFile,
+  FormalImage,
   EducationLevel,
   ProgrammeLevel,
+  BasicInfo,
   ApplicationDetails,
   Programme,
   Department,
@@ -625,13 +626,13 @@ interface ProgrammeWithDetails extends Programme {
 }
 
 interface ApplicationData {
-  details: ApplicationDetails;
+  details: BasicInfo & ApplicationDetails;
   applicationType: ProgrammeLevel;
-  formalImage: ApplicantFormalImage;
-  educationFile: ApplicantEducationFile;
+  formalImage: FormalImage;
+  educationFile: EducationFile;
   applicantProgrammePriorities: ProgramPriority[];
   applicantEducationBackgrounds: ApplicantEducationBackground[];
-  additionalEducationFiles: ApplicantAdditionalFile[];
+  additionalEducationFiles: AdditionalEducationFile[];
   highestEducationLevel: EducationLevel;
   programmeList: ProgrammeWithDetails[];
 }

@@ -45,8 +45,8 @@ import {
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import {
   EducationLevel,
-  ApplicantAdditionalFile,
-  ApplicantEducationFile,
+  AdditionalEducationFile,
+  EducationFile,
 } from "@prisma/client";
 import { formatBytes } from "@/utils";
 import { AiOutlineCloudUpload } from "react-icons/ai";
@@ -59,12 +59,12 @@ interface Props {
 
   uploadingFile: boolean;
   applicantHighestEducation: EducationLevel;
-  applicantEducationFileData: ApplicantEducationFile;
-  applicantAdditionalFileData: ApplicantAdditionalFile[];
+  applicantEducationFileData: EducationFile;
+  applicantAdditionalFileData: AdditionalEducationFile[];
   onFileUpdate: (event: ChangeEvent<HTMLInputElement>) => void;
   onAdditionalFileUpdate: (event: ChangeEvent<HTMLInputElement>) => void;
   onFileRemove: () => void;
-  onAdditionalFileRemove: (file: ApplicantAdditionalFile) => void;
+  onAdditionalFileRemove: (file: AdditionalEducationFile) => void;
 }
 
 const maxItems = 4;
@@ -359,10 +359,7 @@ const Education = ({
                         className="w-40 px-2"
                         type="month"
                         id="Issue date/Start date"
-                        // min={minDate}
-                        // max={maxDate}
-                        // value={field.value.toISOString().slice(0, 16)}
-                        // onChange={field.onChange}
+                        disabled={isSubmitting || draftSaving}
                         {...field}
                       />
                     </FormControl>
@@ -381,10 +378,7 @@ const Education = ({
                         className="w-40 px-2"
                         type="month"
                         id="(Expected) graduation"
-                        // min={minDate}
-                        // max={maxDate}
-                        // value={field.value.toISOString().slice(0, 16)}
-                        // onChange={field.onChange}
+                        disabled={isSubmitting || draftSaving}
                         {...field}
                       />
                     </FormControl>
