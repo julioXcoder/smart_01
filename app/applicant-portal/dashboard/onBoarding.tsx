@@ -22,7 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const OffBoarding = () => {
+const OnBoarding = () => {
   const [activeTab, setActiveTab] = useState(0);
 
   const prepareForm = useForm<z.infer<typeof DocumentsSchema>>({
@@ -54,7 +54,7 @@ const OffBoarding = () => {
   return (
     <div>
       <Stepper activeTab={activeTab} tabs={tabs} />
-      <div className="mt-10">{currentTab.content}</div>
+      <div className="mt-5">{currentTab.content}</div>
       <div className="mt-6">
         <button
           onClick={handleBack}
@@ -75,4 +75,4 @@ const OffBoarding = () => {
   );
 };
 
-export default OffBoarding;
+export default OnBoarding;

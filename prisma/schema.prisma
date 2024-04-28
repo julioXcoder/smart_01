@@ -344,6 +344,18 @@ model EducationFile {
   basicInfo   BasicInfo @relation(fields: [basicInfoId], references: [id])
 }
 
+model BirthCertificateFile {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  url  String @default("")
+  key  String @default("")
+  type String @default("")
+  name String @default("")
+  size Int    @default(0)
+
+  basicInfoId String    @unique @db.ObjectId
+  basicInfo   BasicInfo @relation(fields: [basicInfoId], references: [id])
+}
+
 model EducationBackground {
   id         String @id @default(auto()) @map("_id") @db.ObjectId
   position   Int
@@ -409,6 +421,7 @@ model BasicInfo {
 
   //model relationship
   educationFile            EducationFile?
+  birthCertificateFile     BirthCertificateFile?
   educationBackgrounds     EducationBackground[]
   additionalEducationFiles AdditionalEducationFile[]
 }

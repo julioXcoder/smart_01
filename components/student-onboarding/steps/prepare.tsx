@@ -1,24 +1,14 @@
 "use client";
 
-import { FaExclamation } from "react-icons/fa6";
-import { FaStarOfLife } from "react-icons/fa6";
-import { UseFormReturn } from "react-hook-form";
-import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import HeadingThree from "@/components/typography/headingThree";
 import Muted from "@/components/typography/muted";
-import { DocumentsSchema, documents, medicalCheckUp } from "../data";
-import Link from "next/link";
+import { UseFormReturn } from "react-hook-form";
+import { FaStarOfLife } from "react-icons/fa6";
+import { z } from "zod";
+import { Label } from "@/components/ui/label";
+import { DocumentsSchema } from "../data";
+import FileCard from "@/components/fileCard";
+import AddFileCard from "@/components/addFileCard";
 
 interface Props {
   form: UseFormReturn<z.infer<typeof DocumentsSchema>>;
@@ -38,7 +28,7 @@ const Prepare = ({ form }: Props) => {
         and check off each one to confirm its presence before continuing. Your
         careful attention to this matter is greatly appreciated.
       </Muted>
-      <div className="mt-5 ps-5">
+      {/* <div className="mt-5 ps-5">
         <Form {...form}>
           <div className="my-5 space-y-6">
             <FormField
@@ -84,9 +74,9 @@ const Prepare = ({ form }: Props) => {
                             </FormControl>
                             <FormLabel className="text-sm font-normal">
                               {item.label}
-                              {/* <FormDescription>
+                              <FormDescription>
                                 {item.description}
-                              </FormDescription> */}
+                              </FormDescription>
                             </FormLabel>
                           </FormItem>
                         );
@@ -162,9 +152,26 @@ const Prepare = ({ form }: Props) => {
                 </FormItem>
               )}
             />
-            {/* <Button type="submit">Submit</Button> */}
+            <Button type="submit">Submit</Button>
           </div>
         </Form>
+      </div> */}
+
+      <div className="mt-5 lg:ps-5">
+        <div className="my-5 space-y-6">
+          <div>
+            <Label>Birth certificate</Label>
+            <FileCard />
+          </div>
+          <div>
+            <Label>Form IV certificate</Label>
+            <AddFileCard />
+          </div>
+          <div>
+            <Label>Other files</Label>
+            <AddFileCard />
+          </div>
+        </div>
       </div>
       <Muted>
         <span className="flex">
