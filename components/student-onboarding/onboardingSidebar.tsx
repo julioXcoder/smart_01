@@ -26,8 +26,8 @@ const OnboardingSidebar = ({
   onGotoItem,
 }: Props) => {
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-64 -translate-x-full border-r border-gray-200 bg-white pt-20 transition-transform dark:border-gray-700 dark:bg-gray-800 sm:translate-x-0">
-      <div className="h-full overflow-y-auto bg-white px-3 pb-4 dark:bg-gray-800">
+    <aside className="fixed left-0 top-0 z-40 h-screen w-64 -translate-x-full border-r border-gray-200 bg-gray-950 pt-20 transition-transform dark:border-gray-700  sm:translate-x-0">
+      <div className="h-full overflow-y-auto bg-gray-950 px-3 pb-4">
         <div className="text-center">
           <HeadingTwo>{academicYearName}</HeadingTwo>
           <div className="mt-4">

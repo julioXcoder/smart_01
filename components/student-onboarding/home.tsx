@@ -1,5 +1,6 @@
 import { Tab } from "@/types";
 import Stepper from "../stepper";
+import { Button } from "../ui/button";
 
 interface Props {
   tabs: Tab[];
@@ -12,23 +13,15 @@ const Home = ({ activeTab, tabs, onNextTab, onPrevTab }: Props) => {
   const currentTab = tabs[activeTab];
   return (
     <div>
-      <Stepper activeTab={activeTab} tabs={tabs} />
+      {/* <Stepper activeTab={activeTab} tabs={tabs} /> */}
       <div className="mt-10">{currentTab.content}</div>
       <div className="mt-6">
-        <button
-          onClick={onPrevTab}
-          disabled={activeTab === 0}
-          className="mr-2 rounded-md bg-blue-500 px-4 py-2 text-white"
-        >
+        <Button onClick={onPrevTab} disabled={activeTab === 0}>
           Previous page
-        </button>
-        <button
-          onClick={onNextTab}
-          disabled={activeTab === tabs.length - 1}
-          className="rounded-md bg-blue-500 px-4 py-2 text-white"
-        >
+        </Button>
+        <Button onClick={onNextTab} disabled={activeTab === tabs.length - 1}>
           Next page
-        </button>
+        </Button>
       </div>
     </div>
   );

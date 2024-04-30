@@ -1,0 +1,94 @@
+"use client";
+
+import Sidebar from "./sidebar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import Appbar from "./appbar";
+import MyDocument from "@/components/docs";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { PDFDownloadLink, BlobProvider } from "@react-pdf/renderer";
+import AcceptanceLetter from "@/components/docs/acceptanceLetter.tsx";
+import { formatBytes } from "@/utils";
+
+const Page = () => {
+  const [file, setFile] = useState<File | null>(null);
+
+  const saveFile = (blob: Blob | null) => {
+    // Convert the blob to a File object
+    if (blob) {
+      const newFile = new File([blob], "acceptance-letter.pdf", {
+        type: "application/pdf",
+      });
+
+      // Set the file in state or pass it to your API here
+      setFile(newFile);
+      // For example, you could call your API function here
+      // uploadFileToAPI(newFile);
+    }
+  };
+
+  return (
+    <main className="flex h-screen w-screen gap-6 sm:p-6">
+      <Sidebar />
+
+      <div className="flex-1 rounded-md border-dashed border-gray-700 px-2 dark:border-gray-500 sm:px-4">
+        <ScrollArea className="relative h-full w-full">
+          <Appbar />
+          <div className="mt-1">
+            <div>
+              <PDFDownloadLink
+                document={
+                  <AcceptanceLetter
+                    studentName="Jane Doe"
+                    programName="Bachelor of Science in Computer Science"
+                    uniLogoSrc="https://th.bing.com/th/id/R.f7212780456b23bb696557c93f1255ed?rik=sYYRnPvMzB%2bnYA&pid=ImgRaw&r=0"
+                  />
+                }
+                fileName="myfile.pdf"
+              >
+                {({ blob, url, loading, error }) =>
+                  loading ? "Loading document..." : "Download now!"
+                }
+              </PDFDownloadLink>
+            </div>
+
+            <div className="my-5">
+              <BlobProvider
+                document={
+                  <AcceptanceLetter
+                    studentName="Jane Doe"
+                    programName="Bachelor of Science in Computer Science"
+                    uniLogoSrc="https://th.bing.com/th/id/R.f7212780456b23bb696557c93f1255ed?rik=sYYRnPvMzB%2bnYA&pid=ImgRaw&r=0"
+                  />
+                }
+              >
+                {({ blob, url, loading, error }) => {
+                  if (error) {
+                    return (
+                      <div>An error occurred while generating the PDF</div>
+                    );
+                  }
+                  if (loading) {
+                    return <div>Loading...</div>;
+                  }
+                  return (
+                    <Button onClick={() => saveFile(blob)}>
+                      Convert to File and Save
+                    </Button>
+                  );
+                }}
+              </BlobProvider>
+            </div>
+            <div className="flex gap-5">
+              <p>File name:{file?.name}</p>
+              <p>File type:{file?.type}</p>
+              {/* <p>File size:{formatBytes(file?.size | 0)}</p> */}
+            </div>
+          </div>
+        </ScrollArea>
+      </div>
+    </main>
+  );
+};
+
+export default Page;
