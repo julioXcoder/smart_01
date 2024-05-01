@@ -11,7 +11,12 @@ import { DataTablePagination } from "@/components/data-table/pagination";
 import { useState } from "react";
 import { ApplicationDetails } from "@prisma/client";
 
-type DateFilterOption = "greaterThan" | "lessThan" | "equalTo" | "between";
+enum DateFilterOption {
+  GreaterThan = "greaterThan",
+  LessThan = "lessThan",
+  EqualTo = "equalTo",
+  Between = "between",
+}
 
 interface IDateFilterState {
   dateFilterOption: DateFilterOption;
@@ -38,7 +43,7 @@ const Page = () => {
   ]);
 
   const [dateFilter, setDateFilter] = useState<IDateFilterState>({
-    dateFilterOption: "greaterThan",
+    dateFilterOption: DateFilterOption.GreaterThan,
     dateInput: "",
     dateInputRangeStart: "",
     dateInputRangeEnd: "",
