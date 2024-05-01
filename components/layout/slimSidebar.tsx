@@ -31,14 +31,14 @@ const SlimSidebar = ({ links }: Props) => {
 
   return (
     <aside
-      className={`transition-width relative hidden h-full rounded-md bg-gray-800 shadow-md duration-300 dark:bg-gray-900 sm:block ${
+      className={`transition-width relative hidden h-full rounded-md bg-[#09090b] shadow-md duration-300 sm:block ${
         isExpand ? "w-64" : "w-20"
       }`}
     >
       <Button
         size="icon"
         variant="ghost"
-        className="group absolute -right-7 top-2/4 transition-all duration-300 ease-in-out hover:!bg-transparent"
+        className="group absolute -right-7 top-2/4 text-[#09090b] transition-all duration-300 ease-in-out hover:!bg-transparent"
         onClick={() => setIsExpand(!isExpand)}
       >
         <TbMinusVertical size={50} className="group-hover:hidden" />
@@ -75,17 +75,15 @@ const SlimSidebar = ({ links }: Props) => {
         </Link>
 
         <div className="flex w-full flex-1 flex-col items-start space-y-3 p-3">
-          {links.map(({ title, path, Icon }, index) => (
+          {links.map(({ title, path, Icon, description }, index) => (
             <TooltipProvider key={index}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Link
                     key={index}
                     href={path}
-                    className={`flex w-full transform items-center rounded-md px-3.5 py-2 text-gray-300 transition-colors duration-300 hover:bg-gray-950 hover:text-gray-200 dark:hover:bg-gray-800 ${
-                      pathname.startsWith(path)
-                        ? "bg-gray-950 dark:bg-gray-800"
-                        : ""
+                    className={`flex w-full transform items-center rounded-md px-3.5 py-2 text-gray-300 transition-colors duration-300 hover:bg-[#272729] hover:text-gray-200 ${
+                      pathname.includes(path) ? "bg-[#272729]" : ""
                     }`}
                   >
                     <div
@@ -112,7 +110,7 @@ const SlimSidebar = ({ links }: Props) => {
                   <></>
                 ) : (
                   <TooltipContent side="right">
-                    <p>{title}</p>
+                    <p>{description}</p>
                   </TooltipContent>
                 )}
               </Tooltip>

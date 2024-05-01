@@ -10,6 +10,7 @@ interface Tab {
 interface Path {
   title: string;
   path: string;
+  description?: string;
   Icon?: IconType;
 }
 

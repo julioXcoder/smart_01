@@ -2,7 +2,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Path } from "@/types";
 import { ReactNode } from "react";
 import SlimAppbar from "../slimAppbar";
-import SlimSidebar from "../slimeSidebar";
+import SlimSidebar from "../slimSidebar";
 
 interface Props {
   children: ReactNode;

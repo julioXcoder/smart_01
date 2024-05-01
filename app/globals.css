@@ -23,7 +23,7 @@
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
     --ring: 240 5.9% 10%;
-    --radius: 0.75rem;
+    --radius: 0.5rem;
   }
 
   .dark {
@@ -53,8 +53,10 @@
 /* 121212 */
 
 body {
-  @apply bg-[#F5F6FA] dark:bg-[#282c34];
+  /* @apply bg-[#F5F6FA] dark:bg-[#282c34]; */
   /* @apply bg-[#DFECF2] dark:bg-[#282c34]; */
+
+  /* @apply bg-gray-200 dark:bg-[#282c34]; */
 }
 
 :root {

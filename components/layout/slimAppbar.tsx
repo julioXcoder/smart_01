@@ -26,7 +26,7 @@ interface Props {}
 const SlimAppbar = () => {
   return (
     //  <div className="sticky top-0 flex w-full items-center justify-between">
-    <div className="sticky top-0 flex w-full items-center justify-between bg-[#F5F6FA] px-3 py-2 shadow-md dark:bg-[#282c34] sm:px-0 sm:shadow-sm">
+    <div className="sticky top-0 flex w-full items-center justify-between bg-opacity-60 px-3 py-2 shadow-md backdrop-blur-sm sm:px-0 sm:shadow-sm">
       <h2 className="hidden scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0 sm:block">
         Good {getTimeOfDay()}, Julio!
       </h2>
