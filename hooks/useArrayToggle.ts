@@ -1,6 +1,8 @@
 import { useState } from "react";
 
-function useArrayToggle<T>(initialArray: T[]) {
+type ArrayToggleHook<T> = [T[], (value: T) => void, () => void];
+
+function useArrayToggle<T>(initialArray: T[]): ArrayToggleHook<T> {
   const [array, setArray] = useState<T[]>(initialArray);
 
   const toggle = (value: T) => {
@@ -11,7 +13,11 @@ function useArrayToggle<T>(initialArray: T[]) {
     );
   };
 
-  return [array, toggle] as const;
+  const reset = () => {
+    setArray(initialArray);
+  };
+
+  return [array, toggle, reset];
 }
 
 export default useArrayToggle;
