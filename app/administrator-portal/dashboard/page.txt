@@ -80,19 +80,17 @@ const Page = ({ className }: React.HTMLAttributes<HTMLDivElement>) => {
 
   const applicationStatuses = Object.values(ApplicationStatus);
   const applicationProgrammeTypes = Object.values(ProgrammeLevel);
-
+  const [date, setDate] = useState<Date | undefined>();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: new Date(), // Now
+    to: addDays(new Date(), 3), // 3 days from now
+  });
   const [dateFilter, setDateFilter] = useState<IDateFilterState>({
     dateFilterOption: DateFilterOption.GreaterThan,
     dateInput: undefined,
     dateInputRangeStart: undefined,
     dateInputRangeEnd: undefined,
   });
-
-  const date: Date | undefined = new Date();
-  const dateRange: DateRange | undefined = {
-    from: new Date(), // Now
-    to: addDays(new Date(), 3), // 3 days from now
-  };
 
   const resetDateFilter = () => {
     setDateFilter({
@@ -204,9 +202,10 @@ const Page = ({ className }: React.HTMLAttributes<HTMLDivElement>) => {
                 <Calendar
                   mode="single"
                   selected={date}
-                  onSelect={(value) =>
-                    setDateFilter({ ...dateFilter, dateInput: value })
-                  }
+                  onSelect={(value) => {
+                    setDate(value);
+                    setDateFilter({ ...dateFilter, dateInput: value });
+                  }}
                   // onSelect={}
                   initialFocus
                 />
@@ -245,13 +244,14 @@ const Page = ({ className }: React.HTMLAttributes<HTMLDivElement>) => {
                     mode="range"
                     defaultMonth={dateRange?.from}
                     selected={dateRange}
-                    onSelect={(value) =>
+                    onSelect={(value) => {
+                      setDateRange(value);
                       setDateFilter({
                         ...dateFilter,
                         dateInputRangeStart: value?.from,
                         dateInputRangeEnd: value?.to,
-                      })
-                    }
+                      });
+                    }}
                     numberOfMonths={2}
                   />
                 </PopoverContent>
@@ -431,49 +431,55 @@ const Page = ({ className }: React.HTMLAttributes<HTMLDivElement>) => {
 
       <div className="flex gap-2">
         <Muted>Picket filters</Muted>
-        {pickedFilters.map((filter, index) => {
+        {pickedFilters.map((filterItem, index) => {
+          const originalFilter = filters.find(
+            (item) => item.title == filterItem.title,
+          );
+
           return (
-            <div key={index}>
-              <DropdownMenu
-                open={isFilterOpen[index]}
-                onOpenChange={(isOpen) => handleOpenChange(isOpen, index)}
-              >
-                <DropdownMenuTrigger asChild>
-                  <Button>{filter.descriptionContent}</Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="flex flex-col gap-5 px-3 py-2">
-                  <div>{filter.content}</div>
-                  <div className="flex w-full items-center gap-2">
-                    <Button
-                      size="icon"
-                      onClick={() => {
-                        handleOpenChange(false, index);
-                        filter.reset;
-                        removeFilter(filter);
-                      }}
-                    >
-                      <FaTrash className="size-4 flex-shrink-0" />
-                    </Button>
-                    <Button
-                      onClick={() => handleOpenChange(false, index)}
-                      variant="secondary"
-                      className="flex-1"
-                    >
-                      cancel
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        handleApplyFilter(filter);
-                        handleOpenChange(false, index);
-                      }}
-                      className="flex-1"
-                    >
-                      apply filter
-                    </Button>
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            originalFilter && (
+              <div key={index}>
+                <DropdownMenu
+                  open={isFilterOpen[index]}
+                  onOpenChange={(isOpen) => handleOpenChange(isOpen, index)}
+                >
+                  <DropdownMenuTrigger asChild>
+                    <Button>{originalFilter.descriptionContent}</Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="flex flex-col gap-5 px-3 py-2">
+                    <div>{originalFilter.content}</div>
+                    <div className="flex w-full items-center gap-2">
+                      <Button
+                        size="icon"
+                        onClick={() => {
+                          handleOpenChange(false, index);
+                          originalFilter.reset;
+                          removeFilter(originalFilter);
+                        }}
+                      >
+                        <FaTrash className="size-4 flex-shrink-0" />
+                      </Button>
+                      <Button
+                        onClick={() => handleOpenChange(false, index)}
+                        variant="secondary"
+                        className="flex-1"
+                      >
+                        cancel
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          handleApplyFilter(originalFilter);
+                          handleOpenChange(false, index);
+                        }}
+                        className="flex-1"
+                      >
+                        apply filter
+                      </Button>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            )
           );
         })}
       </div>

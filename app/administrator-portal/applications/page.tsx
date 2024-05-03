@@ -1,250 +1,424 @@
 "use client";
 
-import HeadingOne from "@/components/typography/headingOne";
+import DataTable from "@/components/data-table/applicationDataTable";
 import Muted from "@/components/typography/muted";
-import { IoMdAdd } from "react-icons/io";
 import { Button } from "@/components/ui/button";
-import DataTable from "@/components/data-table/table";
-// import Add from "./add";
-import { columns, applicants } from "./columns";
-import { DataTablePagination } from "@/components/data-table/pagination";
-import { useState } from "react";
-import { ApplicationDetails } from "@prisma/client";
+import { FaTrash } from "react-icons/fa6";
+import { MdFilterListAlt, MdClose } from "react-icons/md";
+import { Badge } from "@/components/ui/badge";
+import { applicants, columns } from "./columns";
 
-enum DateFilterOption {
-  GreaterThan = "greaterThan",
-  LessThan = "lessThan",
-  EqualTo = "equalTo",
-  Between = "between",
-}
+import useApplicationDetailsFilter from "@/hooks/useApplicationDetailsFilter";
 
-interface IDateFilterState {
-  dateFilterOption: DateFilterOption;
-  dateInput: string;
-  dateInputRangeStart: string;
-  dateInputRangeEnd: string;
-}
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import { Calendar } from "@/components/ui/calendar";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { DateFilterOption, Filter } from "@/hooks/useApplicationDetailsFilter";
+import { cn } from "@/lib/utils";
+import { CalendarIcon } from "@radix-ui/react-icons";
+import { format } from "date-fns";
 
 const Page = () => {
-  const [filteredData, setFilteredData] =
-    useState<ApplicationDetails[]>(applicants);
-  const [selectedStatuses, setSelectedStatuses] = useState([
-    "DRAFT",
-    "ACCEPTED",
-    "REJECTED",
-    "UNDER_REVIEW",
-  ]);
-  const [selectedApplicationTypes, setSelectedApplicationTypes] = useState([
-    "BACHELOR",
-    "CERTIFICATE",
-    "MASTERS",
-    "PHD",
-    "DIPLOMA",
-  ]);
+  const {
+    selectedApplicationStatuses,
+    toggleApplicationStatus,
+    selectedApplicationTypes,
+    toggleApplicationType,
+    dateFilter,
+    setDateFilter,
+    applyFilters,
+    resetFilters,
+    date,
+    setDate,
+    dateRange,
+    setDateRange,
+    isOpen,
+    setIsOpen,
+    pickedFilters,
+    setPickedFilters,
+    isFilterOpen,
+    setIsFilterOpen,
+    filteredData,
+    setFilteredData,
+    applicationStatuses,
+    applicationProgrammeTypes,
+    handleOpenChange,
+  } = useApplicationDetailsFilter(applicants);
 
-  const [dateFilter, setDateFilter] = useState<IDateFilterState>({
-    dateFilterOption: DateFilterOption.GreaterThan,
-    dateInput: "",
-    dateInputRangeStart: "",
-    dateInputRangeEnd: "",
-  });
+  const filters: Filter[] = [
+    {
+      title: "status",
 
-  const toggleStatus = (status: string) => {
-    setSelectedStatuses((currentStatuses) =>
-      currentStatuses.includes(status)
-        ? currentStatuses.filter((s) => s !== status)
-        : [...currentStatuses, status],
-    );
-  };
+      content: (
+        <div className="flex w-full flex-col gap-3">
+          <Muted>Application status</Muted>
+          <div className="space-y-2 ps-2">
+            {applicationStatuses.map((status, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <Checkbox
+                  checked={selectedApplicationStatuses.includes(status)}
+                  onCheckedChange={() => {
+                    toggleApplicationStatus(status);
+                  }}
+                  id={status}
+                />
+                <label
+                  htmlFor={status}
+                  className="text-sm font-medium capitalize leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  {status.replace("_", " ").toLowerCase()}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+      ),
+      descriptionContent: (
+        <>{`Status: ${selectedApplicationStatuses.join(", ")}`}</>
+      ),
+    },
+    {
+      title: "application type",
 
-  const toggleApplicationType = (type: string) => {
-    setSelectedApplicationTypes((currentTypes) =>
-      currentTypes.includes(type)
-        ? currentTypes.filter((t) => t !== type)
-        : [...currentTypes, type],
-    );
-  };
+      content: (
+        <div className="flex w-full flex-col gap-3">
+          <Muted>Application type</Muted>
+          <div className="space-y-2 ps-2">
+            {applicationProgrammeTypes.map((type, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <Checkbox
+                  checked={selectedApplicationTypes.includes(type)}
+                  onCheckedChange={() => {
+                    toggleApplicationType(type);
+                  }}
+                  id={type}
+                />
+                <label
+                  htmlFor={type}
+                  className="text-sm font-medium capitalize leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  {type.replace("_", " ").toLowerCase()}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+      ),
+      descriptionContent: (
+        <>{`Status: ${selectedApplicationTypes.join(", ")}`}</>
+      ),
+    },
+    {
+      title: "created at",
 
-  const applyDateFilter = (
-    data: ApplicationDetails[],
-  ): ApplicationDetails[] => {
-    // Check if the date inputs are not empty
-    if (
-      dateFilter.dateInput ||
-      (dateFilter.dateInputRangeStart && dateFilter.dateInputRangeEnd)
-    ) {
-      switch (dateFilter.dateFilterOption) {
-        case "greaterThan":
-          return data.filter(
-            (item) => new Date(item.createdAt) > new Date(dateFilter.dateInput),
-          );
-        case "lessThan":
-          return data.filter(
-            (item) => new Date(item.createdAt) < new Date(dateFilter.dateInput),
-          );
-        case "equalTo":
-          return data.filter(
-            (item) =>
-              new Date(item.createdAt).toDateString() ===
-              new Date(dateFilter.dateInput).toDateString(),
-          );
-        case "between":
-          return data.filter(
-            (item) =>
-              new Date(item.createdAt) >=
-                new Date(dateFilter.dateInputRangeStart) &&
-              new Date(item.createdAt) <=
-                new Date(dateFilter.dateInputRangeEnd),
-          );
-        default:
-          return data;
-      }
-    } else {
-      // If the date inputs are empty, return the original data without filtering
-      return data;
+      content: (
+        <div className="flex w-full flex-col gap-3">
+          <Muted>Created at is</Muted>
+          <RadioGroup
+            value={dateFilter.dateFilterOption}
+            onValueChange={(value: DateFilterOption) =>
+              setDateFilter({ ...dateFilter, dateFilterOption: value })
+            }
+            className="ps-2"
+          >
+            {Object.values(DateFilterOption).map((option, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <RadioGroupItem value={option} id={option} />
+                <Label htmlFor={option} className="capitalize">
+                  {option}
+                </Label>
+              </div>
+            ))}
+          </RadioGroup>
+          {dateFilter.dateFilterOption != DateFilterOption.Between ? (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "justify-start text-left font-normal",
+                    !date && "text-muted-foreground",
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {date ? format(date, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={(value) => {
+                    setDate(value);
+                    setDateFilter({ ...dateFilter, dateInput: value });
+                    setFilteredData(applyFilters());
+                  }}
+                  // onSelect={}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          ) : (
+            <div className={cn("grid gap-2")}>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="date"
+                    variant={"outline"}
+                    className={cn(
+                      "w-[300px] justify-start text-left font-normal",
+                      !dateRange && "text-muted-foreground",
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateRange?.from ? (
+                      dateRange.to ? (
+                        <>
+                          {format(dateRange.from, "LLL dd, y")} -{" "}
+                          {format(dateRange.to, "LLL dd, y")}
+                        </>
+                      ) : (
+                        format(dateRange.from, "LLL dd, y")
+                      )
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    initialFocus
+                    mode="range"
+                    defaultMonth={dateRange?.from}
+                    selected={dateRange}
+                    onSelect={(value) => {
+                      setDateRange(value);
+                      setDateFilter({
+                        ...dateFilter,
+                        dateInputRangeStart: value?.from,
+                        dateInputRangeEnd: value?.to,
+                      });
+                      setFilteredData(applyFilters());
+                    }}
+                    numberOfMonths={2}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          )}
+        </div>
+      ),
+      descriptionContent: (
+        <>
+          {"between" != dateFilter.dateFilterOption ? (
+            <>
+              created at is {dateFilter.dateFilterOption}{" "}
+              {dateFilter.dateInput
+                ? dateFilter.dateInput.toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "2-digit",
+                  })
+                : null}
+            </>
+          ) : (
+            <>
+              created at is {dateFilter.dateFilterOption}{" "}
+              {dateFilter.dateInputRangeStart
+                ? dateFilter.dateInputRangeStart.toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "2-digit",
+                  })
+                : null}{" "}
+              and{" "}
+              {dateFilter.dateInputRangeEnd
+                ? dateFilter.dateInputRangeEnd.toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "2-digit",
+                  })
+                : null}
+            </>
+          )}
+        </>
+      ),
+    },
+  ];
+
+  const pickFilter = (filter: Filter) => {
+    if (!pickedFilters.find((s) => s.title === filter.title)) {
+      setPickedFilters((prev) => [...prev, filter]);
     }
   };
 
-  const applyFilters = (): ApplicationDetails[] => {
-    let result = applicants;
-
-    // Apply status filter
-    result = result.filter((item) =>
-      selectedStatuses.includes(item.applicationStatus),
-    );
-
-    // Apply date filter
-    result = applyDateFilter(result);
-
-    // Apply application type filter
-    result = result.filter((item) =>
-      selectedApplicationTypes.includes(item.applicationType),
-    );
-
-    return result;
+  const removeFilter = (filter: Filter) => {
+    setPickedFilters((prev) => prev.filter((s) => s.title !== filter.title));
   };
+
+  const handleApplyFilter = (filter: Filter) => {
+    pickFilter(filter);
+    setFilteredData(applyFilters());
+    setIsOpen(false);
+  };
+
+  const filterContent = (
+    <div className="flex gap-2 capitalize">
+      {pickedFilters.map((filterItem, index) => {
+        const originalFilter = filters.find(
+          (item) => item.title == filterItem.title,
+        );
+        return (
+          <>
+            {originalFilter && (
+              <Badge key={index}>
+                {originalFilter.descriptionContent}{" "}
+                <FaTrash
+                  onClick={() => {
+                    resetFilters();
+                    removeFilter(originalFilter);
+                  }}
+                  className="ml-2 size-3.5 flex-shrink-0 text-red-600"
+                />
+              </Badge>
+            )}
+          </>
+        );
+      })}
+    </div>
+  );
+
+  const filterDropdownMenu = (
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline">
+          <MdFilterListAlt className="mr-2 size-4 flex-shrink-0" />
+          add filter
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56">
+        {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          {filters.map((filter, index) => (
+            <DropdownMenuSub key={index}>
+              <DropdownMenuSubTrigger
+              // disabled={pickedFilters.some(
+              //   (item) => item.title === filter.title,
+              // )}
+              >
+                {filter.title}
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent className="flex flex-col gap-5 px-3 py-2">
+                  <div>{filter.content}</div>
+                  <div className="flex w-full items-center gap-2">
+                    <Button
+                      onClick={() => setIsOpen(false)}
+                      variant="secondary"
+                      className="flex-1"
+                    >
+                      Close
+                    </Button>
+                    <Button
+                      onClick={() => handleApplyFilter(filter)}
+                      className="w-3/4"
+                    >
+                      apply filter
+                    </Button>
+                  </div>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+          ))}
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
+  const pickedFilter = (
+    <div className="flex gap-2">
+      {pickedFilters.map((filterItem, index) => {
+        const originalFilter = filters.find(
+          (item) => item.title == filterItem.title,
+        );
+
+        return (
+          originalFilter && (
+            <div key={index}>
+              <DropdownMenu
+                open={isFilterOpen[index]}
+                onOpenChange={(isOpen) => handleOpenChange(isOpen, index)}
+              >
+                <DropdownMenuTrigger asChild>
+                  <Button>{originalFilter.descriptionContent}</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="flex flex-col gap-5 px-3 py-2">
+                  <div>{originalFilter.content}</div>
+                  <div className="flex w-full items-center gap-2">
+                    <Button
+                      size="icon"
+                      onClick={() => {
+                        resetFilters;
+                        handleOpenChange(false, index);
+                        removeFilter(originalFilter);
+                      }}
+                    >
+                      <FaTrash className="size-4 flex-shrink-0" />
+                    </Button>
+                    <Button
+                      onClick={() => handleOpenChange(false, index)}
+                      variant="secondary"
+                      className="flex-1"
+                    >
+                      cancel
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        handleApplyFilter(originalFilter);
+                        handleOpenChange(false, index);
+                      }}
+                      className="flex-1"
+                    >
+                      apply filter
+                    </Button>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )
+        );
+      })}
+    </div>
+  );
 
   return (
     <div>
-      {/* <div className="flex w-full items-center justify-between">
-        <div>
-          <HeadingOne>Applications Lists</HeadingOne>
-          <Muted>{`There are a total of ${applicants.length} applications.`}</Muted>
-        </div>
-        <Add campusSelectList={campusSelectList} />
-        <IoMdAdd className="size-6 flex-shrink-0" />
-      </div> */}
-      <div>
-        {["DRAFT", "ACCEPTED", "REJECTED", "UNDER_REVIEW"].map((status) => (
-          <label key={status}>
-            <input
-              type="checkbox"
-              checked={selectedStatuses.includes(status)}
-              onChange={() => toggleStatus(status)}
-            />
-            {status}
-          </label>
-        ))}
-      </div>
-
-      <div>
-        {/* Radio buttons for date filter options */}
-        {(
-          [
-            "greaterThan",
-            "lessThan",
-            "equalTo",
-            "between",
-          ] as DateFilterOption[]
-        ).map((option) => (
-          <label key={option}>
-            <input
-              type="radio"
-              name="dateFilter"
-              value={option}
-              checked={dateFilter.dateFilterOption === option}
-              onChange={() =>
-                setDateFilter({ ...dateFilter, dateFilterOption: option })
-              }
-            />
-            {option}
-          </label>
-        ))}
-
-        {/* Input fields for date values */}
-        {dateFilter.dateFilterOption !== "between" ? (
-          <input
-            type="date"
-            value={dateFilter.dateInput}
-            onChange={(e) =>
-              setDateFilter({ ...dateFilter, dateInput: e.target.value })
-            }
-          />
-        ) : (
-          <>
-            <input
-              type="date"
-              value={dateFilter.dateInputRangeStart}
-              onChange={(e) =>
-                setDateFilter({
-                  ...dateFilter,
-                  dateInputRangeStart: e.target.value,
-                })
-              }
-            />
-            <input
-              type="date"
-              value={dateFilter.dateInputRangeEnd}
-              onChange={(e) =>
-                setDateFilter({
-                  ...dateFilter,
-                  dateInputRangeEnd: e.target.value,
-                })
-              }
-            />
-          </>
-        )}
-      </div>
-
-      <div>
-        {["BACHELOR", "CERTIFICATE", "MASTERS", "PHD", "DIPLOMA"].map(
-          (type) => (
-            <label key={type}>
-              <input
-                type="checkbox"
-                checked={selectedApplicationTypes.includes(type)}
-                onChange={() => toggleApplicationType(type)}
-              />
-              {type}
-            </label>
-          ),
-        )}
-      </div>
-
-      {/* TODO: Display */}
-      <div>
-        {selectedStatuses.length < 4 &&
-          `Status: ${selectedStatuses.join(", ")}`}
-        {dateFilter.dateFilterOption === "greaterThan" &&
-          ` | Created at greater than ${dateFilter.dateInput}`}
-        {/* ... other conditions */}
-      </div>
-
-      {/* TODO: Display */}
-      <div>
-        {selectedStatuses.length < 4 &&
-          `Status: ${selectedStatuses.join(", ")}`}
-        {selectedApplicationTypes.length < 5 &&
-          ` | Type: ${selectedApplicationTypes.join(", ")}`}
-        {/* ... other conditions for date filter */}
-      </div>
-
-      <button onClick={() => setFilteredData(applyFilters())}>
-        Apply Filters
-      </button>
-
       <div className="container mx-auto">
-        <DataTable columns={columns} data={filteredData} />
+        <DataTable
+          filterDropdownMenu={filterDropdownMenu}
+          filterContent={filterContent}
+          columns={columns}
+          data={filteredData}
+        />
       </div>
     </div>
   );

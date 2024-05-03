@@ -41,15 +41,15 @@ export const columns: ColumnDef<ApplicationDetails>[] = [
   },
   {
     accessorKey: "applicantUsername",
-    header: "name",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="name" />
+    ),
   },
   {
     accessorKey: "applicationStatus",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="application status" />
     ),
-    enableSorting: true,
-    enableHiding: false,
   },
   // {
   //   accessorKey: "createdAt",
@@ -61,15 +61,21 @@ export const columns: ColumnDef<ApplicationDetails>[] = [
   // },
   {
     accessorKey: "applicationType",
-    header: "application type",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="application type" />
+    ),
   },
   {
     accessorKey: "educationOrigin",
-    header: "education origin",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="education origin" />
+    ),
   },
   {
     accessorKey: "highestEducationLevel",
-    header: "highest education level",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="highest education level" />
+    ),
   },
   {
     id: "actions",

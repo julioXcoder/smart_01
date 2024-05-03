@@ -2,7 +2,9 @@ import { useState } from "react";
 
 type ArrayToggleHook<T> = [T[], (value: T) => void, () => void];
 
-function useArrayToggle<T>(initialArray: T[]): ArrayToggleHook<T> {
+function useArrayToggle<T>(
+  initialArray: T[],
+): [T[], (value: T) => void, () => void] {
   const [array, setArray] = useState<T[]>(initialArray);
 
   const toggle = (value: T) => {

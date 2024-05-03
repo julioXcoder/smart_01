@@ -1,105 +1,63 @@
 "use client";
 
+import Muted from "@/components/typography/muted";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuPortal,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
-import useArrayToggle from "@/hooks/useArrayToggle";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import Muted from "@/components/typography/muted";
-import { CalendarIcon } from "@radix-ui/react-icons";
-import { Checkbox } from "@/components/ui/checkbox";
-import { addDays, format } from "date-fns";
-import { DateRange } from "react-day-picker";
-import { FaTrash } from "react-icons/fa6";
-import {
-  ApplicationDetails,
-  ApplicationStatus,
-  ProgrammeLevel,
-} from "@prisma/client";
-import { cn } from "@/lib/utils";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useState } from "react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import useApplicationDetailsFilter, {
+  DateFilterOption,
+  Filter,
+} from "@/hooks/useApplicationDetailsFilter";
+import { cn } from "@/lib/utils";
+import { CalendarIcon } from "@radix-ui/react-icons";
+import { format } from "date-fns";
+import { FaTrash } from "react-icons/fa6";
 import { applicants } from "../applications/columns";
 
-enum DateFilterOption {
-  GreaterThan = "greater than",
-  LessThan = "less than",
-  EqualTo = "equal to",
-  Between = "between",
-}
-interface IDateFilterState {
-  dateFilterOption: DateFilterOption;
-  dateInput: Date | undefined;
-  dateInputRangeStart: Date | undefined;
-  dateInputRangeEnd: Date | undefined;
-}
-
-interface Filter {
-  title: string;
-  content: JSX.Element;
-  descriptionContent: JSX.Element;
-  reset: () => void;
-}
-
 const Page = ({ className }: React.HTMLAttributes<HTMLDivElement>) => {
-  const [filteredData, setFilteredData] =
-    useState<ApplicationDetails[]>(applicants);
-  const [isOpen, setIsOpen] = useState(false);
-  const [pickedFilters, setPickedFilters] = useState<Filter[]>([]);
-  const [isFilterOpen, setIsFilterOpen] = useState(
-    new Array(pickedFilters.length).fill(false),
-  );
-  const [
+  const {
     selectedApplicationStatuses,
     toggleApplicationStatus,
-    resetApplicationStatusFilter,
-  ] = useArrayToggle(Object.values(ApplicationStatus));
-  const [
     selectedApplicationTypes,
     toggleApplicationType,
-    resetApplicationTypeFilter,
-  ] = useArrayToggle(Object.values(ProgrammeLevel));
-
-  const applicationStatuses = Object.values(ApplicationStatus);
-  const applicationProgrammeTypes = Object.values(ProgrammeLevel);
-  const [date, setDate] = useState<Date | undefined>();
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: new Date(), // Now
-    to: addDays(new Date(), 3), // 3 days from now
-  });
-  const [dateFilter, setDateFilter] = useState<IDateFilterState>({
-    dateFilterOption: DateFilterOption.GreaterThan,
-    dateInput: undefined,
-    dateInputRangeStart: undefined,
-    dateInputRangeEnd: undefined,
-  });
-
-  const resetDateFilter = () => {
-    setDateFilter({
-      dateFilterOption: DateFilterOption.GreaterThan,
-      dateInput: undefined,
-      dateInputRangeStart: undefined,
-      dateInputRangeEnd: undefined,
-    });
-  };
+    dateFilter,
+    setDateFilter,
+    applyFilters,
+    resetFilters,
+    date,
+    setDate,
+    dateRange,
+    setDateRange,
+    isOpen,
+    setIsOpen,
+    pickedFilters,
+    setPickedFilters,
+    isFilterOpen,
+    setIsFilterOpen,
+    filteredData,
+    setFilteredData,
+    applicationStatuses,
+    applicationProgrammeTypes,
+    handleOpenChange,
+  } = useApplicationDetailsFilter(applicants);
 
   const filters: Filter[] = [
     {
@@ -130,7 +88,6 @@ const Page = ({ className }: React.HTMLAttributes<HTMLDivElement>) => {
       descriptionContent: (
         <>{`Status: ${selectedApplicationStatuses.join(", ")}`}</>
       ),
-      reset: resetApplicationStatusFilter,
     },
     {
       title: "application type",
@@ -160,7 +117,6 @@ const Page = ({ className }: React.HTMLAttributes<HTMLDivElement>) => {
       descriptionContent: (
         <>{`Status: ${selectedApplicationTypes.join(", ")}`}</>
       ),
-      reset: resetApplicationTypeFilter,
     },
     {
       title: "created at",
@@ -295,50 +251,8 @@ const Page = ({ className }: React.HTMLAttributes<HTMLDivElement>) => {
           )}
         </>
       ),
-      reset: resetDateFilter,
     },
   ];
-
-  const applyDateFilter = (
-    data: ApplicationDetails[],
-  ): ApplicationDetails[] => {
-    switch (dateFilter.dateFilterOption) {
-      case DateFilterOption.GreaterThan:
-        return dateFilter.dateInput
-          ? data.filter(
-              (item) =>
-                new Date(item.createdAt) > new Date(dateFilter.dateInput!),
-            )
-          : data;
-      case DateFilterOption.LessThan:
-        return dateFilter.dateInput
-          ? data.filter(
-              (item) =>
-                new Date(item.createdAt) < new Date(dateFilter.dateInput!),
-            )
-          : data;
-      case DateFilterOption.EqualTo:
-        return dateFilter.dateInput
-          ? data.filter(
-              (item) =>
-                new Date(item.createdAt).toDateString() ===
-                new Date(dateFilter.dateInput!).toDateString(),
-            )
-          : data;
-      case DateFilterOption.Between:
-        return dateFilter.dateInputRangeStart && dateFilter.dateInputRangeEnd
-          ? data.filter(
-              (item) =>
-                new Date(item.createdAt) >=
-                  new Date(dateFilter.dateInputRangeStart!) &&
-                new Date(item.createdAt) <=
-                  new Date(dateFilter.dateInputRangeEnd!),
-            )
-          : data;
-      default:
-        return data;
-    }
-  };
 
   const pickFilter = (filter: Filter) => {
     if (!pickedFilters.find((s) => s.title === filter.title)) {
@@ -354,34 +268,6 @@ const Page = ({ className }: React.HTMLAttributes<HTMLDivElement>) => {
     pickFilter(filter);
     setFilteredData(applyFilters());
     setIsOpen(false);
-  };
-
-  const applyFilters = (): ApplicationDetails[] => {
-    let result = applicants;
-
-    // Apply status filter
-    result = result.filter((item) =>
-      selectedApplicationStatuses.includes(item.applicationStatus),
-    );
-
-    // Apply date filter
-    result = applyDateFilter(result);
-
-    // Apply application type filter
-    result = result.filter((item) =>
-      selectedApplicationTypes.includes(item.applicationType),
-    );
-
-    return result;
-  };
-
-  // Handle open state change
-  const handleOpenChange = (isOpen: boolean, index: number) => {
-    setIsFilterOpen((prevOpenState) => {
-      const newOpenState = [...prevOpenState]; // Create a copy of the previous state
-      newOpenState[index] = isOpen; // Update the open state of the clicked dropdown menu
-      return newOpenState; // Return the new state
-    });
   };
 
   return (
@@ -452,8 +338,8 @@ const Page = ({ className }: React.HTMLAttributes<HTMLDivElement>) => {
                       <Button
                         size="icon"
                         onClick={() => {
+                          resetFilters;
                           handleOpenChange(false, index);
-                          originalFilter.reset;
                           removeFilter(originalFilter);
                         }}
                       >
