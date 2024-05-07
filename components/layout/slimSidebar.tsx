@@ -67,7 +67,7 @@ const SlimSidebar = ({ links }: Props) => {
           />
           <span
             className={`ml-3 capitalize transition-opacity duration-300 ease-in-out ${
-              isExpand ? "opacity-100" : "opacity-0"
+              isExpand ? "opacity-100" : "hidden opacity-0"
             }`}
           >
             SMART
@@ -99,7 +99,7 @@ const SlimSidebar = ({ links }: Props) => {
                     )}
                     <span
                       className={`ml-3 capitalize transition-opacity duration-300 ease-in-out ${
-                        isExpand ? "opacity-100" : "opacity-0"
+                        isExpand ? "opacity-100" : "hidden opacity-0"
                       }`}
                     >
                       {title}

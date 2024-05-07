@@ -1,4 +1,4 @@
-type SelectionOptions =
+export type SelectionOptions =
   | ProgrammeMinimumStandards
   | ProgrammeSelectionCriteria
   | SubjectMinimumStandards
