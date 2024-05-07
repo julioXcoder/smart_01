@@ -18,10 +18,12 @@ const gradeValues: { [grade in Grade]: number } = {
 interface Programme {
   programmeId: string;
   programmeName: string;
-  programmeRequirement: SelectionOptions[];
+  programmeRequirements: SelectionOptions[];
+  maximumIntake: number;
+  currentIntake: number;
 }
 
-interface ProgrammePriority {
+interface ProgrammePriority extends Programme {
   priorityRank: number;
 }
 
@@ -177,30 +179,10 @@ function meetsSubjectSelectionCriteria(
   return true;
 }
 
-function handleOptions(programme: Programme, student: StudentApplication) {
-  const options = programme.programmeRequirement;
-  const allSubjectResults = [
-    ...student.oLevelResults,
-    ...student.aLevelResults,
-  ];
-  const allProgrammeResults = student.programmeResults;
-
-  options.forEach((option) => {
-    if ("requiredProgrammeCount" in option) {
-      meetsProgrammeSelectionCriteria(allProgrammeResults, option);
-    } else if ("requiredSubjectCount" in option) {
-      meetsSubjectSelectionCriteria(allSubjectResults, option);
-    } else if ("subjectList" in option) {
-      meetsSubjectMinimumStandards(allSubjectResults, option);
-    } else {
-      meetsProgrammeMinimumStandards(allProgrammeResults, option);
-    }
-  });
-}
-
-//TODO: use this
-// function handleOptions(programme: Programme, student: StudentApplication): boolean {
-//   const options = programme.programmeRequirement;
+// function handleOptions(
+//   options: SelectionOptions[],
+//   student: StudentApplication,
+// ): boolean {
 //   const allSubjectResults = [
 //     ...student.oLevelResults,
 //     ...student.aLevelResults,
@@ -229,3 +211,112 @@ function handleOptions(programme: Programme, student: StudentApplication) {
 
 //   return true;
 // }
+
+// Type guard for ProgrammeSelectionCriteria
+function isProgrammeSelectionCriteria(
+  option: SelectionOptions,
+): option is ProgrammeSelectionCriteria {
+  return (
+    (option as ProgrammeSelectionCriteria).requiredProgrammeCount !== undefined
+  );
+}
+
+// Type guard for SubjectSelectionCriteria
+function isSubjectSelectionCriteria(
+  option: SelectionOptions,
+): option is SubjectSelectionCriteria {
+  return (
+    (option as SubjectSelectionCriteria).requiredSubjectCount !== undefined
+  );
+}
+
+// Type guard for ProgrammeMinimumStandards
+function isProgrammeMinimumStandards(
+  option: SelectionOptions,
+): option is ProgrammeMinimumStandards {
+  return (option as ProgrammeMinimumStandards).programmeList !== undefined;
+}
+
+// Type guard for SubjectMinimumStandards
+function isSubjectMinimumStandards(
+  option: SelectionOptions,
+): option is SubjectMinimumStandards {
+  return (option as SubjectMinimumStandards).subjectList !== undefined;
+}
+
+function handleOptions(
+  options: SelectionOptions[],
+  student: StudentApplication,
+): boolean {
+  const allSubjectResults = [
+    ...student.oLevelResults,
+    ...student.aLevelResults,
+  ];
+  const allProgrammeResults = student.programmeResults;
+
+  for (let option of options) {
+    if (isProgrammeSelectionCriteria(option)) {
+      if (!meetsProgrammeSelectionCriteria(allProgrammeResults, option)) {
+        throw new Error("Failed to meet programme selection criteria");
+      }
+    } else if (isSubjectSelectionCriteria(option)) {
+      if (!meetsSubjectSelectionCriteria(allSubjectResults, option)) {
+        throw new Error("Failed to meet subject selection criteria");
+      }
+    } else if (isProgrammeMinimumStandards(option)) {
+      if (!meetsProgrammeMinimumStandards(allProgrammeResults, option)) {
+        throw new Error("Failed to meet programme minimum standards");
+      }
+    } else if (isSubjectMinimumStandards(option)) {
+      if (!meetsSubjectMinimumStandards(allSubjectResults, option)) {
+        throw new Error("Failed to meet subject minimum standards");
+      }
+    }
+  }
+
+  return true;
+}
+
+function processStudentApplications(
+  students: StudentApplication[],
+  programmes: Programme[],
+): void {
+  students.forEach((student) => {
+    let isAccepted = false;
+
+    // Iterate over the student's top 3 programmes
+    for (let programme of student.programmePriorities) {
+      // Check if the programme can take any more students
+      const programmeData = programmes.find(
+        (p) => p.programmeId === programme.programmeId,
+      );
+      if (
+        programmeData &&
+        programmeData.currentIntake < programmeData.maximumIntake
+      ) {
+        // Check the programme's options
+        for (let option of programmeData.programmeRequirements) {
+          if (handleOptions([option], student)) {
+            // The student meets the requirement, accept them to the programme
+            isAccepted = true;
+            programmeData.currentIntake++;
+            console.log(
+              `Student ${student.applicantId} has been accepted to programme ${programme.programmeId}`,
+            );
+            break;
+          }
+        }
+      }
+
+      if (isAccepted) {
+        break;
+      }
+    }
+
+    if (!isAccepted) {
+      console.log(
+        `Student ${student.applicantId} has been rejected from all programmes`,
+      );
+    }
+  });
+}
