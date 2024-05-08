@@ -2,6 +2,7 @@
 import { ReactNode } from "react";
 import Slim from "@/components/layout/dashboards/slim";
 import { Path } from "@/types";
+import { GrTest } from "react-icons/gr";
 import { MdPersonAdd, MdDashboard, MdPerson } from "react-icons/md";
 import { BsStack } from "react-icons/bs";
 import { FaUserCog, FaSyncAlt, FaUserCheck } from "react-icons/fa";
@@ -35,6 +36,12 @@ const links: Path[] = [
     description: "Admissions management",
     path: "/administrator-portal/management",
     Icon: FaUserCog,
+  },
+  {
+    title: "tester",
+    description: "Testing page",
+    path: "/administrator-portal/tester",
+    Icon: GrTest,
   },
 ];
 

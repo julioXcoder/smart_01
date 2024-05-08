@@ -1,0 +1,208 @@
+"use client";
+
+import { useState, ChangeEvent } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import Link from "next/link";
+
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+
+const FormSchemaOne = z.object({
+  username: z.string().min(2, {
+    message: "Username must be at least 2 characters.",
+  }),
+});
+
+const FormSchemaTwo = z.object({
+  email: z
+    .string({
+      required_error: "Please select an email to display.",
+    })
+    .email(),
+});
+
+interface Form {
+  name: string;
+  content: JSX.Element;
+  checkErrors: () => boolean;
+}
+
+interface OptionProps {
+  forms: Form[];
+  id: number;
+}
+
+const Option: React.FC<OptionProps> = ({ forms, id }) => {
+  const [selectedForms, setSelectedForms] = useState<Form[]>([]);
+  const [formValues, setFormValues] = useState<Record<string, any>>({});
+
+  const handleFormSelect = (e: ChangeEvent<HTMLSelectElement>) => {
+    const form = forms.find((form) => form.name === e.target.value);
+    if (form) {
+      setSelectedForms([...selectedForms, form]);
+      // remove the selected form from the available forms
+      forms = forms.filter((f) => f.name !== form.name);
+    }
+  };
+
+  const handleSave = () => {
+    let hasErrors = false;
+    console.log("Clicked!!");
+    selectedForms.forEach((form) => {
+      // check for errors in the selected form
+      console.log(form.name);
+      const errors = form.checkErrors();
+      if (errors) {
+        hasErrors = true;
+      }
+    });
+    if (!hasErrors) {
+      console.log(`Option ID: ${id}`);
+      console.log(`Form Values: `, formValues);
+    }
+  };
+
+  return (
+    <div>
+      <select onChange={handleFormSelect}>
+        {forms.map((form) => (
+          <option key={form.name} value={form.name}>
+            {form.name}
+          </option>
+        ))}
+      </select>
+      {selectedForms.map((form) => form.content)}
+      <button onClick={handleSave}>Save</button>
+    </div>
+  );
+};
+
+const Page = () => {
+  const form1 = useForm<z.infer<typeof FormSchemaOne>>({
+    resolver: zodResolver(FormSchemaOne),
+    defaultValues: {
+      username: "",
+    },
+  });
+  const form2 = useForm<z.infer<typeof FormSchemaTwo>>({
+    resolver: zodResolver(FormSchemaTwo),
+  });
+
+  const myForms: Form[] = [
+    {
+      name: "Form1",
+      content: (
+        <Form {...form1}>
+          <form className="w-2/3 space-y-6">
+            <FormField
+              control={form1.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input placeholder="shadcn" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    This is your public display name.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </form>
+        </Form>
+      ),
+      checkErrors: () => {
+        // implement error checking for Form1
+        return false;
+      },
+    },
+    {
+      name: "Form2",
+      content: (
+        <Form {...form2}>
+          <form className="w-2/3 space-y-6">
+            <FormField
+              control={form2.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a verified email to display" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="m@example.com">
+                        m@example.com
+                      </SelectItem>
+                      <SelectItem value="m@google.com">m@google.com</SelectItem>
+                      <SelectItem value="m@support.com">
+                        m@support.com
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    You can manage email addresses in your{" "}
+                    <Link href="/examples/forms">email settings</Link>.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </form>
+        </Form>
+      ),
+      checkErrors: () => {
+        // implement error checking for Form2
+        return false;
+      },
+    },
+  ];
+
+  const [options, setOptions] = useState<Array<{ id: number; forms: Form[] }>>([
+    { id: 1, forms: myForms },
+  ]);
+
+  const handleAddOption = () => {
+    const newOption = { id: options.length + 1, forms: myForms };
+    setOptions([...options, newOption]);
+  };
+
+  return (
+    <div>
+      <div>
+        {options.map((option) => (
+          <Option key={option.id} id={option.id} forms={option.forms} />
+        ))}
+        <button onClick={handleAddOption}>Add Option</button>
+      </div>
+    </div>
+  );
+};
+
+export default Page;

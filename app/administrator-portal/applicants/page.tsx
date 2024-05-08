@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, ChangeEvent } from "react";
-import { SelectionOptions } from "@/utils/examination/necta/selection_";
 
 import * as React from "react";
 import { CaretSortIcon, CheckIcon, Cross1Icon } from "@radix-ui/react-icons";
@@ -89,7 +88,7 @@ const Page = () => {
           </PopoverTrigger>
           <PopoverContent className="w-[200px] p-0">
             <Command>
-              <CommandInput placeholder="Search framework..." className="h-9" />
+              {/* <CommandInput placeholder="Search framework..." className="h-9" /> */}
               <CommandEmpty>No framework found.</CommandEmpty>
               <CommandGroup>
                 {frameworks
