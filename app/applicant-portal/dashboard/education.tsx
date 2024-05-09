@@ -367,6 +367,7 @@ const Education = ({
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name={`education.${index}.endYear`}

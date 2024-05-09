@@ -28,6 +28,14 @@ interface Programme {
   currentIntake: number;
 }
 
+interface ProgrammeMinimumRequirements extends Programme {
+  minimumGPA: number;
+}
+
+export interface ProgrammeMinimumStandards {
+  programmeList: ProgrammeMinimumRequirements[];
+}
+
 interface ProgrammePriority extends Programme {
   priorityRank: number;
 }
@@ -53,16 +61,8 @@ interface StudentApplication {
   programmePriorities: ProgrammePriority[];
 }
 
-interface ProgrammeMinimumRequirements extends Programme {
-  minimumGPA: number;
-}
-
 interface SubjectMinimumRequirements extends Subject {
   minimumGrade: Grade;
-}
-
-interface ProgrammeMinimumStandards {
-  programmeList: ProgrammeMinimumRequirements[];
 }
 
 interface SubjectMinimumStandards {

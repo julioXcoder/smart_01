@@ -53,6 +53,7 @@ const Page = () => {
   const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([]);
 
   const handleSelect = (currentValue: string) => {
+    // form.setValue([...selectedItems, { value: currentValue, text: "" }])
     setSelectedItems([...selectedItems, { value: currentValue, text: "" }]);
     setOpen(false);
   };
@@ -88,7 +89,7 @@ const Page = () => {
           </PopoverTrigger>
           <PopoverContent className="w-[200px] p-0">
             <Command>
-              {/* <CommandInput placeholder="Search framework..." className="h-9" /> */}
+              <CommandInput placeholder="Search framework..." className="h-9" />
               <CommandEmpty>No framework found.</CommandEmpty>
               <CommandGroup>
                 {frameworks

@@ -1,7 +1,13 @@
 import React from "react";
 
+import ProgrammeMinimumStandards from "@/components/selection/programmeMinimumStandards";
+
 const Page = () => {
-  return <div>selection_rounds</div>;
+  return (
+    <div>
+      <ProgrammeMinimumStandards />
+    </div>
+  );
 };
 
 export default Page;

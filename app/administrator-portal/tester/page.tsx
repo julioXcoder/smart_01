@@ -1,156 +1,134 @@
 "use client";
 
-import { useState, ChangeEvent } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import Link from "next/link";
-
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
+import { ChangeEvent, useEffect, useState, useCallback } from "react";
+import { ProgrammeMinimumRequirements, programmes, uniqueString } from "./data";
+
+import HeadingThree from "@/components/typography/headingThree";
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
+import {
+  ProgrammeMinimumStandards,
+  Requirement,
+} from "@/utils/examination/necta/selection_";
+import { FaTrash } from "react-icons/fa6";
 
-const FormSchemaOne = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
-});
-
-const FormSchemaTwo = z.object({
-  email: z
-    .string({
-      required_error: "Please select an email to display.",
-    })
-    .email(),
-});
-
-interface Form {
+interface RequirementForm<T> {
   name: string;
-  content: JSX.Element;
+  // content: () => JSX.Element;
   checkErrors: () => boolean;
+  getValues: () => T;
 }
 
 interface OptionProps {
   id: number;
 }
 
+type RequirementType = RequirementForm<Requirement>;
+
 // TODO: use combobox not select
 
 const Option: React.FC<OptionProps> = ({ id }) => {
-  const [selectedForms, setSelectedForms] = useState<Form[]>([]);
-  const [formValues, setFormValues] = useState<Record<string, any>>({});
-  const form1 = useForm<z.infer<typeof FormSchemaOne>>({
-    resolver: zodResolver(FormSchemaOne),
-    defaultValues: {
-      username: "",
-    },
-  });
-  const form2 = useForm<z.infer<typeof FormSchemaTwo>>({
-    resolver: zodResolver(FormSchemaTwo),
-  });
+  // PMR
+  const [openPMR, setOpenPMR] = useState<boolean>(false);
+  const [errorMessagePMR, setErrorMessagePMR] = useState<string>("");
+  const [selectedItemsPMR, setSelectedItemsPMR] = useState<
+    ProgrammeMinimumRequirements[]
+  >([]);
+  // PMR
+  const [selectedRequirements, setSelectedRequirements] = useState<
+    RequirementType[]
+  >([]);
 
-  const myForms: Form[] = [
-    {
-      name: "Form1",
-      content: (
-        <Form {...form1}>
-          <form className="w-2/3 space-y-6">
-            <FormField
-              control={form1.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <Input placeholder="shadcn" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    This is your public display name.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </form>
-        </Form>
-      ),
-      checkErrors: () => {
-        // implement error checking for Form1
-        return false;
-      },
+  // PMR Helper
+  const handleSelectPMR = useCallback(
+    (currentValue: string) => {
+      const [id, name] = currentValue.split(uniqueString);
+      const selectedProgramme = programmes.find(
+        (programme) => programme.programmeId === id,
+      );
+
+      if (selectedProgramme) {
+        setSelectedItemsPMR([
+          ...selectedItemsPMR,
+          { ...selectedProgramme, minimumGPA: 0 },
+        ]);
+      }
+      setOpenPMR(false);
     },
+    [selectedItemsPMR],
+  );
+
+  const handleDeletePMR = useCallback(
+    (value: string) => {
+      setSelectedItemsPMR(
+        selectedItemsPMR.filter((item) => item.programmeId !== value),
+      );
+    },
+    [selectedItemsPMR],
+  );
+
+  const handleGPAChangePMR = useCallback(
+    (event: ChangeEvent<HTMLInputElement>, value: string) => {
+      setSelectedItemsPMR(
+        selectedItemsPMR.map((item) =>
+          item.programmeId === value
+            ? { ...item, minimumGPA: parseFloat(event.target.value) }
+            : item,
+        ),
+      );
+    },
+    [selectedItemsPMR],
+  );
+
+  // PMR Helper
+
+  const myRequirements: RequirementType[] = [
     {
-      name: "Form2",
-      content: (
-        <Form {...form2}>
-          <form className="w-2/3 space-y-6">
-            <FormField
-              control={form2.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a verified email to display" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="m@example.com">
-                        m@example.com
-                      </SelectItem>
-                      <SelectItem value="m@google.com">m@google.com</SelectItem>
-                      <SelectItem value="m@support.com">
-                        m@support.com
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    You can manage email addresses in your{" "}
-                    <Link href="/examples/forms">email settings</Link>.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </form>
-        </Form>
-      ),
+      name: "programmeMinimumStandards",
       checkErrors: () => {
-        // implement error checking for Form2
-        return false;
+        return true;
+      },
+      getValues: () => {
+        return { programmeList: selectedItemsPMR } as ProgrammeMinimumStandards;
       },
     },
   ];
 
-  const [availableForms, setAvailableForms] = useState<Form[]>(myForms);
+  const [availableRequirements, setAvailableRequirements] =
+    useState<RequirementType[]>(myRequirements);
 
-  const handleFormSelect = (e: ChangeEvent<HTMLSelectElement>) => {
-    const form = availableForms.find((form) => form.name === e.target.value);
-    if (form) {
-      setSelectedForms([...selectedForms, form]);
+  const handleRequirementSelect = (value: string) => {
+    const requirement = availableRequirements.find(
+      (requirement) => requirement.name === value,
+    );
+    if (requirement) {
+      setSelectedRequirements([...selectedRequirements, requirement]);
       // remove the selected form from the available forms
-      setAvailableForms((prevForms) =>
-        prevForms.filter((f) => f.name !== form.name),
+      setAvailableRequirements((prevRequirements) =>
+        prevRequirements.filter((r) => r.name !== requirement.name),
       );
     }
   };
@@ -158,30 +136,134 @@ const Option: React.FC<OptionProps> = ({ id }) => {
   const handleSave = () => {
     let hasErrors = false;
     console.log("Clicked!!");
-    selectedForms.forEach((form) => {
+    const allFormValues = {};
+    selectedRequirements.forEach((requirement) => {
       // check for errors in the selected form
-      console.log(form.name);
-      const errors = form.checkErrors();
+      const errors = requirement.checkErrors();
       if (errors) {
         hasErrors = true;
+      } else {
+        // get the values of the form and store them in allFormValues
+        const allFormValues = requirement.getValues();
       }
     });
     if (!hasErrors) {
       console.log(`Option ID: ${id}`);
-      console.log(`Form Values: `, formValues);
+      console.log(`Form Values: `, allFormValues);
     }
   };
 
   return (
     <div>
-      <select onChange={handleFormSelect}>
-        {availableForms.map((form) => (
-          <option key={form.name} value={form.name}>
-            {form.name}
-          </option>
-        ))}
-      </select>
-      {selectedForms.map((form) => form.content)}
+      {availableRequirements.length != 0 && (
+        <Select onValueChange={handleRequirementSelect}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select a requirement" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {availableRequirements.map((requirement) => (
+                <SelectItem key={requirement.name} value={requirement.name}>
+                  {requirement.name}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      )}
+
+      {selectedRequirements.map((requirement) => {
+        switch (requirement.name) {
+          case "programmeMinimumStandards":
+            return (
+              <>
+                <div className="my-3 flex w-full items-center justify-between">
+                  <HeadingThree>Programme Minimum Standards</HeadingThree>
+                  <Popover open={openPMR} onOpenChange={setOpenPMR}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openPMR}
+                        className="justify-between"
+                      >
+                        Select programme...
+                        <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-0">
+                      <Command>
+                        <CommandInput
+                          placeholder="Select programme..."
+                          className="h-9"
+                        />
+                        <CommandEmpty>No programme found.</CommandEmpty>
+                        <CommandGroup>
+                          {programmes
+                            .filter(
+                              (programme) =>
+                                !selectedItemsPMR.find(
+                                  (item) =>
+                                    item.programmeId === programme.programmeId,
+                                ),
+                            )
+                            .map((programme) => (
+                              <CommandItem
+                                key={programme.programmeId}
+                                onSelect={handleSelectPMR}
+                              >
+                                <span className="hidden">{`${programme.programmeId}${uniqueString}`}</span>
+                                {programme.programmeName}
+                                <CheckIcon
+                                  className={cn(
+                                    "ml-auto h-4 w-4",
+                                    selectedItemsPMR.find(
+                                      (item) =>
+                                        item.programmeId ===
+                                        programme.programmeId,
+                                    )
+                                      ? "opacity-100"
+                                      : "opacity-0",
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="flex flex-col gap-2">
+                  {selectedItemsPMR.map((item, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <Label className="text-nowrap">
+                        {item.programmeName}
+                      </Label>
+                      <Input
+                        type="number"
+                        value={item.minimumGPA}
+                        className="max-w-20"
+                        onChange={(event) =>
+                          handleGPAChangePMR(event, item.programmeId)
+                        }
+                      />
+                      <Button
+                        onClick={() => handleDeletePMR(item.programmeId)}
+                        size="icon"
+                        variant="destructive"
+                      >
+                        <FaTrash className="flex-shrink-0" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </>
+            );
+          // Add more cases as needed
+          default:
+            return null;
+        }
+      })}
       <button onClick={handleSave}>Save</button>
     </div>
   );
@@ -197,11 +279,18 @@ const Page = () => {
 
   return (
     <div>
-      <div>
+      <div className="flex flex-col gap-8">
         {options.map((option) => (
-          <Option key={option.id} id={option.id} />
+          <div key={option.id}>
+            <HeadingThree>Option #{option.id}</HeadingThree>
+            <div className="m-4 ps-5">
+              <Option id={option.id} />
+            </div>
+          </div>
         ))}
-        <button onClick={handleAddOption}>Add Option</button>
+        <Button onClick={handleAddOption} className="mt-10">
+          Add Option
+        </Button>
       </div>
     </div>
   );
