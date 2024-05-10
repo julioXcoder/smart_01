@@ -172,7 +172,7 @@ model ResidenceManager {
 //USERS
 
 //APPLICANT DATA
-// FIXME: ADD University application ID to check the application period
+
 model ApplicationDetails {
   applicantUsername     String            @id @map("_id")
   applicant             Applicant         @relation(fields: [applicantUsername], references: [username])
@@ -209,8 +209,8 @@ model ApplicantProgrammePriority {
   applicantUsername  String
   applicationDetails ApplicationDetails @relation(fields: [applicantUsername], references: [applicantUsername])
 
-  programmeCode String
-  programme     Programme @relation(fields: [programmeCode], references: [code])
+  programmeId String            @db.ObjectId
+  programme   ProgrammeInstance @relation(fields: [programmeId], references: [id])
 }
 
 model UniversityPolicyAccepted {
@@ -221,6 +221,7 @@ model UniversityPolicyAccepted {
   acceptedAt       DateTime?
 }
 
+// TODO: Create this after the applicant selection is true
 model StudentOnboarding {
   applicantUsername String    @id @map("_id")
   applicant         Applicant @relation(fields: [applicantUsername], references: [username])
@@ -229,10 +230,12 @@ model StudentOnboarding {
   hasDocuments       Boolean @default(false)
   hasAccommodation   Boolean @default(false)
   generatedStudentId String
+  studentId          String
   admissionNumber    String
+  admissionLetter    String
 
-  entryYearId String       @db.ObjectId
-  entryYear   AcademicYear @relation(fields: [entryYearId], references: [id])
+  selectedProgrammeCode String            @db.ObjectId
+  selectedProgramme     ProgrammeInstance @relation(fields: [selectedProgrammeCode], references: [id])
 
   // Entry Programme - students entry programme
   // Entry Year [✅]
@@ -241,13 +244,13 @@ model StudentOnboarding {
   // Addmission letter
 }
 
+// FIXME: Add academic year or study year *Deplicated
+// TODO: academic year and study year will be at programme instance
+// TODO: Create student Id id here
 model ApplicantSelection {
-  applicantUsername     String             @id @map("_id")
-  applicant             ApplicationDetails @relation(fields: [applicantUsername], references: [applicantUsername])
-  selectionStatus       SelectionStatus
-  admissionLetter       String?
-  selectedProgrammeCode String             @db.ObjectId
-  selectedProgramme     ProgrammeInstance  @relation(fields: [selectedProgrammeCode], references: [id])
+  applicantUsername String             @id @map("_id")
+  applicant         ApplicationDetails @relation(fields: [applicantUsername], references: [applicantUsername])
+  selectionStatus   SelectionStatus
 }
 
 //APPLICANT DATA
@@ -264,7 +267,7 @@ model StudentRegistration {
   // Sponsor
   // Campus
 
-  studentId              String                  @unique
+  studentId              String
   student                Student                 @relation(fields: [studentId], references: [studentId])
   studyYearId            String                  @db.ObjectId
   studyYear              StudyYear               @relation(fields: [studyYearId], references: [id])
@@ -287,6 +290,7 @@ model AcademicFee {
   amoutPayed    Float @default(0)
 }
 
+// TODO: Get this from the registration => study year => programme instance
 model TuitionFee {
   registrationId String              @id @map("_id") @db.ObjectId
   registration   StudentRegistration @relation(fields: [registrationId], references: [id])
@@ -612,6 +616,7 @@ model College {
   departments Department[]
 }
 
+// TODO: Add head of department
 model Department {
   id         String      @id @default(auto()) @map("_id") @db.ObjectId
   name       String
@@ -620,33 +625,27 @@ model Department {
   programmes Programme[]
 }
 
-// Remove studey year 
-// FIXME: Remove decision decided
 model Programme {
-  code                         String                       @id @map("_id")
-  name                         String
-  level                        ProgrammeLevel
-  duration                     Int // FIXME: Remeove
-  type                         ProgrammeType
-  language                     String // FIXME: Remeove
-  departmentId                 String                       @db.ObjectId
-  department                   Department                   @relation(fields: [departmentId], references: [id])
-  tuitionFee                   Float // FIXME: Remeove
-  applicantProgrammePriorities ApplicantProgrammePriority[] // FIXME: Remeove
-  studyYears                   StudyYear[] // FIXME: Remeove
-  progOptions                  ProgOption[] // TODO: Remains
-  programmeInstance            ProgrammeInstance[]
+  code              String              @id @map("_id")
+  name              String
+  level             ProgrammeLevel
+  type              ProgrammeType
+  departmentId      String              @db.ObjectId
+  department        Department          @relation(fields: [departmentId], references: [id])
+  progOptions       ProgOption[]
+  programmeInstance ProgrammeInstance[]
+  available         Boolean
 }
 
-// FIXME: Use programme instance
+// TODO: New applicants would have the class set to first yea
 model StudyYear {
   id    String         @id @default(auto()) @map("_id") @db.ObjectId
   class ProgrammeClass
 
-  programmeCode       String
-  programme           Programme             @relation(fields: [programmeCode], references: [code])
-  StudyYearEnlorments StudentRegistration[]
-  modules             Module[]
+  programmeId String                @db.ObjectId
+  programme   ProgrammeInstance     @relation(fields: [programmeId], references: [id])
+  enlorments  StudentRegistration[]
+  modules     Module[]
 }
 
 model Module {
@@ -686,16 +685,21 @@ model ModuleInstance {
   components         Component[]
 }
 
-// TODO: use currentIntake for timetable selection
-// FIXME: Add applicantProgrammePriorities , language , study year , duration , tuitionFee
+// TODO: The purpouse of this is to handle new intakes and set the properties like max intake for the programme
+// TODO: use study year StudyYearEnlorments for timetable 
 model ProgrammeInstance {
-  id             String               @id @default(auto()) @map("_id") @db.ObjectId
-  programmeCode  String
-  programme      Programme            @relation(fields: [programmeCode], references: [code])
-  academicYearId String               @db.ObjectId
-  academicYear   AcademicYear         @relation(fields: [academicYearId], references: [id])
-  currentIntake  ApplicantSelection[]
-  maximumIntake  Int
+  id                           String                       @id @default(auto()) @map("_id") @db.ObjectId
+  programmeCode                String
+  programme                    Programme                    @relation(fields: [programmeCode], references: [code])
+  academicYearId               String                       @db.ObjectId
+  academicYear                 AcademicYear                 @relation(fields: [academicYearId], references: [id])
+  currentIntake                StudentOnboarding[]
+  maximumIntake                Int
+  applicantProgrammePriorities ApplicantProgrammePriority[]
+  duration                     Int
+  language                     String
+  tuitionFee                   Float
+  studyYears                   StudyYear[]
 }
 
 //UNIVERSITY HIERARCHY
@@ -771,7 +775,6 @@ model AcademicYear {
 
   applicationStartTime DateTime // Start time of the application
   applicationEndTime   DateTime // End time of the application
-  newStudents          StudentOnboarding[]
   semesters            Semester[]
   programmes           ProgrammeInstance[]
 }
