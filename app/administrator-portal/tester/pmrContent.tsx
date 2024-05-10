@@ -12,14 +12,13 @@ import { FaTrash } from "react-icons/fa6";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Popover,
   PopoverContent,
@@ -36,6 +35,7 @@ interface Props {
   programmes: Programme[];
   handleDeletePMR: (value: string) => void;
   handleSelectPMR: (currentValue: string) => void;
+  handleDeleteRequirement: (value: string) => void;
   handleGPAChangePMR: (
     event: ChangeEvent<HTMLInputElement>,
     value: string,
@@ -50,98 +50,102 @@ const PMRContent = ({
   programmes,
   handleSelectPMR,
   handleDeletePMR,
+  handleDeleteRequirement,
 }: Props) => {
   return (
     <>
-      <div className="my-3 flex w-full items-center justify-between">
-        <HeadingThree>Programme Minimum Standards</HeadingThree>
-        {/* <Popover open={openPMR} onOpenChange={onOpenPMR}> */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={openPMR}
-              className="justify-between"
-            >
-              Select programme...
-              <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[200px] p-0">
-            <Command>
-              <CommandInput placeholder="Select programme..." className="h-9" />
-              <CommandEmpty>No programme found.</CommandEmpty>
-              <CommandGroup>
-                {programmes
-                  .filter(
-                    (programme) =>
-                      !selectedItemsPMR.find(
-                        (item) => item.programmeId === programme.programmeId,
-                      ),
-                  )
-                  .map((programme) => (
-                    <CommandItem
-                      key={programme.programmeId}
-                      onSelect={handleSelectPMR}
-                    >
-                      <span className="hidden">{`${programme.programmeId}${uniqueString}`}</span>
-                      {programme.programmeName}
-                      <CheckIcon
-                        className={cn(
-                          "ml-auto h-4 w-4",
-                          selectedItemsPMR.find(
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Minimum GPA Criteria for Programmes</CardTitle>
+          <div className="flex items-center gap-2">
+            <Popover open={openPMR} onOpenChange={onOpenPMR}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={openPMR}
+                  className="justify-between"
+                >
+                  Select programmes
+                  <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[200px] p-0">
+                <Command>
+                  <CommandInput
+                    placeholder="Select programme..."
+                    className="h-9"
+                  />
+                  <CommandEmpty>No programme found.</CommandEmpty>
+                  <CommandGroup>
+                    {programmes
+                      .filter(
+                        (programme) =>
+                          !selectedItemsPMR.find(
                             (item) =>
                               item.programmeId === programme.programmeId,
-                          )
-                            ? "opacity-100"
-                            : "opacity-0",
-                        )}
-                      />
-                    </CommandItem>
-                  ))}
-              </CommandGroup>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      </div>
-      <div className="flex flex-col gap-2">
-        {selectedItemsPMR.map((item, index) => (
-          <div key={index} className="flex items-center space-x-2">
-            <Label className="text-nowrap">{item.programmeName}</Label>
-            <Input
-              type="number"
-              value={item.minimumGPA}
-              className="max-w-20"
-              onChange={(event) => handleGPAChangePMR(event, item.programmeId)}
-            />
+                          ),
+                      )
+                      .map((programme) => (
+                        <CommandItem
+                          key={programme.programmeId}
+                          onSelect={handleSelectPMR}
+                        >
+                          <span className="hidden">{`${programme.programmeId}${uniqueString}`}</span>
+                          {programme.programmeName}
+                          <CheckIcon
+                            className={cn(
+                              "ml-auto h-4 w-4",
+                              selectedItemsPMR.find(
+                                (item) =>
+                                  item.programmeId === programme.programmeId,
+                              )
+                                ? "opacity-100"
+                                : "opacity-0",
+                            )}
+                          />
+                        </CommandItem>
+                      ))}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
             <Button
-              onClick={() => handleDeletePMR(item.programmeId)}
+              onClick={() =>
+                handleDeleteRequirement("programmeMinimumStandards")
+              }
               size="icon"
               variant="destructive"
             >
               <FaTrash className="flex-shrink-0" />
             </Button>
           </div>
-        ))}
-      </div>
-      <div className="mt-20">
-        <Select>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select a fruit" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Fruits</SelectLabel>
-              <SelectItem value="apple">Apple</SelectItem>
-              <SelectItem value="banana">Banana</SelectItem>
-              <SelectItem value="blueberry">Blueberry</SelectItem>
-              <SelectItem value="grapes">Grapes</SelectItem>
-              <SelectItem value="pineapple">Pineapple</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </div>
+        </CardHeader>
+        {selectedItemsPMR.length != 0 && (
+          <CardContent className="flex flex-col gap-2">
+            {selectedItemsPMR.map((item, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <Label className="text-nowrap">{item.programmeName}</Label>
+                <Input
+                  type="number"
+                  value={item.minimumGPA}
+                  className="max-w-20"
+                  onChange={(event) =>
+                    handleGPAChangePMR(event, item.programmeId)
+                  }
+                />
+                <Button
+                  onClick={() => handleDeletePMR(item.programmeId)}
+                  size="icon"
+                  variant="destructive"
+                >
+                  <FaTrash className="flex-shrink-0" />
+                </Button>
+              </div>
+            ))}
+          </CardContent>
+        )}
+      </Card>
     </>
   );
 };

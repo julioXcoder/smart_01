@@ -25,9 +25,28 @@ enum ApplicationStatus {
   DRAFT
 }
 
+enum SelectionStatus {
+  Accepted
+  Rejected
+}
+
 enum ProgrammeType {
   FULL_TIME
   PART_TIME
+}
+
+enum SubjectLevel {
+  CSEE
+  ACSEE
+}
+
+enum SubjectGrade {
+  A
+  B
+  C
+  D
+  E
+  F
 }
 
 enum ProgrammeLevel {
@@ -170,6 +189,7 @@ model ApplicationDetails {
   paymentStatus                PaymentStatus                @default(PENDING)
   //relations
   applicantProgrammePriorities ApplicantProgrammePriority[]
+  applicantSelection           ApplicantSelection?
 }
 
 model ApplicantNotification {
@@ -219,6 +239,15 @@ model StudentOnboarding {
   // Entry Category - add enum
   // Registration Number - auto generate
   // Addmission letter
+}
+
+model ApplicantSelection {
+  applicantUsername     String             @id @map("_id")
+  applicant             ApplicationDetails @relation(fields: [applicantUsername], references: [applicantUsername])
+  selectionStatus       SelectionStatus
+  admissionLetter       String?
+  selectedProgrammeCode String             @db.ObjectId
+  selectedProgramme     ProgrammeInstance  @relation(fields: [selectedProgrammeCode], references: [id])
 }
 
 //APPLICANT DATA
@@ -486,6 +515,85 @@ model ResidenceRoomImage {
 
 // RESIDENCE MANAGEMENT
 
+//UNIVERSITY SELECTION
+model SelectionProgramme {
+  id               String            @id @map("_id")
+  name             String
+  programmeMinReqs ProgrammeMinReq[]
+}
+
+model SelectionSubject {
+  id             String          @id @map("_id")
+  name           String
+  subjectLevel   SubjectLevel
+  subjectMinReqs SubjectMinReq[]
+}
+
+model ProgrammeMinReq {
+  id                   String             @id @default(auto()) @map("_id") @db.ObjectId
+  selectionProgrammeId String
+  selectionProgramme   SelectionProgramme @relation(fields: [selectionProgrammeId], references: [id])
+  minimumGPA           Int
+  ProgMinStandardsId   String             @db.ObjectId
+  progMinStandards     ProgMinStandards   @relation(fields: [ProgMinStandardsId], references: [id])
+}
+
+model SubjectMinReq {
+  id                 String           @id @default(auto()) @map("_id") @db.ObjectId
+  selectionSubjectId String
+  SelectionSubject   SelectionSubject @relation(fields: [selectionSubjectId], references: [id])
+  minimumGrade       SubjectGrade
+  subjectStandardsId String           @db.ObjectId
+  subjectStandards   SubjectStandards @relation(fields: [subjectStandardsId], references: [id])
+}
+
+model SubjectStandards {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  subjectList              SubjectMinReq[]
+  subjectSelectionCriteria SubjectSelectionCriteria?
+  progOptionId             String                    @unique @db.ObjectId
+  progOption               ProgOption                @relation(fields: [progOptionId], references: [id])
+}
+
+model ProgMinStandards {
+  id                         String                      @id @default(auto()) @map("_id") @db.ObjectId
+  programmeList              ProgrammeMinReq[]
+  programmeSelectionCriteria ProgrammeSelectionCriteria?
+  progOptionId               String                      @unique @db.ObjectId
+  progOption                 ProgOption                  @relation(fields: [progOptionId], references: [id])
+}
+
+model ProgrammeSelectionCriteria {
+  progMinStandardsId     String           @id @map("_id") @db.ObjectId
+  progMinStandards       ProgMinStandards @relation(fields: [progMinStandardsId], references: [id])
+  requiredProgrammeCount Int
+  progOptionId           String           @unique @db.ObjectId
+  progOption             ProgOption       @relation(fields: [progOptionId], references: [id])
+}
+
+model SubjectSelectionCriteria {
+  subjectStandardsId   String           @id @map("_id") @db.ObjectId
+  subjectStandards     SubjectStandards @relation(fields: [subjectStandardsId], references: [id])
+  requiredSubjectCount Int
+  progOptionId         String           @unique @db.ObjectId
+  progOption           ProgOption       @relation(fields: [progOptionId], references: [id])
+}
+
+model ProgOption {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  programmeCode String
+  programme     Programme @relation(fields: [programmeCode], references: [code])
+
+  subjectSelectionCriteria   SubjectSelectionCriteria?
+  programmeSelectionCriteria ProgrammeSelectionCriteria?
+  subjectStandards           SubjectStandards?
+  progMinStandards           ProgMinStandards?
+  createdAt                  DateTime
+}
+
+//UNIVERSITY SELECTION
+
 //UNIVERSITY HIERARCHY
 
 model Campus {
@@ -512,22 +620,25 @@ model Department {
   programmes Programme[]
 }
 
+// Remove studey year 
+// FIXME: Remove decision decided
 model Programme {
   code                         String                       @id @map("_id")
   name                         String
   level                        ProgrammeLevel
-  duration                     Int
+  duration                     Int // FIXME: Remeove
   type                         ProgrammeType
-  language                     String
+  language                     String // FIXME: Remeove
   departmentId                 String                       @db.ObjectId
   department                   Department                   @relation(fields: [departmentId], references: [id])
-  tuitionFee                   Float
-  qualification                String
-  availability                 Boolean                      @default(true)
-  applicantProgrammePriorities ApplicantProgrammePriority[]
-  studyYears                   StudyYear[]
+  tuitionFee                   Float // FIXME: Remeove
+  applicantProgrammePriorities ApplicantProgrammePriority[] // FIXME: Remeove
+  studyYears                   StudyYear[] // FIXME: Remeove
+  progOptions                  ProgOption[] // TODO: Remains
+  programmeInstance            ProgrammeInstance[]
 }
 
+// FIXME: Use programme instance
 model StudyYear {
   id    String         @id @default(auto()) @map("_id") @db.ObjectId
   class ProgrammeClass
@@ -573,6 +684,18 @@ model ModuleInstance {
   semester           Semester            @relation(fields: [semesterId], references: [id])
   academicScorecards AcademicScorecard[]
   components         Component[]
+}
+
+// TODO: use currentIntake for timetable selection
+// FIXME: Add applicantProgrammePriorities , language , study year , duration , tuitionFee
+model ProgrammeInstance {
+  id             String               @id @default(auto()) @map("_id") @db.ObjectId
+  programmeCode  String
+  programme      Programme            @relation(fields: [programmeCode], references: [code])
+  academicYearId String               @db.ObjectId
+  academicYear   AcademicYear         @relation(fields: [academicYearId], references: [id])
+  currentIntake  ApplicantSelection[]
+  maximumIntake  Int
 }
 
 //UNIVERSITY HIERARCHY
@@ -650,6 +773,7 @@ model AcademicYear {
   applicationEndTime   DateTime // End time of the application
   newStudents          StudentOnboarding[]
   semesters            Semester[]
+  programmes           ProgrammeInstance[]
 }
 
 model Semester {

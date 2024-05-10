@@ -45,6 +45,10 @@ interface Subject {
   subjectName: string;
 }
 
+interface SubjectMinimumRequirements extends Subject {
+  minimumGrade: Grade;
+}
+
 interface SecondaryEducationResult extends Subject {
   grade: Grade; // Grades are represented as strings ('A', 'B', 'C', etc.)
 }
@@ -53,20 +57,16 @@ interface ProgrammeResult extends Programme {
   gpa: number; // GPA is represented as a number (4.5, 3, 2.5, etc.)
 }
 
+interface SubjectMinimumStandards {
+  subjectList: SubjectMinimumRequirements[];
+}
+
 interface StudentApplication {
   applicantId: string;
   oLevelResults: SecondaryEducationResult[];
   aLevelResults: SecondaryEducationResult[];
   programmeResults: ProgrammeResult[];
   programmePriorities: ProgrammePriority[];
-}
-
-interface SubjectMinimumRequirements extends Subject {
-  minimumGrade: Grade;
-}
-
-interface SubjectMinimumStandards {
-  subjectList: SubjectMinimumRequirements[];
 }
 
 interface ProgrammeSelectionCriteria {
